@@ -92,6 +92,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
             ]
         end
       end
+
+      host.vm.provision "shell", path: "scripts/linux/check-kubeadm-requirements.sh"
     end
   end
 end
