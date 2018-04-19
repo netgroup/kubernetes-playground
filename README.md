@@ -5,6 +5,8 @@ This project is a playground to play with Kubernetes.
 ## Components
 
 1. "Controller" VM: a Vagrant box running Docker where we run an Ansible instance to configure the whole environment
+1. 1x Kubernetes Master
+1. 2x Kubernetes Minions
 
 ## Dependencies
 
