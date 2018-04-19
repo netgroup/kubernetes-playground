@@ -1,17 +1,58 @@
 NETWORK_TYPE_DHCP = "dhcp"
 NETWORK_TYPE_STATIC_IP = "static_ip"
-SUBNET_MASK = "255.255.0.0"
-UPSTREAM_DNS_SERVER = "8.8.8.8"
-VAGRANT_X64_LINUX_BOX_ID = "bento/ubuntu-16.04"
+SUBNET_MASK = "255.255.255.0"
+
+# Vagrant boxes
+VAGRANT_X64_CONTROLLER_BOX_ID = "bento/ubuntu-16.04"
+VAGRANT_X64_KUBERNETES_NODES_BOX_ID = "bento/centos-7.4"
+
+# VM Names
+ANSIBLE_CONTROLLER_VM_NAME = "ansible-controller"
 
 home_lab = {
-  "ansible-controller" => {
+  ANSIBLE_CONTROLLER_VM_NAME => {
     :autostart => true,
-    :box => VAGRANT_X64_LINUX_BOX_ID,
+    :box => VAGRANT_X64_CONTROLLER_BOX_ID,
     :cpus => 1,
     :mac_address => "0800271F9D01",
     :mem => 512,
+    :ip => "192.168.0.2",
+    :net_auto_config => true,
+    :net_type => NETWORK_TYPE_STATIC_IP,
+    :subnet_mask => SUBNET_MASK,
+    :show_gui => false
+  },
+  "kubernetes-master-1" => {
+    :autostart => true,
+    :box => VAGRANT_X64_KUBERNETES_NODES_BOX_ID,
+    :cpus => 2,
+    :mac_address => "0800271F9D02",
+    :mem => 512,
     :ip => "192.168.0.10",
+    :net_auto_config => true,
+    :net_type => NETWORK_TYPE_STATIC_IP,
+    :subnet_mask => SUBNET_MASK,
+    :show_gui => false
+  },
+  "kubernetes-minion-1" => {
+    :autostart => true,
+    :box => VAGRANT_X64_KUBERNETES_NODES_BOX_ID,
+    :cpus => 1,
+    :mac_address => "0800271F9D03",
+    :mem => 512,
+    :ip => "192.168.0.30",
+    :net_auto_config => true,
+    :net_type => NETWORK_TYPE_STATIC_IP,
+    :subnet_mask => SUBNET_MASK,
+    :show_gui => false
+  },
+  "kubernetes-minion-2" => {
+    :autostart => true,
+    :box => VAGRANT_X64_KUBERNETES_NODES_BOX_ID,
+    :cpus => 1,
+    :mac_address => "0800271F9D04",
+    :mem => 512,
+    :ip => "192.168.0.31",
     :net_auto_config => true,
     :net_type => NETWORK_TYPE_STATIC_IP,
     :subnet_mask => SUBNET_MASK,
@@ -37,18 +78,19 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         vb.customize ["modifyvm", :id, "--hwvirtex", "on"]
         vb.customize ["modifyvm", :id, "--memory", info[:mem]]
         vb.customize ["modifyvm", :id, "--name", hostname]
-        vb.customize ["modifyvm", :id, "--vram", "128"] # 10 MB is the minimum to enable Virtualbox seamless mode
         vb.gui = info[:show_gui]
         vb.name = hostname
       end
 
       host.vm.hostname = hostname
 
-      host.vm.provision "shell" do |s|
-        s.path = "scripts/linux/install-docker.sh"
-        s.args = [
-          "--user", "vagrant"
-          ]
+      if(hostname.include? ANSIBLE_CONTROLLER_VM_NAME)
+        host.vm.provision "shell" do |s|
+          s.path = "scripts/linux/install-docker.sh"
+          s.args = [
+            "--user", "vagrant"
+            ]
+        end
       end
     end
   end
