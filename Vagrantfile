@@ -1,3 +1,5 @@
+require 'yaml'
+
 NETWORK_TYPE_DHCP = "dhcp"
 NETWORK_TYPE_STATIC_IP = "static_ip"
 SUBNET_MASK = "255.255.255.0"
@@ -60,6 +62,32 @@ playground = {
   }
 }
 
+# Generate an inventory file
+
+hosts = {}
+playground.each do |(hostname, info)|
+  hosts[info[:ip]] = nil
+end
+ansible_group_name = "kubernetes-playground"
+inventory = {
+  "all" => {
+    "children" => {
+      ansible_group_name => {
+        "hosts" => hosts
+      }
+    }
+  }
+}
+IO.write("ansible/hosts", inventory.to_yaml)
+
+group_vars = {
+  "ansible_become_pass" => "vagrant",
+  "ansible_become_user" => "vagrant",
+  "ansible_ssh_pass" => "vagrant",
+  "ansible_user" => "vagrant",
+  "ansible_ssh_extra_args" => "-o StrictHostKeyChecking=no"
+}
+IO.write("ansible/group_vars/#{ansible_group_name}.yaml", group_vars.to_yaml)
 VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
