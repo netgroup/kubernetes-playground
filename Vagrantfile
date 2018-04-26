@@ -64,17 +64,26 @@ playground = {
 
 # Generate an inventory file
 
-hosts = {}
+masters = {}
+minions = {}
 playground.each do |(hostname, info)|
-  hosts[info[:ip]] = nil
+  if(hostname.include? "master")
+    masters[info[:ip]] = nil
+  elsif(hostname.include? "minion")
+    minions[info[:ip]] = nil
+  end
 end
-ansible_group_name = "kubernetes-playground"
+ansible_master_group_name = "kubernetes-playground-masters"
+ansible_minion_group_name = "kubernetes-playground-minions"
 inventory = {
   "all" => {
     "children" => {
-      ansible_group_name => {
-        "hosts" => hosts
-      }
+      ansible_master_group_name => {
+        "hosts" => masters
+      },
+      ansible_minion_group_name => {
+        "hosts" => minions
+      },
     }
   }
 }
@@ -87,7 +96,8 @@ group_vars = {
   "ansible_user" => "vagrant",
   "ansible_ssh_extra_args" => "-o StrictHostKeyChecking=no"
 }
-IO.write("ansible/group_vars/#{ansible_group_name}.yaml", group_vars.to_yaml)
+IO.write("ansible/group_vars/#{ansible_master_group_name}.yaml", group_vars.to_yaml)
+IO.write("ansible/group_vars/#{ansible_minion_group_name}.yaml", group_vars.to_yaml)
 VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
