@@ -20,3 +20,8 @@ After installing the dependencies, run:
 1. `vagrant up`
 
 to bootstrap the environment
+
+## Automatic Ansible Inventory Creation
+
+When you run any vagrant command, an Ansible inventory (and related group_vars) will be generated in the ansible directory.
+Note that the contents of those file will be overidden on each run.
