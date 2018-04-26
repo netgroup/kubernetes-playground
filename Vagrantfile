@@ -90,11 +90,9 @@ inventory = {
 IO.write("ansible/hosts", inventory.to_yaml)
 
 group_vars = {
-  "ansible_become_pass" => "vagrant",
-  "ansible_become_user" => "vagrant",
+  "ansible_ssh_extra_args" => "-o StrictHostKeyChecking=no",
   "ansible_ssh_pass" => "vagrant",
   "ansible_user" => "vagrant",
-  "ansible_ssh_extra_args" => "-o StrictHostKeyChecking=no"
 }
 IO.write("ansible/group_vars/#{ansible_master_group_name}.yaml", group_vars.to_yaml)
 IO.write("ansible/group_vars/#{ansible_minion_group_name}.yaml", group_vars.to_yaml)
