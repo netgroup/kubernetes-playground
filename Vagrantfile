@@ -73,8 +73,8 @@ playground.each do |(hostname, info)|
     minions[info[:ip]] = nil
   end
 end
-ansible_master_group_name = "kubernetes-playground-masters"
-ansible_minion_group_name = "kubernetes-playground-minions"
+ansible_master_group_name = "kubernetes-masters"
+ansible_minion_group_name = "kubernetes-minions"
 inventory = {
   "all" => {
     "children" => {
