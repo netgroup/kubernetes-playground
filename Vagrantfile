@@ -9,7 +9,7 @@ VAGRANT_X64_KUBERNETES_NODES_BOX_ID = "bento/centos-7.4"
 # VM Names
 ANSIBLE_CONTROLLER_VM_NAME = "ansible-controller"
 
-home_lab = {
+playground = {
   ANSIBLE_CONTROLLER_VM_NAME => {
     :autostart => true,
     :box => VAGRANT_X64_CONTROLLER_BOX_ID,
@@ -63,7 +63,7 @@ home_lab = {
 VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-  home_lab.each do |(hostname, info)|
+  playground.each do |(hostname, info)|
     config.vm.define hostname, autostart: info[:autostart] do |host|
       host.vm.box = "#{info[:box]}"
       if(NETWORK_TYPE_DHCP == info[:net_type])
