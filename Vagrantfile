@@ -12,24 +12,12 @@ VAGRANT_X64_KUBERNETES_NODES_BOX_ID = "bento/centos-7.4"
 ANSIBLE_CONTROLLER_VM_NAME = "ansible-controller"
 
 playground = {
-  ANSIBLE_CONTROLLER_VM_NAME => {
-    :autostart => true,
-    :box => VAGRANT_X64_CONTROLLER_BOX_ID,
-    :cpus => 1,
-    :mac_address => "0800271F9D01",
-    :mem => 512,
-    :ip => "192.168.0.2",
-    :net_auto_config => true,
-    :net_type => NETWORK_TYPE_STATIC_IP,
-    :subnet_mask => SUBNET_MASK,
-    :show_gui => false
-  },
   "kubernetes-master-1" => {
     :autostart => true,
     :box => VAGRANT_X64_KUBERNETES_NODES_BOX_ID,
     :cpus => 2,
     :mac_address => "0800271F9D02",
-    :mem => 512,
+    :mem => 4096,
     :ip => "192.168.0.10",
     :net_auto_config => true,
     :net_type => NETWORK_TYPE_STATIC_IP,
@@ -59,7 +47,19 @@ playground = {
     :net_type => NETWORK_TYPE_STATIC_IP,
     :subnet_mask => SUBNET_MASK,
     :show_gui => false
-  }
+  },
+  ANSIBLE_CONTROLLER_VM_NAME => {
+    :autostart => true,
+    :box => VAGRANT_X64_CONTROLLER_BOX_ID,
+    :cpus => 1,
+    :mac_address => "0800271F9D01",
+    :mem => 512,
+    :ip => "192.168.0.2",
+    :net_auto_config => true,
+    :net_type => NETWORK_TYPE_STATIC_IP,
+    :subnet_mask => SUBNET_MASK,
+    :show_gui => false
+  },
 }
 
 # Generate an inventory file
@@ -129,7 +129,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         end
       end
 
-      host.vm.provision "shell", path: "scripts/linux/check-kubeadm-requirements.sh"
+      if(!hostname.include? ANSIBLE_CONTROLLER_VM_NAME)
+        host.vm.provision "shell", path: "scripts/linux/check-kubeadm-requirements.sh"
+      end
+
+      # Install Kubernetes on masters and minions
+      if(hostname.include? ANSIBLE_CONTROLLER_VM_NAME)
+        host.vm.provision "shell", path: "scripts/linux/install-kubernetes.sh"
+      end
     end
   end
 end
