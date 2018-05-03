@@ -19,9 +19,11 @@ After installing the dependencies, run:
 
 1. `vagrant up`
 
-to bootstrap the environment
+to bootstrap the environment:
+1. Ansible will install `docker`, `kubeadb`, `kubelet` and `kubectl`
+1. Vagrant will run provisioning scripts to initialize the Kubernetes cluster
 
-## Automatic Ansible Inventory Creation
+### Automatic Ansible Inventory Creation
 
 When you run any vagrant command, an Ansible inventory (and related group_vars) will be generated in the ansible directory.
 Note that the contents of those file will be overidden on each run.

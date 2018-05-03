@@ -1,8 +1,16 @@
 require 'yaml'
+require 'ipaddr'
+
+KUBEADM_TOKEN = "0y5van.5qxccw2ewiarl68v"
+KUBERNETES_MASTER_1_IP = "192.168.0.10"
 
 NETWORK_TYPE_DHCP = "dhcp"
 NETWORK_TYPE_STATIC_IP = "static_ip"
 SUBNET_MASK = "255.255.255.0"
+
+IP_V4_CIDR = IPAddr.new(SUBNET_MASK).to_i.to_s(2).count("1")
+n = IPAddr.new("#{KUBERNETES_MASTER_1_IP}/#{IP_V4_CIDR}")
+BROADCAST_ADDRESS = n | (~n.instance_variable_get(:@mask_addr) & IPAddr::IN4MASK)
 
 # Vagrant boxes
 VAGRANT_X64_CONTROLLER_BOX_ID = "bento/ubuntu-16.04"
@@ -18,7 +26,7 @@ playground = {
     :cpus => 2,
     :mac_address => "0800271F9D02",
     :mem => 4096,
-    :ip => "192.168.0.10",
+    :ip => KUBERNETES_MASTER_1_IP,
     :net_auto_config => true,
     :net_type => NETWORK_TYPE_STATIC_IP,
     :subnet_mask => SUBNET_MASK,
@@ -29,7 +37,7 @@ playground = {
     :box => VAGRANT_X64_KUBERNETES_NODES_BOX_ID,
     :cpus => 1,
     :mac_address => "0800271F9D03",
-    :mem => 512,
+    :mem => 2048,
     :ip => "192.168.0.30",
     :net_auto_config => true,
     :net_type => NETWORK_TYPE_STATIC_IP,
@@ -41,7 +49,7 @@ playground = {
     :box => VAGRANT_X64_KUBERNETES_NODES_BOX_ID,
     :cpus => 1,
     :mac_address => "0800271F9D04",
-    :mem => 512,
+    :mem => 2048,
     :ip => "192.168.0.31",
     :net_auto_config => true,
     :net_type => NETWORK_TYPE_STATIC_IP,
@@ -93,9 +101,13 @@ group_vars = {
   "ansible_ssh_extra_args" => "-o StrictHostKeyChecking=no",
   "ansible_ssh_pass" => "vagrant",
   "ansible_user" => "vagrant",
+  "broadcast_address" => "#{BROADCAST_ADDRESS}",
+  "kubernetes_master_1_ip" => "#{KUBERNETES_MASTER_1_IP}",
+  "kubeadm_token" => "#{KUBEADM_TOKEN}"
 }
 IO.write("ansible/group_vars/#{ansible_master_group_name}.yaml", group_vars.to_yaml)
 IO.write("ansible/group_vars/#{ansible_minion_group_name}.yaml", group_vars.to_yaml)
+
 VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|

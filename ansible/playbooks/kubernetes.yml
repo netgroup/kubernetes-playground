@@ -1,6 +1,35 @@
 ---
 - hosts: all
   gather_facts: yes
+  post_tasks:
+    - name: Set classifier for masters
+      set_fact:
+        cacheable: true
+        kubernetes_classifier: "master"
+      when: hostvars[inventory_hostname].group_names[0] == "kubernetes-masters"
+    - name: Set classifier for minions
+      set_fact:
+        cacheable: true
+        kubernetes_classifier: "minion"
+      when: hostvars[inventory_hostname].group_names[0] == "kubernetes-minions"
+    - name: Copy the Kubernetes cluster initialization script
+      copy:
+        dest: /tmp/bootstrap-kubernetes-{{kubernetes_classifier}}.sh
+        mode: 0777
+        remote_src: yes
+        src: /vagrant/scripts/linux/bootstrap-kubernetes-{{kubernetes_classifier}}.sh
+    - name: Copy the Kubelet configuration script
+      copy:
+        dest: /tmp/kubelet-configuration.sh
+        mode: 0777
+        remote_src: yes
+        src: /vagrant/scripts/linux/kubelet-configuration.sh
+    - name: Initialize Kubernetes cluster
+      become: yes
+      shell: "/tmp/kubelet-configuration.sh {{broadcast_address}}"
+    - name: Initialize Kubernetes cluster
+      become: yes
+      shell: "/tmp/bootstrap-kubernetes-{{kubernetes_classifier}}.sh {{kubernetes_master_1_ip}} {{kubeadm_token}}"
   roles:
     - role: ferrarimarco.kubernetes
       become: yes
