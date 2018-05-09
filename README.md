@@ -23,6 +23,16 @@ to bootstrap the environment:
 1. Ansible will install `docker`, `kubeadb`, `kubelet` and `kubectl`
 1. Vagrant will run provisioning scripts to initialize the Kubernetes cluster
 
+### Deploy Pods and Services
+
+All the descriptors in the `kubernetes` directory can be deployed by running `kubectl apply -R -f kubernetes` from the root of the project.
+
+This command will deploy the following components:
+
+1. Influxdb, Heapster and Grafana (exposed with a `NodePort`) for monitoring
+1. Multiple load balanced nginx server instances
+1. A busybox instance, useful for debugging and troubleshooting (run commands with kubectl exec. Example: `kubectl exec -ti busybox -- nslookup influxdb`)
+
 ### Automatic Ansible Inventory Creation
 
 When you run any vagrant command, an Ansible inventory (and related group_vars) will be generated in the ansible directory.
