@@ -33,3 +33,5 @@
   roles:
     - role: ferrarimarco.kubernetes
       become: yes
+    - role: andrewrothstein.kubernetes-helm
+      become: yes
