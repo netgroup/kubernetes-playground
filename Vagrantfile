@@ -56,6 +56,18 @@ playground = {
     :subnet_mask => SUBNET_MASK,
     :show_gui => false
   },
+  "kubernetes-minion-3" => {
+    :autostart => true,
+    :box => VAGRANT_X64_KUBERNETES_NODES_BOX_ID,
+    :cpus => 1,
+    :mac_address => "0800271F9D05",
+    :mem => 2048,
+    :ip => "192.168.0.32",
+    :net_auto_config => true,
+    :net_type => NETWORK_TYPE_STATIC_IP,
+    :subnet_mask => SUBNET_MASK,
+    :show_gui => false
+  },
   ANSIBLE_CONTROLLER_VM_NAME => {
     :autostart => true,
     :box => VAGRANT_X64_CONTROLLER_BOX_ID,
