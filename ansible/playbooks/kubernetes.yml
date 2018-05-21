@@ -20,6 +20,12 @@
         mode: 0777
         remote_src: yes
         src: /vagrant/scripts/linux/bootstrap-glusterfs.sh
+    - name: Copy the monitoring stack initialization script
+      copy:
+        dest: /tmp/bootstrap-monitoring.sh
+        mode: 0777
+        remote_src: yes
+        src: /vagrant/scripts/linux/bootstrap-monitoring.sh
     - name: Configure Kubelet
       become: yes
       shell: "/tmp/kubelet-configuration.sh {{broadcast_address}}"
@@ -29,6 +35,10 @@
     - name: Initialize GlusterFS
       become: yes
       shell: "/tmp/bootstrap-glusterfs.sh"
+      when: inventory_hostname == "kubernetes-master-1"
+    - name: Initialize the monitoring stack
+      become: yes
+      shell: "/tmp/bootstrap-monitoring.sh"
       when: inventory_hostname == "kubernetes-master-1"
   roles:
     - role: ferrarimarco.kubernetes

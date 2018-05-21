@@ -5,4 +5,4 @@ metadata:
   name: glusterfs-storage
 provisioner: kubernetes.io/glusterfs
 parameters:
-  resturl: "http://10.32.0.3:8080"
+  resturl: "http://heketi.default.svc.cluster.local:8080"
