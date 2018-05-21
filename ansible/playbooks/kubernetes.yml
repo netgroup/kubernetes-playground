@@ -24,7 +24,7 @@
         mode: 0777
         remote_src: yes
         src: /vagrant/scripts/linux/kubelet-configuration.sh
-    - name: Initialize Kubernetes cluster
+    - name: Configure Kubelet
       become: yes
       shell: "/tmp/kubelet-configuration.sh {{broadcast_address}}"
     - name: Initialize Kubernetes cluster
