@@ -29,7 +29,7 @@ All the descriptors in the `kubernetes` directory can be deployed by running `ku
 
 This command will deploy the following components:
 
-1. Influxdb, Heapster and Grafana (exposed with a `NodePort`) for monitoring
+1. A hyper-converged, cloud native storage cluster managed with [GlusterFS](https://github.com/gluster/gluster-kubernetes) and [Heketi](https://github.com/heketi/heketi)
 1. Multiple load balanced nginx server instances
 1. A busybox instance, useful for debugging and troubleshooting (run commands with kubectl exec. Example: `kubectl exec -ti busybox -- nslookup influxdb`)
 

@@ -2,16 +2,6 @@
 - hosts: all
   gather_facts: yes
   post_tasks:
-    - name: Set classifier for masters
-      set_fact:
-        cacheable: true
-        kubernetes_classifier: "master"
-      when: hostvars[inventory_hostname].group_names[0] == "kubernetes-masters"
-    - name: Set classifier for minions
-      set_fact:
-        cacheable: true
-        kubernetes_classifier: "minion"
-      when: hostvars[inventory_hostname].group_names[0] == "kubernetes-minions"
     - name: Copy the Kubernetes cluster initialization script
       copy:
         dest: /tmp/bootstrap-kubernetes-{{kubernetes_classifier}}.sh
@@ -33,5 +23,6 @@
   roles:
     - role: ferrarimarco.kubernetes
       become: yes
+      ferrarimarco_kubernetes_filesystem: glusterfs
     - role: andrewrothstein.kubernetes-helm
       become: yes

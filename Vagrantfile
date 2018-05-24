@@ -109,7 +109,7 @@ inventory = {
 }
 IO.write("ansible/hosts", inventory.to_yaml)
 
-group_vars = {
+default_group_vars = {
   "ansible_ssh_extra_args" => "-o StrictHostKeyChecking=no",
   "ansible_ssh_pass" => "vagrant",
   "ansible_user" => "vagrant",
@@ -117,8 +117,59 @@ group_vars = {
   "kubernetes_master_1_ip" => "#{KUBERNETES_MASTER_1_IP}",
   "kubeadm_token" => "#{KUBEADM_TOKEN}"
 }
-IO.write("ansible/group_vars/#{ansible_master_group_name}.yaml", group_vars.to_yaml)
-IO.write("ansible/group_vars/#{ansible_minion_group_name}.yaml", group_vars.to_yaml)
+IO.write("ansible/group_vars/all.yaml", default_group_vars.to_yaml)
+
+master_group_vars = {
+  "kubernetes_classifier" => "master"
+}
+IO.write("ansible/group_vars/#{ansible_master_group_name}.yaml", master_group_vars.to_yaml)
+
+minion_group_vars = {
+  "kubernetes_classifier" => "minion"
+}
+IO.write("ansible/group_vars/#{ansible_minion_group_name}.yaml", minion_group_vars.to_yaml)
+
+ADDITIONAL_DISK_SIZE = 10240
+
+# Let's extend the SetName class
+# to attach a second disk
+class VagrantPlugins::ProviderVirtualBox::Action::SetName
+  alias_method :original_call, :call
+  def call(env)
+    machine = env[:machine]
+    driver = machine.provider.driver
+    uuid = driver.instance_eval { @uuid }
+    ui = env[:ui]
+
+    # Find out folder of VM
+    vm_folder = ""
+    vm_info = driver.execute("showvminfo", uuid, "--machinereadable")
+    lines = vm_info.split("\n")
+    lines.each do |line|
+      if line.start_with?("CfgFile")
+        vm_folder = line.split("=")[1].gsub('"','')
+        vm_folder = File.expand_path("..", vm_folder)
+        ui.info "VM Folder is: #{vm_folder}"
+      end
+    end
+
+    size = ADDITIONAL_DISK_SIZE
+    name = env[:machine].provider_config.name
+    disk_file = vm_folder + "/#{name}-disk-2.vmdk"
+
+    ui.info "Adding disk to VM"
+    if File.exist?(disk_file)
+      ui.info "Disk already exists"
+    else
+      ui.info "Creating new disk"
+      driver.execute("createmedium", "disk", "--filename", disk_file, "--size", "#{size}", "--format", "VMDK")
+      ui.info "Attaching disk to VM"
+      driver.execute('storageattach', uuid, '--storagectl', "SATA Controller", '--port', "1", '--type', 'hdd', '--medium', disk_file)
+    end
+
+    original_call(env)
+  end
+end
 
 VAGRANTFILE_API_VERSION = "2"
 
