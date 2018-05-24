@@ -1,4 +1,4 @@
-# kubernetes-playground
+# Kubernetes Playground
 
 This project is a playground to play with Kubernetes.
 
@@ -6,7 +6,9 @@ This project is a playground to play with Kubernetes.
 
 1. "Controller" VM: a Vagrant box running Docker where we run an Ansible instance to configure the whole environment
 1. 1x Kubernetes Master
-1. 2x Kubernetes Minions
+1. 3x Kubernetes Minions
+1. A hyper-converged, cloud native storage cluster managed with [GlusterFS](https://github.com/gluster/gluster-kubernetes) and [Heketi](https://github.com/heketi/heketi)
+1. A monitoring solution based on [Prometheus](https://prometheus.io/) and [Grafana](https://grafana.com/)
 
 ## Dependencies
 
@@ -20,19 +22,17 @@ After installing the dependencies, run:
 1. `vagrant up`
 
 to bootstrap the environment:
-1. Ansible will install `docker`, `kubeadb`, `kubelet` and `kubectl`
-1. Vagrant will run provisioning scripts to initialize the Kubernetes cluster
+1. Vagrant will provision master and worker nodes
+1. Ansible will install `docker`, `kubeadb`, `kubelet` and `kubectl` and run configuration scripts to initialize the Kubernetes cluster
 
-### Deploy Pods and Services
 
-All the descriptors in the `kubernetes` directory can be deployed by running `kubectl apply -R -f kubernetes` from the root of the project.
+### Additional Components
 
-This command will deploy the following components:
+The descriptors in the `kubernetes` directory are considered optional and can be deployed by running `kubectl apply -f kubernetes/<descriptor-path>` from the root of the project.
+These optional components are:
 
-1. A hyper-converged, cloud native storage cluster managed with [GlusterFS](https://github.com/gluster/gluster-kubernetes) and [Heketi](https://github.com/heketi/heketi)
-1. A monitoring solution based on [Prometheus](https://prometheus.io/) and [Grafana](https://grafana.com/)
 1. Multiple load balanced nginx server instances
-1. A busybox instance, useful for debugging and troubleshooting (run commands with kubectl exec. Example: `kubectl exec -ti busybox -- nslookup influxdb`)
+1. A busybox instance, useful for debugging and troubleshooting (run commands with `kubectl exec`. Example: `kubectl exec -ti busybox -- nslookup hostname`)
 
 ### Automatic Ansible Inventory Creation
 
