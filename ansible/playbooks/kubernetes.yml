@@ -14,12 +14,22 @@
         mode: 0777
         remote_src: yes
         src: /vagrant/scripts/linux/kubelet-configuration.sh
+    - name: Copy the GlusterFS initialization script
+      copy:
+        dest: /tmp/bootstrap-glusterfs.sh
+        mode: 0777
+        remote_src: yes
+        src: /vagrant/scripts/linux/bootstrap-glusterfs.sh
     - name: Configure Kubelet
       become: yes
       shell: "/tmp/kubelet-configuration.sh {{broadcast_address}}"
     - name: Initialize Kubernetes cluster
       become: yes
       shell: "/tmp/bootstrap-kubernetes-{{kubernetes_classifier}}.sh {{kubernetes_master_1_ip}} {{kubeadm_token}}"
+    - name: Initialize GlusterFS
+      become: yes
+      shell: "/tmp/bootstrap-glusterfs.sh"
+      when: inventory_hostname == "kubernetes-master-1"
   roles:
     - role: ferrarimarco.kubernetes
       become: yes

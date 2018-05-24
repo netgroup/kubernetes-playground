@@ -18,9 +18,10 @@ VAGRANT_X64_KUBERNETES_NODES_BOX_ID = "bento/centos-7.4"
 
 # VM Names
 ANSIBLE_CONTROLLER_VM_NAME = "ansible-controller"
+KUBERNETES_MASTER_1_VM_NAME = "kubernetes-master-1"
 
 playground = {
-  "kubernetes-master-1" => {
+  KUBERNETES_MASTER_1_VM_NAME => {
     :autostart => true,
     :box => VAGRANT_X64_KUBERNETES_NODES_BOX_ID,
     :cpus => 2,
