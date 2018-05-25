@@ -8,12 +8,6 @@
         mode: 0777
         remote_src: yes
         src: /vagrant/scripts/linux/bootstrap-kubernetes-{{kubernetes_classifier}}.sh
-    - name: Copy the Kubelet configuration script
-      copy:
-        dest: /tmp/kubelet-configuration.sh
-        mode: 0777
-        remote_src: yes
-        src: /vagrant/scripts/linux/kubelet-configuration.sh
     - name: Copy the GlusterFS initialization script
       copy:
         dest: /tmp/bootstrap-glusterfs.sh
@@ -26,9 +20,24 @@
         mode: 0777
         remote_src: yes
         src: /vagrant/scripts/linux/bootstrap-monitoring.sh
+    - name: Get IP address corresponding to the interface with the specified broadcast address
+      changed_when: no
+      shell: "/usr/sbin/ip addr | grep {{broadcast_address}} | awk -F'[ /]+' '{print $3}'"
+      register: ip_addr_broadcast
     - name: Configure Kubelet
       become: yes
-      shell: "/tmp/kubelet-configuration.sh {{broadcast_address}}"
+      template:
+        dest: /etc/systemd/system/kubelet.service.d/90-node-ip.conf
+        group: root
+        mode: 0755
+        owner: root
+        src: templates/90-node-ip.conf.j2
+      register: configure_kubelet
+    - name: Force systemd to reread configs
+      become: yes
+      systemd:
+        daemon_reload: yes
+      when: configure_kubelet.changed
     - name: Initialize Kubernetes cluster
       become: yes
       shell: "/tmp/bootstrap-kubernetes-{{kubernetes_classifier}}.sh {{kubernetes_master_1_ip}} {{kubeadm_token}}"
