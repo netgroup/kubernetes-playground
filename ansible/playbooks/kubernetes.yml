@@ -2,24 +2,6 @@
 - hosts: all
   gather_facts: yes
   post_tasks:
-    - name: Copy the Kubernetes cluster initialization script
-      copy:
-        dest: /tmp/bootstrap-kubernetes-{{kubernetes_classifier}}.sh
-        mode: 0777
-        remote_src: yes
-        src: /vagrant/scripts/linux/bootstrap-kubernetes-{{kubernetes_classifier}}.sh
-    - name: Copy the GlusterFS initialization script
-      copy:
-        dest: /tmp/bootstrap-glusterfs.sh
-        mode: 0777
-        remote_src: yes
-        src: /vagrant/scripts/linux/bootstrap-glusterfs.sh
-    - name: Copy the monitoring stack initialization script
-      copy:
-        dest: /tmp/bootstrap-monitoring.sh
-        mode: 0777
-        remote_src: yes
-        src: /vagrant/scripts/linux/bootstrap-monitoring.sh
     - name: Get IP address corresponding to the interface with the specified broadcast address
       changed_when: no
       shell: "/usr/sbin/ip addr | grep {{broadcast_address}} | awk -F'[ /]+' '{print $3}'"
@@ -27,6 +9,7 @@
     - name: Configure Kubelet
       become: yes
       template:
+        backup: no
         dest: /etc/systemd/system/kubelet.service.d/90-node-ip.conf
         group: root
         mode: 0755
@@ -38,17 +21,16 @@
       systemd:
         daemon_reload: yes
       when: configure_kubelet.changed
-    - name: Initialize Kubernetes cluster
+    # - name: Initialize Kubernetes cluster
+    #   become: yes
+    #   shell: "/vagrant/scripts/linux/bootstrap-kubernetes-{{kubernetes_classifier}}.sh {{kubernetes_master_1_ip}} {{kubeadm_token}}"
+    - name: Download gluster-kubernetes
       become: yes
-      shell: "/tmp/bootstrap-kubernetes-{{kubernetes_classifier}}.sh {{kubernetes_master_1_ip}} {{kubeadm_token}}"
-    - name: Initialize GlusterFS
-      become: yes
-      shell: "/tmp/bootstrap-glusterfs.sh"
-      when: inventory_hostname == "kubernetes-master-1"
-    - name: Initialize the monitoring stack
-      become: yes
-      shell: "/tmp/bootstrap-monitoring.sh"
-      when: inventory_hostname == "kubernetes-master-1"
+      unarchive:
+        dest: /opt
+        remote_src: yes
+        src: https://github.com/gluster/gluster-kubernetes/archive/master.zip
+      when: inventory_hostname == kubernetes_master_1_ip
   roles:
     - role: ferrarimarco.kubernetes
       become: yes

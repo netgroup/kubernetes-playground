@@ -25,6 +25,17 @@ to bootstrap the environment:
 1. Vagrant will provision master and worker nodes
 1. Ansible will install `docker`, `kubeadb`, `kubelet` and `kubectl` and run configuration scripts to initialize the Kubernetes cluster
 
+### Cloud Native Storage
+
+To deploy GlusterFS, SSH into the master and run the configuration script:
+1. `vagrant ssh kubernetes-master-1`
+1. `/vagrant/scripts/linux/bootstrap-glusterfs.sh`
+
+### Monitoring
+
+To deploy the monitoring solution, SSH into the master and run the configuration script:
+1. `vagrant ssh kubernetes-master-1`
+1. `/vagrant/scripts/linux/boostrap-monitoring.sh`
 
 ### Additional Components
 
