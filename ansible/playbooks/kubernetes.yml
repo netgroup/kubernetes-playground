@@ -21,9 +21,9 @@
       systemd:
         daemon_reload: yes
       when: configure_kubelet.changed
-    # - name: Initialize Kubernetes cluster
-    #   become: yes
-    #   shell: "/vagrant/scripts/linux/bootstrap-kubernetes-{{kubernetes_classifier}}.sh {{kubernetes_master_1_ip}} {{kubeadm_token}}"
+    - name: Initialize Kubernetes cluster
+      become: yes
+      shell: "/vagrant/scripts/linux/bootstrap-kubernetes-{{kubernetes_classifier}}.sh {{kubernetes_master_1_ip}} {{kubeadm_token}}"
     - name: Download gluster-kubernetes
       become: yes
       unarchive:
