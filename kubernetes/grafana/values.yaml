@@ -20,5 +20,15 @@ datasources:
      access: proxy
      isDefault: true
 
-service:
-  type: NodePort
+grafana.ini:
+  server:
+    domain: kubernetes-master-1.kubernetes-playground.local
+    root_url: "%(protocol)s://%(domain)s/monitoring/cluster/"
+
+ingress:
+  enabled: true
+  path: /monitoring/cluster
+  annotations:
+    traefik.ingress.kubernetes.io/rule-type: PathPrefixStrip
+  hosts:
+      - kubernetes-master-1.kubernetes-playground.local
