@@ -31,10 +31,17 @@ To deploy GlusterFS, SSH into the master and run the configuration script:
 1. `vagrant ssh kubernetes-master-1`
 1. `/vagrant/scripts/linux/bootstrap-glusterfs.sh`
 
+### Helm
+
+To initialize Helm, SSH into the master and run the configuration script:
+1. `vagrant ssh kubernetes-master-1`
+1. `/vagrant/scripts/linux/bootstrap-helm.sh`
+
 ### Monitoring
 
 To deploy the monitoring solution, SSH into the master and run the configuration script:
 1. `vagrant ssh kubernetes-master-1`
+1. Initialize Helm as described
 1. `/vagrant/scripts/linux/boostrap-monitoring.sh`
 
 ### Additional Components
