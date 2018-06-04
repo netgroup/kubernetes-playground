@@ -38,6 +38,12 @@ To deploy the Ingress controller, SSH into the master and run the configuration 
 1. `vagrant ssh kubernetes-master-1`
 1. `sudo /vagrant/scripts/linux/bootstrap-ingress-controller.sh`
 
+The Traefik monitoring UI is accessible at `http://<master-ip-address>:<80-svc-port>/monitoring/ingress`
+
+where:
+- `<master-ip-address>` is the IPv4 address of the master node. Get it from the [Vagrantfile](Vagrantfile)) or by running `ip addr` on the master node.
+- `<80-svc-port>` is the Service NodePort mapped to the 80 port of the Traefik container. Get it by running `kubectl get svc traefik-ingress-service --namespace kube-system`
+
 ### Helm
 
 To initialize Helm, SSH into the master and run the configuration script:
