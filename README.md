@@ -29,20 +29,26 @@ to bootstrap the environment:
 
 To deploy GlusterFS, SSH into the master and run the configuration script:
 1. `vagrant ssh kubernetes-master-1`
-1. `/vagrant/scripts/linux/bootstrap-glusterfs.sh`
+1. `sudo /vagrant/scripts/linux/bootstrap-glusterfs.sh`
+
+### Ingress Controller
+
+To deploy the Ingress controller, SSH into the master and run the configuration script:
+1. `vagrant ssh kubernetes-master-1`
+1. `sudo /vagrant/scripts/linux/bootstrap-ingress-controller.sh`
 
 ### Helm
 
 To initialize Helm, SSH into the master and run the configuration script:
 1. `vagrant ssh kubernetes-master-1`
-1. `/vagrant/scripts/linux/bootstrap-helm.sh`
+1. `sudo /vagrant/scripts/linux/bootstrap-helm.sh`
 
 ### Monitoring
 
 To deploy the monitoring solution, SSH into the master and run the configuration script:
 1. `vagrant ssh kubernetes-master-1`
 1. Initialize Helm as described
-1. `/vagrant/scripts/linux/boostrap-monitoring.sh`
+1. `sudo /vagrant/scripts/linux/boostrap-monitoring.sh`
 
 ### Additional Components
 
