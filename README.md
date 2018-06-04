@@ -55,7 +55,7 @@ To initialize Helm, SSH into the master and run the configuration script:
 To deploy the monitoring solution, SSH into the master and run the configuration script:
 1. `vagrant ssh kubernetes-master-1`
 1. Initialize Helm as described
-1. `sudo /vagrant/scripts/linux/boostrap-monitoring.sh`
+1. `sudo /vagrant/scripts/linux/bootstrap-monitoring.sh`
 
 ### Additional Components
 
