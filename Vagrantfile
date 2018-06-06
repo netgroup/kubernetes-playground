@@ -4,6 +4,7 @@ require 'ipaddr'
 KUBEADM_TOKEN = "0y5van.5qxccw2ewiarl68v"
 KUBERNETES_MASTER_1_IP = "192.168.0.10"
 
+DOMAIN = ".kubernetes-playground.local"
 NETWORK_TYPE_DHCP = "dhcp"
 NETWORK_TYPE_STATIC_IP = "static_ip"
 SUBNET_MASK = "255.255.255.0"
@@ -21,7 +22,7 @@ ANSIBLE_CONTROLLER_VM_NAME = "ansible-controller"
 KUBERNETES_MASTER_1_VM_NAME = "kubernetes-master-1"
 
 playground = {
-  KUBERNETES_MASTER_1_VM_NAME => {
+  KUBERNETES_MASTER_1_VM_NAME + DOMAIN => {
     :autostart => true,
     :box => VAGRANT_X64_KUBERNETES_NODES_BOX_ID,
     :cpus => 2,
@@ -33,7 +34,7 @@ playground = {
     :subnet_mask => SUBNET_MASK,
     :show_gui => false
   },
-  "kubernetes-minion-1" => {
+  "kubernetes-minion-1" + DOMAIN => {
     :autostart => true,
     :box => VAGRANT_X64_KUBERNETES_NODES_BOX_ID,
     :cpus => 1,
@@ -45,7 +46,7 @@ playground = {
     :subnet_mask => SUBNET_MASK,
     :show_gui => false
   },
-  "kubernetes-minion-2" => {
+  "kubernetes-minion-2" + DOMAIN => {
     :autostart => true,
     :box => VAGRANT_X64_KUBERNETES_NODES_BOX_ID,
     :cpus => 1,
@@ -57,7 +58,7 @@ playground = {
     :subnet_mask => SUBNET_MASK,
     :show_gui => false
   },
-  "kubernetes-minion-3" => {
+  "kubernetes-minion-3" + DOMAIN => {
     :autostart => true,
     :box => VAGRANT_X64_KUBERNETES_NODES_BOX_ID,
     :cpus => 1,
@@ -69,7 +70,7 @@ playground = {
     :subnet_mask => SUBNET_MASK,
     :show_gui => false
   },
-  ANSIBLE_CONTROLLER_VM_NAME => {
+  ANSIBLE_CONTROLLER_VM_NAME + DOMAIN => {
     :autostart => true,
     :box => VAGRANT_X64_CONTROLLER_BOX_ID,
     :cpus => 1,

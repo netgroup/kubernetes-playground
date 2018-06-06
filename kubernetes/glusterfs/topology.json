@@ -6,7 +6,7 @@
           "node": {
             "hostnames": {
               "manage": [
-                "kubernetes-minion-1"
+                "kubernetes-minion-1.kubernetes-playground.local"
               ],
               "storage": [
                 "192.168.0.30"
@@ -22,7 +22,7 @@
           "node": {
             "hostnames": {
               "manage": [
-                "kubernetes-minion-2"
+                "kubernetes-minion-2.kubernetes-playground.local"
               ],
               "storage": [
                 "192.168.0.31"
@@ -38,7 +38,7 @@
           "node": {
             "hostnames": {
               "manage": [
-                "kubernetes-minion-3"
+                "kubernetes-minion-3.kubernetes-playground.local"
               ],
               "storage": [
                 "192.168.0.32"

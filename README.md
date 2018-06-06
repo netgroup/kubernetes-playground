@@ -14,6 +14,7 @@ This project is a playground to play with Kubernetes.
 ## Dependencies
 
 1. Vagrant >= 2.1.1
+1. [vagrant-hostsupdater](https://github.com/cogitatio/vagrant-hostsupdater)
 1. Virtualbox >= 5.2.8
 
 ## How to Run
