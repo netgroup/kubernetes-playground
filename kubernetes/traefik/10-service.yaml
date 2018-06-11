@@ -2,6 +2,8 @@
 kind: Service
 apiVersion: v1
 metadata:
+  annotations:
+    prometheus.io/scrape: "true"
   name: traefik-ingress-service
   namespace: kube-system
 spec:
