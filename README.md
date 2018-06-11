@@ -58,10 +58,14 @@ To deploy the monitoring solution, SSH into the master and run the configuration
 1. Initialize Helm as described
 1. `sudo /vagrant/scripts/linux/bootstrap-monitoring.sh`
 
-### Additional Components
+### Docker Registry
 
-The descriptors in the `kubernetes` directory are considered optional and can be deployed by running `kubectl apply -f kubernetes/<descriptor-path>` from the root of the project.
-These optional components are:
+To deploy an instance of Docker Registry, SSH into the master and run the configuration script:
+1. `vagrant ssh kubernetes-master-1`
+1. Initialize Helm as described
+1. `sudo /vagrant/scripts/linux/bootstrap-registry.sh`
+
+### Additional Components
 
 1. Multiple load balanced nginx server instances
 1. A busybox instance, useful for debugging and troubleshooting (run commands with `kubectl exec`. Example: `kubectl exec -ti busybox -- nslookup hostname`)

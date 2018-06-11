@@ -1,0 +1,15 @@
+ingress:
+  enabled: true
+  path: /registry
+  hosts:
+    - kubernetes-master-1.kubernetes-playground.local
+    - kubernetes-minion-1.kubernetes-playground.local
+    - kubernetes-minion-2.kubernetes-playground.local
+    - kubernetes-minion-3.kubernetes-playground.local
+  annotations:
+    traefik.ingress.kubernetes.io/rule-type: PathPrefixStrip
+
+persistence:
+  enabled: true
+  size: 1Gi
+  storageClass: "glusterfs-storage"

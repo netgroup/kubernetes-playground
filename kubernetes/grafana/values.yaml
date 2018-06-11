@@ -31,7 +31,10 @@ ingress:
   annotations:
     traefik.ingress.kubernetes.io/rule-type: PathPrefixStrip
   hosts:
-      - kubernetes-master-1.kubernetes-playground.local
+    - kubernetes-master-1.kubernetes-playground.local
+    - kubernetes-minion-1.kubernetes-playground.local
+    - kubernetes-minion-2.kubernetes-playground.local
+    - kubernetes-minion-3.kubernetes-playground.local
 
 service:
   annotations:
