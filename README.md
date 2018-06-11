@@ -58,13 +58,6 @@ To deploy the monitoring solution, SSH into the master and run the configuration
 1. Initialize Helm as described
 1. `sudo /vagrant/scripts/linux/bootstrap-monitoring.sh`
 
-### Docker Registry
-
-To deploy an instance of Docker Registry, SSH into the master and run the configuration script:
-1. `vagrant ssh kubernetes-master-1`
-1. Initialize Helm as described
-1. `sudo /vagrant/scripts/linux/bootstrap-registry.sh`
-
 ### Additional Components
 
 1. Multiple load balanced nginx server instances
