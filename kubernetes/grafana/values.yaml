@@ -32,3 +32,7 @@ ingress:
     traefik.ingress.kubernetes.io/rule-type: PathPrefixStrip
   hosts:
       - kubernetes-master-1.kubernetes-playground.local
+
+service:
+  annotations:
+    prometheus.io/scrape: "true"
