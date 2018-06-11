@@ -31,3 +31,5 @@ spec:
         - --api
         - --kubernetes
         - --logLevel=INFO
+        - --metrics
+        - --metrics.prometheus
