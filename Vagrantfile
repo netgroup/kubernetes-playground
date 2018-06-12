@@ -5,6 +5,7 @@ KUBEADM_TOKEN = "0y5van.5qxccw2ewiarl68v"
 KUBERNETES_MASTER_1_IP = "192.168.0.10"
 
 DOMAIN = ".kubernetes-playground.local"
+DOCKER_REGISTRY_ALIAS = "registry" + DOMAIN
 NETWORK_TYPE_DHCP = "dhcp"
 NETWORK_TYPE_STATIC_IP = "static_ip"
 SUBNET_MASK = "255.255.255.0"
@@ -23,6 +24,7 @@ KUBERNETES_MASTER_1_VM_NAME = "kubernetes-master-1"
 
 playground = {
   KUBERNETES_MASTER_1_VM_NAME + DOMAIN => {
+    :alias => [DOCKER_REGISTRY_ALIAS],
     :autostart => true,
     :box => VAGRANT_X64_KUBERNETES_NODES_BOX_ID,
     :cpus => 2,
@@ -116,6 +118,7 @@ default_group_vars = {
   "ansible_ssh_pass" => "vagrant",
   "ansible_user" => "vagrant",
   "broadcast_address" => "#{BROADCAST_ADDRESS}",
+  "docker_registry_host" => "#{DOCKER_REGISTRY_ALIAS}",
   "kubernetes_master_1_ip" => "#{KUBERNETES_MASTER_1_IP}",
   "kubeadm_token" => "#{KUBEADM_TOKEN}"
 }
@@ -183,6 +186,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         host.vm.network :private_network, auto_config: info[:net_auto_config], :mac => "#{info[:mac_address]}", type: info[:net_type]
       elsif(NETWORK_TYPE_STATIC_IP == info[:net_type])
         host.vm.network :private_network, auto_config: info[:net_auto_config], :mac => "#{info[:mac_address]}", ip: "#{info[:ip]}", :netmask => "#{info[:subnet_mask]}"
+      end
+
+      if info.key?(:alias)
+        host.hostsupdater.aliases = info[:alias]
       end
 
       host.vm.provider :virtualbox do |vb|

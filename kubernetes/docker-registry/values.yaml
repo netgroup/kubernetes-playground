@@ -1,0 +1,14 @@
+replicaCount: 1
+
+ingress:
+  enabled: true
+  path: /
+  annotations:
+    traefik.ingress.kubernetes.io/rule-type: PathPrefix
+  hosts:
+    - registry.kubernetes-playground.local
+
+persistence:
+  enabled: true
+  size: 1Gi
+  storageClass: "glusterfs-storage"
