@@ -32,6 +32,7 @@
         src: https://github.com/gluster/gluster-kubernetes/archive/master.zip
       when: inventory_hostname == kubernetes_master_1_ip
     - name: Configure registry name resolution in hosts file
+      become: yes
       lineinfile:
         path: /etc/hosts
         regexp: "^{{kubernetes_master_1_ip}}"
