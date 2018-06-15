@@ -33,12 +33,12 @@
       when: inventory_hostname == kubernetes_master_1_ip
     - name: Configure registry name resolution in hosts file
       lineinfile:
-      path: /etc/hosts
-      regexp: "^{{kubernetes_master_1_ip}}"
-      line: "{{kubernetes_master_1_ip}} {{docker_registry_host}}"
-      owner: root
-      group: root
-      mode: 0644
+        path: /etc/hosts
+        regexp: "^{{kubernetes_master_1_ip}}"
+        line: "{{kubernetes_master_1_ip}} {{docker_registry_host}}"
+        owner: root
+        group: root
+        mode: 0644
   roles:
     - role: ferrarimarco.kubernetes
       become: yes
