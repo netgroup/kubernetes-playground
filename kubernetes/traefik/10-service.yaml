@@ -14,6 +14,9 @@ spec:
       port: 80
       name: web
     - protocol: TCP
+      port: 443
+      name: web-secure
+    - protocol: TCP
       port: 8080
       name: admin
   type: NodePort
@@ -33,3 +36,5 @@ spec:
         backend:
           serviceName: traefik-ingress-service
           servicePort: admin
+  tls:
+   - secretName: traefik-cert

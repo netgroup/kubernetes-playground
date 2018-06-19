@@ -7,6 +7,15 @@ data:
   traefik.toml: |
     logLevel = "INFO"
     [api]
+    [entryPoints]
+      [entryPoints.http]
+      address = ":80"
+      [entryPoints.https]
+      address = ":443"
+        [entryPoints.https.tls]
+          [[entryPoints.https.tls.certificates]]
+          CertFile = "/ssl/tls.crt"
+          KeyFile = "/ssl/tls.key"
     [kubernetes]
     [metrics]
       [metrics.prometheus]
