@@ -6,3 +6,4 @@ metadata:
 provisioner: kubernetes.io/glusterfs
 parameters:
   resturl: "http://heketi.default.svc.cluster.local:8080"
+  volumetype: none
