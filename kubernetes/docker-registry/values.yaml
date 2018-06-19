@@ -4,6 +4,7 @@ ingress:
   enabled: true
   path: /
   annotations:
+    traefik.ingress.kubernetes.io/frontend-entry-points: https
     traefik.ingress.kubernetes.io/rule-type: PathPrefix
   hosts:
     - registry.kubernetes-playground.local
