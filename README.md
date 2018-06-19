@@ -10,6 +10,7 @@ This project is a playground to play with Kubernetes.
 1. A hyper-converged, cloud native storage cluster managed with [GlusterFS](https://github.com/gluster/gluster-kubernetes) and [Heketi](https://github.com/heketi/heketi)
 1. A monitoring solution based on [Prometheus](https://prometheus.io/) and [Grafana](https://grafana.com/)
 1. [Traefik](https://traefik.io/) [Ingress Controller](https://kubernetes.io/docs/concepts/services-networking/ingress/) to map requests to services
+1. A [Docker Registry](https://docs.docker.com/registry/)
 
 ## Dependencies
 
