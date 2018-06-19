@@ -1,10 +1,9 @@
 #!/bin/sh
 
-advertise_address="$1"
-token="$2"
+configuration_file_path="$1"
 
-echo "Initializing Kubernetes master with address: $advertise_address and token: $token"
-kubeadm init --apiserver-advertise-address="$advertise_address" --token="$token"
+echo "Initializing Kubernetes master with configuration file: $configuration_file_path. Contents: $(cat "$configuration_file_path")"
+kubeadm init --config "$configuration_file_path"
 
 # Setup root user environment
 mkdir -p "$HOME"/.kube

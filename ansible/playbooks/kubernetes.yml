@@ -21,9 +21,24 @@
       systemd:
         daemon_reload: yes
       when: configure_kubelet.changed
-    - name: Initialize Kubernetes cluster
+    - name: Generate Kubeadm configuration file
+      become: yes
+      template:
+        backup: no
+        dest: /tmp/kubeadm-config.yaml
+        group: root
+        mode: 0755
+        owner: root
+        src: templates/kubeadm-config.yaml.j2
+      when: inventory_hostname == kubernetes_master_1_ip
+    - name: Initialize Kubernetes cluster (master)
+      become: yes
+      shell: "/vagrant/scripts/linux/bootstrap-kubernetes-{{kubernetes_classifier}}.sh /tmp/kubeadm-config.yaml"
+      when: inventory_hostname == kubernetes_master_1_ip
+    - name: Initialize Kubernetes cluster (workers)
       become: yes
       shell: "/vagrant/scripts/linux/bootstrap-kubernetes-{{kubernetes_classifier}}.sh {{kubernetes_master_1_ip}} {{kubeadm_token}}"
+      when: inventory_hostname != kubernetes_master_1_ip
     - name: Download gluster-kubernetes
       become: yes
       unarchive:
