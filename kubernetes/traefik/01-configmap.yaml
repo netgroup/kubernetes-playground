@@ -14,8 +14,8 @@ data:
       address = ":443"
         [entryPoints.https.tls]
           [[entryPoints.https.tls.certificates]]
-          CertFile = "/ssl/tls.crt"
-          KeyFile = "/ssl/tls.key"
+          CertFile = "/tls/tls.crt"
+          KeyFile = "/tls/tls.key"
     [kubernetes]
     [metrics]
       [metrics.prometheus]

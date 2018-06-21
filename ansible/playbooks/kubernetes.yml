@@ -59,6 +59,68 @@
         owner: root
         group: root
         mode: 0644
+    - set_fact:
+        openssl_registry_crt_path: /tmp/tls.crt
+        openssl_registry_csr_path: /tmp/tls.csr
+        openssl_registry_key_path: /tmp/tls.key
+    - name: Generate an OpenSSL private key for Docker Registry
+      local_action:
+        module: openssl_privatekey
+        path: "{{openssl_registry_key_path}}"
+        size: 4096
+        type: RSA
+      when: inventory_hostname == kubernetes_master_1_ip
+    - name: Generate an OpenSSL CSR for Docker Registry
+      local_action:
+        module: openssl_csr
+        common_name: "*.kubernetes-playground.local"
+        country_name: IT
+        email_address: fake@email.tld
+        locality_name: Rome
+        organization_name: Org
+        organizational_unit_name: Ou
+        path: "{{openssl_registry_csr_path}}"
+        privatekey_path: "{{openssl_registry_key_path}}"
+        state_or_province_name: Lazio
+      when: inventory_hostname == kubernetes_master_1_ip
+    - name: Generate a Self Signed OpenSSL certificate for Docker Registry
+      local_action:
+        module: openssl_certificate
+        csr_path: "{{openssl_registry_csr_path}}"
+        path: "{{openssl_registry_crt_path}}"
+        privatekey_path: "{{openssl_registry_key_path}}"
+        provider: selfsigned
+      when: inventory_hostname == kubernetes_master_1_ip
+    - set_fact:
+        self_signed_cert_path: /opt/tls/self_signed
+        registry_cert_path: /etc/docker/certs.d/registry.kubernetes-playground.local
+    - name: Ensure directories exist for local self-signed TLS certs
+      become: yes
+      file:
+        group: root
+        owner: root
+        path: "{{item}}"
+        state: directory
+      with_items:
+        - "{{registry_cert_path}}"
+        - "{{self_signed_cert_path}}"
+    - name: Configure self-signed TLS certificate for Docker Registry
+      become: yes
+      copy:
+        dest: "{{item.destination}}"
+        group: root
+        owner: root
+        mode: 0600
+        src: "{{item.source}}"
+      with_items:
+        - source: "{{openssl_registry_crt_path}}"
+          destination: "{{registry_cert_path}}/ca.crt"
+        - source: "{{openssl_registry_crt_path}}"
+          destination: "{{self_signed_cert_path}}/tls.crt"
+        - source: "{{openssl_registry_csr_path}}"
+          destination: "{{self_signed_cert_path}}/tls.csr"
+        - source: "{{openssl_registry_key_path}}"
+          destination: "{{self_signed_cert_path}}/tls.key"
   roles:
     - role: ferrarimarco.kubernetes
       become: yes
