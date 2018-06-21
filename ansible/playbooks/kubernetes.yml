@@ -34,10 +34,14 @@
     - name: Initialize Kubernetes cluster (master)
       become: yes
       shell: "/vagrant/scripts/linux/bootstrap-kubernetes-{{kubernetes_classifier}}.sh /tmp/kubeadm-config.yaml"
+      args:
+        creates: /home/vagrant/.kube/config
       when: inventory_hostname == kubernetes_master_1_ip
     - name: Initialize Kubernetes cluster (workers)
       become: yes
       shell: "/vagrant/scripts/linux/bootstrap-kubernetes-{{kubernetes_classifier}}.sh {{kubernetes_master_1_ip}} {{kubeadm_token}}"
+      args:
+        creates: /etc/kubernetes/kubelet.conf
       when: inventory_hostname != kubernetes_master_1_ip
     - name: Download gluster-kubernetes
       become: yes
