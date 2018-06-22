@@ -28,16 +28,11 @@ spec:
         - name: admin
           containerPort: 8080
         volumeMounts:
-        - mountPath: "/tls"
-          name: "tls"
         - mountPath: "/config"
           name: "config"
         args:
         - --configfile=/config/traefik.toml
       volumes:
-      - name: tls
-        secret:
-          secretName: traefik-cert
       - name: config
         configMap:
           name: traefik-ingress-config

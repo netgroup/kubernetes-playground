@@ -5,6 +5,7 @@ metadata:
   namespace: kube-system
 data:
   traefik.toml: |
+    defaultEntryPoints = ["http", "https"]
     logLevel = "INFO"
     [api]
     [entryPoints]
@@ -13,9 +14,6 @@ data:
       [entryPoints.https]
       address = ":443"
         [entryPoints.https.tls]
-          [[entryPoints.https.tls.certificates]]
-          CertFile = "/tls/tls.crt"
-          KeyFile = "/tls/tls.key"
     [kubernetes]
     [metrics]
       [metrics.prometheus]

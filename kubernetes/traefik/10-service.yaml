@@ -40,4 +40,4 @@ spec:
           serviceName: traefik-ingress-service
           servicePort: admin
   tls:
-   - secretName: traefik-cert
+   - secretName: traefik-ui-tls-cert
