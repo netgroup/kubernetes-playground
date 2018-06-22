@@ -53,6 +53,7 @@ To initialize Helm, SSH into the master and run the configuration script:
 To deploy the monitoring solution, SSH into the master and run the configuration script:
 1. `vagrant ssh kubernetes-master-1`
 1. Initialize Helm as described
+1. Initialize the Ingress Controller as described
 1. `sudo /vagrant/scripts/linux/bootstrap-monitoring.sh`
 
 The monitoring dashboard is accessible at `http://kubernetes-master-1.kubernetes-playground.local/monitoring/cluster`
