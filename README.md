@@ -40,10 +40,7 @@ To deploy the Ingress controller, SSH into the master and run the configuration 
 1. `vagrant ssh kubernetes-master-1`
 1. `sudo /vagrant/scripts/linux/bootstrap-ingress-controller.sh`
 
-The Traefik monitoring UI is accessible at `http://<master-ip-address>/monitoring/ingress`
-
-where:
-- `<master-ip-address>` is the IPv4 address of the master node. Get it from the [Vagrantfile](Vagrantfile)) or by running `ip addr` on the master node.
+The Traefik monitoring UI is accessible at `http://kubernetes-master-1.kubernetes-playground.local/monitoring/ingress`
 
 ### Helm
 
@@ -58,6 +55,8 @@ To deploy the monitoring solution, SSH into the master and run the configuration
 1. Initialize Helm as described
 1. `sudo /vagrant/scripts/linux/bootstrap-monitoring.sh`
 
+The monitoring dashboard is accessible at `http://kubernetes-master-1.kubernetes-playground.local/monitoring/cluster`
+
 ### Docker Registry
 
 To deploy a private Docker Registry, SSH into the master and run the configuration script:
@@ -65,6 +64,8 @@ To deploy a private Docker Registry, SSH into the master and run the configurati
 1. Initialize Helm as described
 1. Initialize the Ingress Controller as described
 1. `sudo /vagrant/scripts/linux/bootstrap-docker-registry.sh`
+
+The registry is accessible at `https://registry.kubernetes-playground.local`
 
 ### Additional Components
 
