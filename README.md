@@ -77,3 +77,7 @@ The registry is accessible at `https://registry.kubernetes-playground.local`
 
 When you run any vagrant command, an Ansible inventory (and related group_vars) will be generated in the ansible directory.
 Note that the contents of those file will be overidden on each run.
+
+### Secure Communication
+
+We generate a self-signed wildcard certificate to use for all the ingress controllers.
