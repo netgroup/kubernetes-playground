@@ -9,6 +9,7 @@ DOCKER_REGISTRY_ALIAS = "registry" + DOMAIN
 NETWORK_TYPE_DHCP = "dhcp"
 NETWORK_TYPE_STATIC_IP = "static_ip"
 SUBNET_MASK = "255.255.255.0"
+WILDCARD_DOMAIN = "*" + DOMAIN
 
 IP_V4_CIDR = IPAddr.new(SUBNET_MASK).to_i.to_s(2).count("1")
 n = IPAddr.new("#{KUBERNETES_MASTER_1_IP}/#{IP_V4_CIDR}")
@@ -96,6 +97,14 @@ playground.each do |(hostname, info)|
   elsif(hostname.include? "minion")
     minions[info[:ip]] = nil
   end
+  host_var_path = "ansible/host_vars/#{info[:ip]}.yaml"
+  if info.key?(:host_vars)
+    IO.write(host_var_path, info[:host_vars].to_yaml)
+  else
+    if File.exist?(host_var_path)
+      File.delete(host_var_path)
+    end
+  end
 end
 ansible_master_group_name = "kubernetes-masters"
 ansible_minion_group_name = "kubernetes-minions"
@@ -120,7 +129,8 @@ default_group_vars = {
   "broadcast_address" => "#{BROADCAST_ADDRESS}",
   "docker_registry_host" => "#{DOCKER_REGISTRY_ALIAS}",
   "kubernetes_master_1_ip" => "#{KUBERNETES_MASTER_1_IP}",
-  "kubeadm_token" => "#{KUBEADM_TOKEN}"
+  "kubeadm_token" => "#{KUBEADM_TOKEN}",
+  "wildcard_domain" => "#{WILDCARD_DOMAIN}"
 }
 IO.write("ansible/group_vars/all.yaml", default_group_vars.to_yaml)
 
