@@ -45,8 +45,8 @@
       when: inventory_hostname != kubernetes_master_1_ip
     - name: Download gluster-kubernetes
       become: yes
-      creates: /opt/gluster-kubernetes-master/deploy/gk-deploy
       unarchive:
+        creates: /opt/gluster-kubernetes-master/deploy/gk-deploy
         dest: /opt
         remote_src: yes
         src: https://github.com/gluster/gluster-kubernetes/archive/master.zip
