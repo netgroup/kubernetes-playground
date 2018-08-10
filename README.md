@@ -26,7 +26,7 @@ After installing the dependencies, run:
 
 to bootstrap the environment:
 1. Vagrant will provision master and worker nodes
-1. Ansible will install `docker`, `kubeadb`, `kubelet` and `kubectl` and run configuration scripts to initialize the Kubernetes cluster
+1. Ansible will install `docker`, `kubeadm`, `kubelet` and `kubectl` and run configuration scripts to initialize the Kubernetes cluster
 
 ### Cloud Native Storage
 
