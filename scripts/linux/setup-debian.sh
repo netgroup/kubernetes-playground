@@ -12,3 +12,5 @@ TEMP_DEB="$(mktemp)" &&
 wget -O "$TEMP_DEB" "https://releases.hashicorp.com/vagrant/${VAGRANT_VERSION}/vagrant_${VAGRANT_VERSION}_x86_64.deb" &&
 dpkg -i "$TEMP_DEB"
 rm -f "$TEMP_DEB"
+
+vagrant plugin install vagrant-hostsupdater
