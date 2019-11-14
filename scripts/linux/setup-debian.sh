@@ -6,3 +6,9 @@ wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | apt-key a
 
 apt-get update
 apt-get install -y virtualbox-6.0
+
+VAGRANT_VERSION="2.2.6"
+TEMP_DEB="$(mktemp)" &&
+wget -O "$TEMP_DEB" "https://releases.hashicorp.com/vagrant/${VAGRANT_VERSION}/vagrant_${VAGRANT_VERSION}_x86_64.deb" &&
+dpkg -i "$TEMP_DEB"
+rm -f "$TEMP_DEB"
