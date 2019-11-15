@@ -5,8 +5,9 @@ require 'ipaddr'
 settings = YAML::load_file("defaults.yaml")
 
 # Eventually customize the environment
-if File.exist?("env.yaml")
-  env_settings = YAML::load_file("env.yaml")
+env_specific_config_path = "env.yaml"
+if File.exist?(env_specific_config_path)
+  env_settings = YAML::load_file(env_specific_config_path)
   settings.merge!(env_settings)
 end
 
