@@ -31,6 +31,11 @@ to bootstrap the environment:
 1. Vagrant will provision master and worker nodes
 1. Ansible will install `docker`, `kubeadm`, `kubelet` and `kubectl` and run configuration scripts to initialize the Kubernetes cluster
 
+### Environment-specific configuration
+
+You can find the default configuration in [`defaults.yaml`](defaults.yaml). If you want to override any default setting, create `env.yaml` and save it in the
+same directory as the `defaults.yaml`. The [`Vagrantfile`](Vagrantfile) will instruct Vagrant to load it.
+
 ### Cloud Native Storage
 
 To deploy GlusterFS, SSH into the master and run the configuration script:

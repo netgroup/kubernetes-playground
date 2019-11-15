@@ -1,14 +1,25 @@
 require 'yaml'
 require 'ipaddr'
 
+# Load default settings
+settings = YAML::load_file("defaults.yaml")
+
+# Eventually customize the environment
+if File.exist?("env.yml")
+  env_settings = YAML::load_file("env.yaml")
+  settings.merge!(env_settings)
+end
+
+NETWORK_PREFIX = settings["net"]["network_prefix"]
+SUBNET_MASK = settings["net"]["subnet_mask"]
+
 KUBEADM_TOKEN = "0y5van.5qxccw2ewiarl68v"
-KUBERNETES_MASTER_1_IP = "192.168.0.10"
+KUBERNETES_MASTER_1_IP = NETWORK_PREFIX + "10"
 
 DOMAIN = ".kubernetes-playground.local"
 DOCKER_REGISTRY_ALIAS = "registry" + DOMAIN
 NETWORK_TYPE_DHCP = "dhcp"
 NETWORK_TYPE_STATIC_IP = "static_ip"
-SUBNET_MASK = "255.255.255.0"
 WILDCARD_DOMAIN = "*" + DOMAIN
 
 IP_V4_CIDR = IPAddr.new(SUBNET_MASK).to_i.to_s(2).count("1")
@@ -43,7 +54,7 @@ playground = {
     :cpus => 1,
     :mac_address => "0800271F9D03",
     :mem => 2048,
-    :ip => "192.168.0.30",
+    :ip => NETWORK_PREFIX + "30",
     :net_auto_config => true,
     :net_type => NETWORK_TYPE_STATIC_IP,
     :subnet_mask => SUBNET_MASK,
@@ -55,7 +66,7 @@ playground = {
     :cpus => 1,
     :mac_address => "0800271F9D04",
     :mem => 2048,
-    :ip => "192.168.0.31",
+    :ip => NETWORK_PREFIX + "31",
     :net_auto_config => true,
     :net_type => NETWORK_TYPE_STATIC_IP,
     :subnet_mask => SUBNET_MASK,
@@ -67,7 +78,7 @@ playground = {
     :cpus => 1,
     :mac_address => "0800271F9D05",
     :mem => 2048,
-    :ip => "192.168.0.32",
+    :ip => NETWORK_PREFIX + "32",
     :net_auto_config => true,
     :net_type => NETWORK_TYPE_STATIC_IP,
     :subnet_mask => SUBNET_MASK,
@@ -79,7 +90,7 @@ playground = {
     :cpus => 1,
     :mac_address => "0800271F9D01",
     :mem => 512,
-    :ip => "192.168.0.2",
+    :ip => NETWORK_PREFIX + "9",
     :net_auto_config => true,
     :net_type => NETWORK_TYPE_STATIC_IP,
     :subnet_mask => SUBNET_MASK,
