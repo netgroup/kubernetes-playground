@@ -10,7 +10,7 @@
       become: yes
       template:
         backup: no
-        dest: /etc/systemd/system/kubelet.service.d/90-node-ip.conf
+        dest: /usr/lib/systemd/system/kubelet.service.d/90-node-ip.conf
         group: root
         mode: 0755
         owner: root
