@@ -1,7 +1,13 @@
-apiVersion: kubeadm.k8s.io/v1alpha1
-kind: MasterConfiguration
-api:
+apiVersion: kubeadm.k8s.io/v1beta2
+bootstrapTokens:
+- groups:
+  token: "{{kubeadm_token}}"
+kind: InitConfiguration
+localAPIEndpoint:
   advertiseAddress: "{{kubernetes_master_1_ip}}"
-token: "{{kubeadm_token}}"
-apiServerExtraArgs:
-  service-node-port-range: "80-32767"
+---
+apiVersion: kubeadm.k8s.io/v1beta2
+kind: ClusterConfiguration
+apiServer:
+  extraArgs:
+    service-node-port-range: "80-32767"
