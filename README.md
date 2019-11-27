@@ -40,14 +40,14 @@ same directory as the `defaults.yaml`. The [`Vagrantfile`](Vagrantfile) will ins
 
 To deploy GlusterFS, SSH into the master and run the configuration script:
 
-1. `vagrant ssh kubernetes-master-1`
+1. `vagrant ssh kubernetes-master-1.kubernetes-playground.local`
 1. `sudo /vagrant/scripts/linux/bootstrap-glusterfs.sh`
 
 ### Ingress Controller
 
 To deploy the Ingress controller, SSH into the master and run the configuration script:
 
-1. `vagrant ssh kubernetes-master-1`
+1. `vagrant ssh kubernetes-master-1.kubernetes-playground.local`
 1. `sudo /vagrant/scripts/linux/bootstrap-ingress-controller.sh`
 
 The Traefik monitoring UI is accessible at `http://kubernetes-master-1.kubernetes-playground.local/monitoring/ingress`
@@ -56,14 +56,14 @@ The Traefik monitoring UI is accessible at `http://kubernetes-master-1.kubernete
 
 To initialize Helm, SSH into the master and run the configuration script:
 
-1. `vagrant ssh kubernetes-master-1`
+1. `vagrant ssh kubernetes-master-1.kubernetes-playground.local`
 1. `sudo /vagrant/scripts/linux/bootstrap-helm.sh`
 
 ### Monitoring
 
 To deploy the monitoring solution, SSH into the master and run the configuration script:
 
-1. `vagrant ssh kubernetes-master-1`
+1. `vagrant ssh kubernetes-master-1.kubernetes-playground.local`
 1. Initialize Helm as described
 1. Initialize the Ingress Controller as described
 1. `sudo /vagrant/scripts/linux/bootstrap-monitoring.sh`
@@ -74,7 +74,7 @@ The monitoring dashboard is accessible at `http://kubernetes-master-1.kubernetes
 
 To deploy a private Docker Registry, SSH into the master and run the configuration script:
 
-1. `vagrant ssh kubernetes-master-1`
+1. `vagrant ssh kubernetes-master-1.kubernetes-playground.local`
 1. Initialize Helm as described
 1. Initialize the Ingress Controller as described
 1. `sudo /vagrant/scripts/linux/bootstrap-docker-registry.sh`
