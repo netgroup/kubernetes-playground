@@ -1,3 +1,7 @@
 net:
   network_prefix: "192.168.0."
   subnet_mask: "255.255.255.0"
+ansible:
+  group_vars:
+    kubernetes-masters:
+      kubernetes_network_plugin: weavenet

@@ -15,5 +15,10 @@ mkdir -p /home/vagrant/.kube
 cp -i /etc/kubernetes/admin.conf /home/vagrant/.kube/config
 chown vagrant:vagrant /home/vagrant/.kube/config
 
-export kubever=$(kubectl version | base64 | tr -d '\n')
-kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$kubever"
+network_plugin_id="$2"
+echo "Installing $network_plugin_id network plugin"
+
+if [[ "$network_plugin_id" == 'weavenet' ]]; then
+    export kubever=$(kubectl version | base64 | tr -d '\n')
+    kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$kubever"
+fi

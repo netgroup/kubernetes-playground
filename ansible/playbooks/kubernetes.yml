@@ -33,7 +33,7 @@
       when: inventory_hostname == kubernetes_master_1_ip
     - name: Initialize Kubernetes cluster (master)
       become: yes
-      shell: "/vagrant/scripts/linux/bootstrap-kubernetes-{{kubernetes_classifier}}.sh /tmp/kubeadm-config.yaml"
+      shell: "/vagrant/scripts/linux/bootstrap-kubernetes-{{kubernetes_classifier}}.sh /tmp/kubeadm-config.yaml {{kubernetes_network_plugin}}"
       args:
         creates: /home/vagrant/.kube/config
       when: inventory_hostname == kubernetes_master_1_ip

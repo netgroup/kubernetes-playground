@@ -149,6 +149,8 @@ IO.write("ansible/group_vars/all.yaml", default_group_vars.to_yaml)
 master_group_vars = {
   "kubernetes_classifier" => "master"
 }
+custom_master_group_vars = settings["ansible"]["group_vars"]["#{ansible_master_group_name}"]
+master_group_vars = master_group_vars.merge(custom_master_group_vars)
 IO.write("ansible/group_vars/#{ansible_master_group_name}.yaml", master_group_vars.to_yaml)
 
 minion_group_vars = {
