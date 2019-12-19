@@ -4,4 +4,4 @@ net:
 ansible:
   group_vars:
     kubernetes-masters:
-      kubernetes_network_plugin: weavenet
+      kubernetes_network_plugin: calico
