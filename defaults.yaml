@@ -1,6 +1,6 @@
 net:
   network_prefix: "192.168.0."
-  network_prefix_ipv6: "fde4:8dba:82e1::"
+  network_prefix_ipv6: "fde4:8dba:82e1:"
   subnet_mask: "255.255.255.0"
   subnet_mask_ipv6: "96"
 ansible:

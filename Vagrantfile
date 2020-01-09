@@ -12,10 +12,13 @@ if File.exist?(env_specific_config_path)
 end
 
 NETWORK_PREFIX = settings["net"]["network_prefix"]
+NETWORK_PREFIX_IPV6 = settings["net"]["network_prefix_ipv6"]
 SUBNET_MASK = settings["net"]["subnet_mask"]
+SUBNET_MASK_IPV6 = settings["net"]["subnet_mask_ipv6"]
 
 KUBEADM_TOKEN = "0y5van.5qxccw2ewiarl68v"
 KUBERNETES_MASTER_1_IP = NETWORK_PREFIX + "10"
+KUBERNETES_MASTER_1_IPV6 = NETWORK_PREFIX_IPV6 + "c40A::"
 
 DOMAIN = ".kubernetes-playground.local"
 DOCKER_REGISTRY_ALIAS = "registry" + DOMAIN
@@ -47,7 +50,11 @@ playground = {
     :net_auto_config => true,
     :net_type => NETWORK_TYPE_STATIC_IP,
     :subnet_mask => SUBNET_MASK,
-    :show_gui => false
+    :subnet_mask_ipv6 => SUBNET_MASK_IPV6,
+    :show_gui => false,
+    :host_vars => {
+      "ipv6_address" => KUBERNETES_MASTER_1_IPV6
+    }
   },
   "kubernetes-minion-1" + DOMAIN => {
     :autostart => true,
@@ -59,7 +66,10 @@ playground = {
     :net_auto_config => true,
     :net_type => NETWORK_TYPE_STATIC_IP,
     :subnet_mask => SUBNET_MASK,
-    :show_gui => false
+    :show_gui => false,
+    :host_vars => {
+      "ipv6_address" => NETWORK_PREFIX_IPV6 + "c41e::"
+    }
   },
   "kubernetes-minion-2" + DOMAIN => {
     :autostart => true,
@@ -71,7 +81,10 @@ playground = {
     :net_auto_config => true,
     :net_type => NETWORK_TYPE_STATIC_IP,
     :subnet_mask => SUBNET_MASK,
-    :show_gui => false
+    :show_gui => false,
+    :host_vars => {
+      "ipv6_address" => NETWORK_PREFIX_IPV6 + "c41f::"
+    }
   },
   "kubernetes-minion-3" + DOMAIN => {
     :autostart => true,
@@ -83,7 +96,10 @@ playground = {
     :net_auto_config => true,
     :net_type => NETWORK_TYPE_STATIC_IP,
     :subnet_mask => SUBNET_MASK,
-    :show_gui => false
+    :show_gui => false,
+    :host_vars => {
+      "ipv6_address" => NETWORK_PREFIX_IPV6 + "c420::"
+    }
   },
   ANSIBLE_CONTROLLER_VM_NAME + DOMAIN => {
     :autostart => true,
@@ -142,6 +158,7 @@ default_group_vars = {
   "docker_registry_host" => "#{DOCKER_REGISTRY_ALIAS}",
   "kubernetes_master_1_ip" => "#{KUBERNETES_MASTER_1_IP}",
   "kubeadm_token" => "#{KUBEADM_TOKEN}",
+  "subnet_mask_ipv6" => "#{SUBNET_MASK_IPV6}",
   "wildcard_domain" => "#{WILDCARD_DOMAIN}"
 }
 IO.write("ansible/group_vars/all.yaml", default_group_vars.to_yaml)
@@ -210,6 +227,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         host.vm.network :private_network, auto_config: info[:net_auto_config], :mac => "#{info[:mac_address]}", type: info[:net_type]
       elsif(NETWORK_TYPE_STATIC_IP == info[:net_type])
         host.vm.network :private_network, auto_config: info[:net_auto_config], :mac => "#{info[:mac_address]}", ip: "#{info[:ip]}", :netmask => "#{info[:subnet_mask]}"
+      end
+
+      if(info.key?(:ipv6))
+        host.vm.network :private_network, auto_config: info[:net_auto_config], :mac => "#{info[:mac_address_ipv6]}", ip: "#{info[:ipv6]}", :netmask => "#{info[:subnet_mask_ipv6]}"
       end
 
       if info.key?(:alias)

@@ -6,6 +6,10 @@
       changed_when: no
       shell: "/usr/sbin/ip addr | grep {{broadcast_address}} | awk -F'[ /]+' '{print $3}'"
       register: ip_addr_broadcast
+    - name: Initialize an IPv6 interface
+      become: yes
+      shell: "/vagrant/scripts/linux/configure-ipv6-interface.sh {{ipv6_address}} {{hostvars[inventory_hostname]['ansible_env'].SSH_CONNECTION.split(' ')[2]}}"
+      when: ipv6_address is defined
     - name: Configure Kubelet
       become: yes
       template:
