@@ -18,9 +18,14 @@ SUBNET_MASK_IPV6 = settings["net"]["subnet_mask_ipv6"]
 
 KUBEADM_TOKEN = "0y5van.5qxccw2ewiarl68v"
 KUBERNETES_MASTER_1_IP = NETWORK_PREFIX + "10"
-KUBERNETES_MASTER_1_IPV6 = NETWORK_PREFIX_IPV6 + "c40A::"
+KUBERNETES_MASTER_1_IPV6 = NETWORK_PREFIX_IPV6 + settings["net"]["master_ipv6_part"]
+KUBERNETES_MINION_1_IPV6 = NETWORK_PREFIX_IPV6 + settings["net"]["minion_1_ipv6_part"]
+KUBERNETES_MINION_2_IPV6 = NETWORK_PREFIX_IPV6 + settings["net"]["minion_2_ipv6_part"]
+KUBERNETES_MINION_3_IPV6 = NETWORK_PREFIX_IPV6 + settings["net"]["minion_3_ipv6_part"]
 
-DOMAIN = ".kubernetes-playground.local"
+
+DOMAIN = "." + settings["conf"]["playground_name"] + ".local" 
+
 DOCKER_REGISTRY_ALIAS = "registry" + DOMAIN
 NETWORK_TYPE_DHCP = "dhcp"
 NETWORK_TYPE_STATIC_IP = "static_ip"
@@ -35,8 +40,17 @@ VAGRANT_X64_CONTROLLER_BOX_ID = "bento/ubuntu-16.04"
 VAGRANT_X64_KUBERNETES_NODES_BOX_ID = "bento/centos-7.4"
 
 # VM Names
-ANSIBLE_CONTROLLER_VM_NAME = "ansible-controller"
-KUBERNETES_MASTER_1_VM_NAME = "kubernetes-master-1"
+ANSIBLE_CONTROLLER_VM_NAME = settings["conf"]["ansi_ctrl_name"]
+KUBERNETES_MASTER_1_VM_NAME = settings["conf"]["master_name"]
+KUBERNETES_MINION_1_VM_NAME = settings["conf"]["minion_1_name"]
+KUBERNETES_MINION_2_VM_NAME = settings["conf"]["minion_2_name"]
+KUBERNETES_MINION_3_VM_NAME = settings["conf"]["minion_3_name"]
+
+
+# memory for each host
+MASTER_MEM = settings["conf"]["master_mem"]
+MINION_MEM = settings["conf"]["minion_mem"]
+ANSI_CTRL_MEM = settings["conf"]["ansi_ctrl_mem"]
 
 playground = {
   KUBERNETES_MASTER_1_VM_NAME + DOMAIN => {
@@ -45,7 +59,7 @@ playground = {
     :box => VAGRANT_X64_KUBERNETES_NODES_BOX_ID,
     :cpus => 2,
     :mac_address => "0800271F9D02",
-    :mem => 4096,
+    :mem => MASTER_MEM,
     :ip => KUBERNETES_MASTER_1_IP,
     :net_auto_config => true,
     :net_type => NETWORK_TYPE_STATIC_IP,
@@ -56,49 +70,49 @@ playground = {
       "ipv6_address" => KUBERNETES_MASTER_1_IPV6
     }
   },
-  "kubernetes-minion-1" + DOMAIN => {
+  KUBERNETES_MINION_1_VM_NAME + DOMAIN => {
     :autostart => true,
     :box => VAGRANT_X64_KUBERNETES_NODES_BOX_ID,
     :cpus => 1,
     :mac_address => "0800271F9D03",
-    :mem => 2048,
+    :mem => MINION_MEM,
     :ip => NETWORK_PREFIX + "30",
     :net_auto_config => true,
     :net_type => NETWORK_TYPE_STATIC_IP,
     :subnet_mask => SUBNET_MASK,
     :show_gui => false,
     :host_vars => {
-      "ipv6_address" => NETWORK_PREFIX_IPV6 + "c41e::"
+      "ipv6_address" => KUBERNETES_MINION_1_IPV6
     }
   },
-  "kubernetes-minion-2" + DOMAIN => {
+  KUBERNETES_MINION_2_VM_NAME + DOMAIN => {
     :autostart => true,
     :box => VAGRANT_X64_KUBERNETES_NODES_BOX_ID,
     :cpus => 1,
     :mac_address => "0800271F9D04",
-    :mem => 2048,
+    :mem => MINION_MEM,
     :ip => NETWORK_PREFIX + "31",
     :net_auto_config => true,
     :net_type => NETWORK_TYPE_STATIC_IP,
     :subnet_mask => SUBNET_MASK,
     :show_gui => false,
     :host_vars => {
-      "ipv6_address" => NETWORK_PREFIX_IPV6 + "c41f::"
+      "ipv6_address" => KUBERNETES_MINION_2_IPV6
     }
   },
-  "kubernetes-minion-3" + DOMAIN => {
+  KUBERNETES_MINION_3_VM_NAME + DOMAIN => {
     :autostart => true,
     :box => VAGRANT_X64_KUBERNETES_NODES_BOX_ID,
     :cpus => 1,
     :mac_address => "0800271F9D05",
-    :mem => 2048,
+    :mem => MINION_MEM,
     :ip => NETWORK_PREFIX + "32",
     :net_auto_config => true,
     :net_type => NETWORK_TYPE_STATIC_IP,
     :subnet_mask => SUBNET_MASK,
     :show_gui => false,
     :host_vars => {
-      "ipv6_address" => NETWORK_PREFIX_IPV6 + "c420::"
+      "ipv6_address" => KUBERNETES_MINION_3_IPV6
     }
   },
   ANSIBLE_CONTROLLER_VM_NAME + DOMAIN => {
@@ -106,7 +120,7 @@ playground = {
     :box => VAGRANT_X64_CONTROLLER_BOX_ID,
     :cpus => 1,
     :mac_address => "0800271F9D01",
-    :mem => 512,
+    :mem => ANSI_CTRL_MEM,
     :ip => NETWORK_PREFIX + "9",
     :net_auto_config => true,
     :net_type => NETWORK_TYPE_STATIC_IP,
