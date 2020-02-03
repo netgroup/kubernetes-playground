@@ -23,5 +23,6 @@ if [ "$network_plugin_id" = 'weavenet' ]; then
     export kubever
     kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$kubever"
 elif [ "$network_plugin_id" = 'calico' ]; then
-    kubectl apply -f https://docs.projectcalico.org/v3.10/manifests/calico.yaml
+#    kubectl apply -f https://docs.projectcalico.org/v3.10/manifests/calico.yaml
+    kubectl apply -f /tmp/calico-config.yaml
 fi

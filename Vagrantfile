@@ -35,6 +35,10 @@ IP_V4_CIDR = IPAddr.new(SUBNET_MASK).to_i.to_s(2).count("1")
 n = IPAddr.new("#{KUBERNETES_MASTER_1_IP}/#{IP_V4_CIDR}")
 BROADCAST_ADDRESS = n | (~n.instance_variable_get(:@mask_addr) & IPAddr::IN4MASK)
 
+# Cluster network
+CLUSTER_IP_CIDR = settings["pod_network"]["cluster_ip_cidr"]
+SERVICE_IP_CIDR = settings["pod_network"]["service_ip_cidr"]
+
 # Vagrant boxes
 VAGRANT_X64_KUBERNETES_NODES_BASE_BOX_ID = settings["conf"]["kubernetes_nodes_base_box_id"]
 VAGRANT_X64_KUBERNETES_NODES_BOX_ID = "ferrarimarco/kubernetes-playground-node"
@@ -200,7 +204,9 @@ default_group_vars = {
   "kubernetes_master_1_ip" => "#{KUBERNETES_MASTER_1_IP}",
   "kubeadm_token" => "#{KUBEADM_TOKEN}",
   "subnet_mask_ipv6" => "#{SUBNET_MASK_IPV6}",
-  "wildcard_domain" => "#{WILDCARD_DOMAIN}"
+  "wildcard_domain" => "#{WILDCARD_DOMAIN}",
+  "cluster_ip_cidr"  => "#{CLUSTER_IP_CIDR}",
+  "service_ip_cidr"  => "#{SERVICE_IP_CIDR}",
 }
 IO.write("ansible/group_vars/all.yaml", default_group_vars.to_yaml)
 
