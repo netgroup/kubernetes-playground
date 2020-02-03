@@ -18,10 +18,10 @@ chown vagrant:vagrant /home/vagrant/.kube/config
 network_plugin_id="$2"
 echo "Installing $network_plugin_id network plugin"
 
-if [ "$network_plugin_id" = 'weavenet' ]; then
-    kubever=$(kubectl version | base64 | tr -d '\n')
-    export kubever
+if [[ "$network_plugin_id" == 'weavenet' ]]; then
+    export kubever=$(kubectl version | base64 | tr -d '\n')
     kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$kubever"
-elif [ "$network_plugin_id" = 'calico' ]; then
-    kubectl apply -f https://docs.projectcalico.org/v3.10/manifests/calico.yaml
+elif [[ "$network_plugin_id" == 'calico' ]]; then
+#    kubectl apply -f https://docs.projectcalico.org/v3.10/manifests/calico.yaml
+    kubectl apply -f /tmp/calico-config.yaml
 fi

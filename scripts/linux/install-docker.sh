@@ -13,9 +13,9 @@ while true; do
   esac
 done
 
-if command -v docker > /dev/null 2>&1; then
+if which docker >/dev/null 2>&1 ; then
   echo "Docker is already installed"
 else
   curl -sSL https://get.docker.com | sh
   usermod -aG docker "$user"
-fi;
+fi
