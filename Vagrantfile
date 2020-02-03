@@ -177,7 +177,7 @@ default_group_vars = {
   "kubernetes_master_1_ip" => "#{KUBERNETES_MASTER_1_IP}",
   "kubeadm_token" => "#{KUBEADM_TOKEN}",
   "subnet_mask_ipv6" => "#{SUBNET_MASK_IPV6}",
-  "wildcard_domain" => "#{WILDCARD_DOMAIN}"
+  "wildcard_domain" => "#{WILDCARD_DOMAIN}",
   "cluster_ip_cidr"  => "#{CLUSTER_IP_CIDR}",
   "service_ip_cidr"  => "#{SERVICE_IP_CIDR}",
 }
