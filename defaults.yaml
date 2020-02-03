@@ -20,6 +20,9 @@ net:
   minion_1_ipv6_part: "c41e::"
   minion_2_ipv6_part: "c41f::"
   minion_3_ipv6_part: "c420::"
+pod_network:
+  cluster_ip_cidr: "10.96.0.0/12"
+  service_ip_cidr: "10.96.0.0/12"
 ansible:
   group_vars:
     kubernetes-masters:
