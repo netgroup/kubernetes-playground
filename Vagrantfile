@@ -24,7 +24,7 @@ KUBERNETES_MINION_2_IPV6 = NETWORK_PREFIX_IPV6 + settings["net"]["minion_2_ipv6_
 KUBERNETES_MINION_3_IPV6 = NETWORK_PREFIX_IPV6 + settings["net"]["minion_3_ipv6_part"]
 
 
-DOMAIN = "." + settings["conf"]["playground_name"] + ".local" 
+DOMAIN = "." + settings["conf"]["playground_name"] + ".local"
 
 DOCKER_REGISTRY_ALIAS = "registry" + DOMAIN
 NETWORK_TYPE_DHCP = "dhcp"
@@ -36,23 +36,36 @@ n = IPAddr.new("#{KUBERNETES_MASTER_1_IP}/#{IP_V4_CIDR}")
 BROADCAST_ADDRESS = n | (~n.instance_variable_get(:@mask_addr) & IPAddr::IN4MASK)
 
 # Vagrant boxes
-VAGRANT_X64_CONTROLLER_BOX_ID = "bento/ubuntu-16.04"
-VAGRANT_X64_KUBERNETES_NODES_BOX_ID = "bento/centos-7.4"
+VAGRANT_X64_KUBERNETES_NODES_BASE_BOX_ID = settings["conf"]["kubernetes_nodes_base_box_id"]
+VAGRANT_X64_KUBERNETES_NODES_BOX_ID = "ferrarimarco/kubernetes-playground-node"
+VAGRANT_X64_CONTROLLER_BOX_ID = VAGRANT_X64_KUBERNETES_NODES_BOX_ID
 
 # VM Names
+BASE_BOX_BUILDER_VM_NAME = settings["conf"]["base_box_builder_name"]
 ANSIBLE_CONTROLLER_VM_NAME = settings["conf"]["ansi_ctrl_name"]
 KUBERNETES_MASTER_1_VM_NAME = settings["conf"]["master_name"]
 KUBERNETES_MINION_1_VM_NAME = settings["conf"]["minion_1_name"]
 KUBERNETES_MINION_2_VM_NAME = settings["conf"]["minion_2_name"]
 KUBERNETES_MINION_3_VM_NAME = settings["conf"]["minion_3_name"]
 
+# VM IDs
+BASE_BOX_BUILDER_VM_ID = BASE_BOX_BUILDER_VM_NAME + DOMAIN
 
 # memory for each host
+BASE_BOX_BUILDER_MEM = settings["conf"]["base_box_builder_mem"]
 MASTER_MEM = settings["conf"]["master_mem"]
 MINION_MEM = settings["conf"]["minion_mem"]
 ANSI_CTRL_MEM = settings["conf"]["ansi_ctrl_mem"]
 
 playground = {
+  BASE_BOX_BUILDER_VM_ID => {
+    :autostart => false,
+    :box => VAGRANT_X64_KUBERNETES_NODES_BASE_BOX_ID,
+    :cpus => 2,
+    :mem => BASE_BOX_BUILDER_MEM,
+    :net_auto_config => true,
+    :show_gui => false
+  },
   KUBERNETES_MASTER_1_VM_NAME + DOMAIN => {
     :alias => [DOCKER_REGISTRY_ALIAS],
     :autostart => true,
@@ -150,19 +163,6 @@ playground.each do |(hostname, info)|
 end
 ansible_master_group_name = "kubernetes-masters"
 ansible_minion_group_name = "kubernetes-minions"
-inventory = {
-  "all" => {
-    "children" => {
-      ansible_master_group_name => {
-        "hosts" => masters
-      },
-      ansible_minion_group_name => {
-        "hosts" => minions
-      },
-    }
-  }
-}
-IO.write("ansible/hosts", inventory.to_yaml)
 
 default_group_vars = {
   "ansible_ssh_extra_args" => "-o StrictHostKeyChecking=no",
@@ -190,6 +190,13 @@ minion_group_vars = {
 IO.write("ansible/group_vars/#{ansible_minion_group_name}.yaml", minion_group_vars.to_yaml)
 
 ADDITIONAL_DISK_SIZE = 10240
+
+# Workaround for https://github.com/hashicorp/vagrant/issues/8878
+class VagrantPlugins::ProviderVirtualBox::Action::Network
+  def dhcp_server_matches_config?(dhcp_server, config)
+    true
+  end
+end
 
 # Let's extend the SetName class
 # to attach a second disk
@@ -241,10 +248,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         host.vm.network :private_network, auto_config: info[:net_auto_config], :mac => "#{info[:mac_address]}", type: info[:net_type]
       elsif(NETWORK_TYPE_STATIC_IP == info[:net_type])
         host.vm.network :private_network, auto_config: info[:net_auto_config], :mac => "#{info[:mac_address]}", ip: "#{info[:ip]}", :netmask => "#{info[:subnet_mask]}"
-      end
 
-      if(info.key?(:ipv6))
-        host.vm.network :private_network, auto_config: info[:net_auto_config], :mac => "#{info[:mac_address_ipv6]}", ip: "#{info[:ipv6]}", :netmask => "#{info[:subnet_mask_ipv6]}"
+        if(info.key?(:ipv6))
+          host.vm.network :private_network, auto_config: info[:net_auto_config], :mac => "#{info[:mac_address_ipv6]}", ip: "#{info[:ipv6]}", :netmask => "#{info[:subnet_mask_ipv6]}"
+        end
       end
 
       if info.key?(:alias)
@@ -262,17 +269,40 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
       host.vm.hostname = hostname
 
-      if(hostname.include? ANSIBLE_CONTROLLER_VM_NAME)
+      if(hostname.include? BASE_BOX_BUILDER_VM_NAME)
         host.vm.provision "shell" do |s|
           s.path = "scripts/linux/install-docker.sh"
           s.args = [
             "--user", "vagrant"
             ]
         end
-      end
 
-      if(!hostname.include? ANSIBLE_CONTROLLER_VM_NAME)
         host.vm.provision "shell", path: "scripts/linux/check-kubeadm-requirements.sh"
+
+        inventory = {
+          "all" => {
+            "hosts" => {
+              BASE_BOX_BUILDER_VM_ID => {}
+            }
+          }
+        }
+        IO.write("ansible/hosts", inventory.to_yaml)
+
+        host.vm.provision "shell", path: "scripts/linux/install-kubernetes.sh"
+      elsif(hostname.include? ANSIBLE_CONTROLLER_VM_NAME)
+        inventory = {
+          "all" => {
+            "children" => {
+              ansible_master_group_name => {
+                "hosts" => masters
+              },
+              ansible_minion_group_name => {
+                "hosts" => minions
+              },
+            }
+          }
+        }
+        IO.write("ansible/hosts", inventory.to_yaml)
       end
 
       # Install Kubernetes on masters and minions

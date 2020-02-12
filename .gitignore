@@ -6,3 +6,5 @@
 *.log
 
 env.yaml
+
+kubernetes-playground-base.box

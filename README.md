@@ -22,14 +22,21 @@ This project is a playground to play with Kubernetes.
 
 ## How to Run
 
-After installing the dependencies, run:
+The provisioning and configuration process has two phases:
 
-1. `vagrant up`
+1. Prepare a base Vagrant box.
+   1. Provision and configure a VM (`vagrant up base-box-builder.k8s-play.local`).
+   1. Export a Vagrant box based on the `vagrant up base-box-builder.k8s-play.local` VM.
+1. Provision and configure the rest of the environment using the base box.
 
-to bootstrap the environment:
+To provision and configure the environment as described, run the following
+commands from the root of the repository:
 
-1. Vagrant will provision master and worker nodes
-1. Ansible will install `docker`, `kubeadm`, `kubelet` and `kubectl` and run configuration scripts to initialize the Kubernetes cluster
+1. Provision and configure the base VM: `vagrant up base-box-builder.k8s-play.local`
+1. Export the base Vagrant box: `vagrant package base-box-builder.k8s-play.local --output kubernetes-playground-base.box`
+1. Destroy the base VM: `vagrant destroy --force base-box-builder.k8s-play.local`
+1. Register the base Vagrant box to make it avaliable to Vagrant: `vagrant box add kubernetes-playground-base.box --name ferrarimarco/kubernetes-playground-node`
+1. Provision and configure the rest of the environment: `vagrant up`
 
 ### Environment-specific configuration
 
