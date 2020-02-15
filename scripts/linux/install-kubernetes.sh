@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if ! TEMP="$(getopt -o vdm: --long inventory: -n 'install-docker' -- "$@")" ; then echo "Terminating..." >&2 ; exit 1 ; fi
+if ! TEMP="$(getopt -o vdm: --long inventory: -n 'install-kubernetes' -- "$@")" ; then echo "Terminating..." >&2 ; exit 1 ; fi
 eval set -- "$TEMP"
 
 inventory=
