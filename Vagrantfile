@@ -163,6 +163,33 @@ playground.each do |(hostname, info)|
 end
 ansible_master_group_name = "kubernetes-masters"
 ansible_minion_group_name = "kubernetes-minions"
+ansible_inventory_path = "ansible/hosts"
+ansible_base_inventory_path = "ansible/hosts-base"
+
+inventory_base = {
+  "all" => {
+    "hosts" => {
+      BASE_BOX_BUILDER_VM_ID => nil
+    }
+  }
+}
+
+IO.write(ansible_base_inventory_path, inventory_base.to_yaml)
+
+inventory = {
+  "all" => {
+    "children" => {
+      ansible_master_group_name => {
+        "hosts" => masters
+      },
+      ansible_minion_group_name => {
+        "hosts" => minions
+      },
+    }
+  }
+}
+
+IO.write(ansible_inventory_path, inventory.to_yaml)
 
 default_group_vars = {
   "ansible_ssh_extra_args" => "-o StrictHostKeyChecking=no",
@@ -268,46 +295,22 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       end
 
       host.vm.hostname = hostname
-
       if(hostname.include? BASE_BOX_BUILDER_VM_NAME)
         host.vm.provision "shell" do |s|
           s.path = "scripts/linux/install-docker.sh"
-          s.args = [
-            "--user", "vagrant"
-            ]
+          s.args = ["--user", "vagrant"]
         end
 
         host.vm.provision "shell", path: "scripts/linux/check-kubeadm-requirements.sh"
-
-        inventory = {
-          "all" => {
-            "hosts" => {
-              BASE_BOX_BUILDER_VM_ID => {}
-            }
-          }
-        }
-        IO.write("ansible/hosts", inventory.to_yaml)
-
-        host.vm.provision "shell", path: "scripts/linux/install-kubernetes.sh"
-      elsif(hostname.include? ANSIBLE_CONTROLLER_VM_NAME)
-        inventory = {
-          "all" => {
-            "children" => {
-              ansible_master_group_name => {
-                "hosts" => masters
-              },
-              ansible_minion_group_name => {
-                "hosts" => minions
-              },
-            }
-          }
-        }
-        IO.write("ansible/hosts", inventory.to_yaml)
-      end
-
-      # Install Kubernetes on masters and minions
-      if(hostname.include? ANSIBLE_CONTROLLER_VM_NAME)
-        host.vm.provision "shell", path: "scripts/linux/install-kubernetes.sh"
+        host.vm.provision "shell" do |s|
+          s.path = "scripts/linux/install-kubernetes.sh"
+          s.args = ["--inventory", ansible_base_inventory_path]
+        end
+      elsif(hostname.include?(ANSIBLE_CONTROLLER_VM_NAME))
+        host.vm.provision "shell" do |s|
+          s.path = "scripts/linux/install-kubernetes.sh"
+          s.args = ["--inventory", ansible_inventory_path]
+        end
       end
     end
   end
