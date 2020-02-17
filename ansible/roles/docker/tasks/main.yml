@@ -1,0 +1,44 @@
+---
+- include: setup-Debian.yml
+  when: ansible_os_family == "Debian"
+
+- include: setup-RedHat.yml
+  when: ansible_os_family == "RedHat"
+
+- name: Load OS specific variables
+  include_vars: "{{ item }}"
+  with_first_found:
+    - files:
+        - "{{ ansible_distribution }}-{{ ansible_distribution_version|lower|replace('/', '_') }}.yml"
+        - "{{ ansible_distribution }}-{{ ansible_distribution_release }}.yml"
+        - "{{ ansible_distribution }}-{{ ansible_distribution_major_version|lower|replace('/', '_') }}.yml"
+        - "{{ ansible_distribution }}.yml"
+        - "{{ ansible_os_family|lower }}.yml"
+        - defaults.yml
+      paths:
+        - ../vars
+
+- name: Enable docker service
+  service:
+    enabled: true
+    name: docker
+    state: started
+
+- name: Setup the Docker service
+  service:
+    name: docker
+    state: "{{ docker_service_status|default('started') }}"
+
+- name: Install docker compose
+  get_url:
+    dest: "{{ docker_compose_executable_path }}"
+    force: true
+    mode: u=rwx,g=rx,o=rx
+    # yamllint disable-line rule:line-length
+    url: "https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/{{ docker_compose_archive_name }}"
+  when: docker_compose_version is defined
+
+- name: Ensure that the Docker group has been created
+  group:
+    name: docker
+    state: present

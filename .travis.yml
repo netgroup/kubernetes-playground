@@ -1,4 +1,7 @@
 ---
+env:
+  global:
+    - VAGRANT_VERSION="2.2.6"
 jobs:
   fast_finish: true
   include:
@@ -32,8 +35,6 @@ jobs:
         find -name "*.md" -not -path "*/node_modules/*" \
         | xargs markdownlint || exit 1
     - name: "Vagrant validate"
-      env:
-        - VAGRANT_VERSION="2.2.6"
       install:
         - |
           TEMP_DEB="$(mktemp)" \
@@ -68,6 +69,30 @@ jobs:
           -v "$(pwd)":/kubernetes-playground:ro \
           garethr/kubeval:0.14.0 \
           --strict  -d /kubernetes-playground/kubernetes
+    - name: "ansible-lint"
+      before_script: cd ansible || exit 1
+      install: sudo pip install -r requirements.txt
+      language: shell
+      script: |
+        ansible-lint -v \
+          kubernetes.yml \
+          openssl-self-signed-certificate.yml \
+        || exit 1
+    - name: "Test Kitchen"
+      before_script: kitchen diagnose
+      install:
+        - gem install bundler
+        - bundle install || exit 1
+        - |
+          TEMP_DEB="$(mktemp)" \
+          && wget -O "$TEMP_DEB" \
+            "https://releases.hashicorp.com/vagrant/${VAGRANT_VERSION}/vagrant_${VAGRANT_VERSION}_x86_64.deb" \
+          && sudo dpkg -i "$TEMP_DEB"
+        - vagrant plugin install vagrant-hostsupdater
+      language: ruby
+      script: |
+        kitchen list \
+        || exit 1
 os: linux
 services:
   - docker

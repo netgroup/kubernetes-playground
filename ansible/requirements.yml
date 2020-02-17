@@ -1,5 +1,0 @@
----
-- src: ferrarimarco.kubernetes
-  version: "1.2.1"
-- src: andrewrothstein.kubernetes-helm
-  version: v1.2.4

@@ -1,0 +1,15 @@
+---
+- name: Ensure GPG key for repository metadata is being imported
+  command: "yum -q makecache -y --disablerepo='*' --enablerepo='kubernetes'"
+  args:
+    warn: false
+  listen: "yum_metadata_gpg_key_import"
+  tags:
+    - skip_ansible_lint
+
+- name: Restart systemd-modules-load
+  service:
+    name: systemd-modules-load
+    enabled: true
+    state: restarted
+  listen: "restart_systemd_modules_load"

@@ -1,0 +1,6 @@
+---
+__ferrarimarco_kubernetes_glusterfs_packages:
+  - glusterfs-cli
+  - glusterfs-fuse
+
+kubelet_systemd_service_config_file: "/usr/lib/systemd/system/kubelet.service.d/10-kubeadm.conf"

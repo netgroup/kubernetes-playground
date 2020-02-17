@@ -1,0 +1,3 @@
+---
+docker_compose_archive_name: docker-compose-Linux-x86_64
+docker_compose_executable_path: /usr/local/bin/docker-compose
