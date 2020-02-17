@@ -1,0 +1,49 @@
+---
+- include_tasks: preflight-checks.yml
+
+- name: Load OS specific variables
+  include_vars: "{{ item }}"
+  with_first_found:
+    - files:
+        - "{{ ansible_distribution }}-{{ ansible_distribution_version|lower|replace('/', '_') }}.yml"
+        - "{{ ansible_distribution }}-{{ ansible_distribution_release }}.yml"
+        - "{{ ansible_distribution }}-{{ ansible_distribution_major_version|lower|replace('/', '_') }}.yml"
+        - "{{ ansible_distribution }}.yml"
+        - "{{ ansible_os_family|lower }}.yml"
+        - defaults.yml
+      paths:
+        - ../vars
+
+- include_tasks: setup-RedHat.yml
+  when: ansible_os_family == "RedHat"
+
+- name: Ensure that OS-specific handlers run before carrying on
+  meta: flush_handlers
+
+- name: Disable SELinux
+  selinux:
+    state: disabled
+
+- name: Install Kubernetes packages
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - conntrack-tools
+    - kubelet
+    - kubeadm
+    - kubectl
+
+- name: Enable the passing of bridged IPv4 traffic to iptables’ chains
+  sysctl:
+    name: net.bridge.bridge-nf-call-iptables
+    value: 1
+    state: present
+
+- name: Enable kubelet service
+  service:
+    name: kubelet
+    enabled: true
+
+- include_tasks: setup-glusterfs.yml
+  when: ferrarimarco_kubernetes_filesystem == "glusterfs"

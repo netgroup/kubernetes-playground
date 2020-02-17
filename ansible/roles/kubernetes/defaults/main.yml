@@ -1,0 +1,19 @@
+---
+# Distributed filesystem to configure
+# Possible values:
+# - Filesystem: glusterfs
+ferrarimarco_kubernetes_filesystem:
+
+# kubelet configuration file path
+# ferrarimarco_kubernetes_kubelet_systemd_service_config_file:
+
+# Kernel modules to load for GlusterFS
+# ferrarimarco_kubernetes_glusterfs_kernel_modules:
+
+ferrarimarco_kubernetes_kernel_modules_conf_dir: "/etc/modules-load.d"
+
+# GlusterFS packages to install
+# ferrarimarco_kubernetes_glusterfs_packages:
+
+# Abort if swap is enabled
+ferrarimarco_kubernetes_kubelet_fail_swap_on: true

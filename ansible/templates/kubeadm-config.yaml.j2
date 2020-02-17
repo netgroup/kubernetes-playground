@@ -5,6 +5,8 @@ bootstrapTokens:
 kind: InitConfiguration
 localAPIEndpoint:
   advertiseAddress: "{{kubernetes_master_1_ip}}"
+kubeletExtraArgs:
+  cgroup-driver: "{{docker_cgroup_driver}}"
 ---
 apiVersion: kubeadm.k8s.io/v1beta2
 kind: ClusterConfiguration

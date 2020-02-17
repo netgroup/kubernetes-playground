@@ -1,0 +1,40 @@
+---
+- name: Install Docker dependencies
+  yum:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+      - device-mapper-persistent-data
+      - lvm2
+      - yum-utils
+
+- name: Remove legacy Docker packages
+  yum:
+    name: "{{ packages }}"
+    state: absent
+  vars:
+    packages:
+      - docker
+      - docker-io
+
+- name: Add Docker GPG key.
+  rpm_key:
+    key: https://download.docker.com/linux/centos/gpg
+    state: present
+
+- name: Add Docker repository.
+  get_url:
+    url: "{{ docker_yum_repo_url }}"
+    dest: '/etc/yum.repos.d/docker-ce.repo'
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Install Docker
+  yum:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+      - docker-ce

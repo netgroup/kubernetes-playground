@@ -1,0 +1,5 @@
+---
+__ferrarimarco_kubernetes_glusterfs_kernel_modules:
+  - dm_snapshot
+  - dm_mirror
+  - dm_thin_pool

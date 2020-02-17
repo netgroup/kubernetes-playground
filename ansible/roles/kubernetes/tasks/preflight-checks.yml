@@ -1,0 +1,5 @@
+---
+- name: Stop if swap enabled
+  assert:
+    that: ansible_swaptotal_mb == 0
+  when: ferrarimarco_kubernete_kubelet_fail_swap_on|default(true)
