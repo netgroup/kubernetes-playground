@@ -46,7 +46,7 @@
       shell: "/vagrant/scripts/linux/bootstrap-kubernetes-{{kubernetes_classifier}}.sh {{kubernetes_master_1_ip}} {{kubeadm_token}}"
       args:
         creates: /etc/kubernetes/kubelet.conf
-      when: inventory_hostname != kubernetes_master_1_ip
+      when: "'kubernetes-minions' in group_names"
     - name: Download gluster-kubernetes
       become: yes
       unarchive:
