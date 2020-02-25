@@ -3,7 +3,7 @@ conf:
   master_mem: 2048
   minion_mem: 1024
   ansi_ctrl_mem: 1024
-  playground_name: k8s-play
+  playground_name: k8s-p8
   base_box_builder_name: base-box-builder
   ansi_ctrl_name: ansi-ctrl
   master_name: k8s-master-1
@@ -26,4 +26,6 @@ pod_network:
 ansible:
   group_vars:
     kubernetes-masters:
+      kubernetes_network_plugin: calico
+    kubernetes-minions:
       kubernetes_network_plugin: calico
