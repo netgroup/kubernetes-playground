@@ -290,6 +290,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         vb.customize ["modifyvm", :id, "--hwvirtex", "on"]
         vb.customize ["modifyvm", :id, "--memory", info[:mem]]
         vb.customize ["modifyvm", :id, "--name", hostname]
+        vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
         vb.gui = info[:show_gui]
         vb.name = hostname
       end
