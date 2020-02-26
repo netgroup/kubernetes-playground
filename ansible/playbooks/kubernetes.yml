@@ -45,6 +45,16 @@
         owner: root
         src: templates/calico-config.yaml.j2
       when: inventory_hostname == kubernetes_master_1_ip
+    - name: Generate Flannel configuration file
+      become: yes
+      template:
+        backup: no
+        dest: /tmp/kube-flannel-config.yaml
+        group: root
+        mode: 0755
+        owner: root
+        src: templates/kube-flannel-config.yaml.j2
+      when: inventory_hostname == kubernetes_master_1_ip
     - name: Initialize Kubernetes cluster (master)
       become: yes
       shell: "/vagrant/scripts/linux/bootstrap-kubernetes-{{kubernetes_classifier}}.sh /tmp/kubeadm-config.yaml {{kubernetes_network_plugin}}"
@@ -53,7 +63,7 @@
       when: inventory_hostname == kubernetes_master_1_ip
     - name: Initialize Kubernetes cluster (workers)
       become: yes
-      shell: "/vagrant/scripts/linux/bootstrap-kubernetes-{{kubernetes_classifier}}.sh {{kubernetes_master_1_ip}} {{kubeadm_token}} {{cluster_ip_cidr}}"
+      shell: "/vagrant/scripts/linux/bootstrap-kubernetes-{{kubernetes_classifier}}.sh {{kubernetes_master_1_ip}} {{kubeadm_token}} {{cluster_ip_cidr}} {{kubernetes_network_plugin}}"
       args:
         creates: /etc/kubernetes/kubelet.conf
       when: "'kubernetes-minions' in group_names"

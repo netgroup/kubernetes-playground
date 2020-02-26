@@ -27,3 +27,5 @@ ansible:
   group_vars:
     kubernetes-masters:
       kubernetes_network_plugin: calico
+    kubernetes-minions:
+      kubernetes_network_plugin: calico

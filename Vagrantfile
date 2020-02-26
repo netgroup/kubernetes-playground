@@ -220,6 +220,8 @@ IO.write("ansible/group_vars/#{ansible_master_group_name}.yaml", master_group_va
 minion_group_vars = {
   "kubernetes_classifier" => "minion"
 }
+custom_minion_group_vars = settings["ansible"]["group_vars"]["#{ansible_minion_group_name}"]
+minion_group_vars = minion_group_vars.merge(custom_minion_group_vars)
 IO.write("ansible/group_vars/#{ansible_minion_group_name}.yaml", minion_group_vars.to_yaml)
 
 ADDITIONAL_DISK_SIZE = 10240

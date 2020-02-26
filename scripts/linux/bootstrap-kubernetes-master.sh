@@ -29,4 +29,11 @@ elif [ "$network_plugin_id" = 'calico' ]; then
     # with the following customization
     # - name: CALICO_IPV4POOL_CIDR
     #   value: "{{cluster_ip_cidr}}"
+elif [ "$network_plugin_id" = 'flannel' ]; then
+	kubectl apply -f /tmp/kube-flannel-config.yaml
+    # /tmp/kube-flannel-config.yaml is generated from ansible/playbooks/templates/kube-flannel-config.yaml.j2
+    # which is based on https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+    # with the following customization
+    # "Network": "10.244.0.0/16" => "Network": "{{cluster_ip_cidr}}",
+
 fi
