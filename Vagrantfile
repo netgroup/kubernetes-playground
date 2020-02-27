@@ -9,7 +9,7 @@ env_specific_config_path = "env.yaml"
 if File.exist?(env_specific_config_path)
   env_settings = YAML::load_file(env_specific_config_path)
   if !env_settings.nil?
-    settings = settings.merge!(env_settings)
+    settings = settings.merge(env_settings)
   end
 end
 
