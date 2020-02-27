@@ -25,7 +25,5 @@ pod_network:
   service_ip_cidr: "10.96.0.0/12"
 ansible:
   group_vars:
-    kubernetes-masters:
-      kubernetes_network_plugin: calico
-    kubernetes-minions:
+    all:
       kubernetes_network_plugin: calico
