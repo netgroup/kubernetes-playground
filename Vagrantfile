@@ -8,7 +8,9 @@ settings = YAML::load_file("defaults.yaml")
 env_specific_config_path = "env.yaml"
 if File.exist?(env_specific_config_path)
   env_settings = YAML::load_file(env_specific_config_path)
-  settings.merge!(env_settings)
+  if !env_settings.nil?
+    settings = settings.merge(env_settings)
+  end
 end
 
 NETWORK_PREFIX = settings["net"]["network_prefix"]
@@ -22,7 +24,6 @@ KUBERNETES_MASTER_1_IPV6 = NETWORK_PREFIX_IPV6 + settings["net"]["master_ipv6_pa
 KUBERNETES_MINION_1_IPV6 = NETWORK_PREFIX_IPV6 + settings["net"]["minion_1_ipv6_part"]
 KUBERNETES_MINION_2_IPV6 = NETWORK_PREFIX_IPV6 + settings["net"]["minion_2_ipv6_part"]
 KUBERNETES_MINION_3_IPV6 = NETWORK_PREFIX_IPV6 + settings["net"]["minion_3_ipv6_part"]
-
 
 DOMAIN = "." + settings["conf"]["playground_name"] + ".local"
 
@@ -208,20 +209,28 @@ default_group_vars = {
   "cluster_ip_cidr"  => "#{CLUSTER_IP_CIDR}",
   "service_ip_cidr"  => "#{SERVICE_IP_CIDR}",
 }
+custom_all_group_vars = settings["ansible"]["group_vars"]["all"]
+if !custom_all_group_vars.nil?
+  default_group_vars = default_group_vars.merge(custom_all_group_vars)
+end
 IO.write("ansible/group_vars/all.yaml", default_group_vars.to_yaml)
 
 master_group_vars = {
   "kubernetes_classifier" => "master"
 }
 custom_master_group_vars = settings["ansible"]["group_vars"]["#{ansible_master_group_name}"]
-master_group_vars = master_group_vars.merge(custom_master_group_vars)
+if !custom_master_group_vars.nil?
+  master_group_vars = master_group_vars.merge(custom_master_group_vars)
+end
 IO.write("ansible/group_vars/#{ansible_master_group_name}.yaml", master_group_vars.to_yaml)
 
 minion_group_vars = {
   "kubernetes_classifier" => "minion"
 }
 custom_minion_group_vars = settings["ansible"]["group_vars"]["#{ansible_minion_group_name}"]
-minion_group_vars = minion_group_vars.merge(custom_minion_group_vars)
+if !custom_minion_group_vars.nil?
+  minion_group_vars = minion_group_vars.merge(custom_minion_group_vars)
+end
 IO.write("ansible/group_vars/#{ansible_minion_group_name}.yaml", minion_group_vars.to_yaml)
 
 ADDITIONAL_DISK_SIZE = 10240
