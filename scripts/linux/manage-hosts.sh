@@ -1,5 +1,8 @@
 #!/bin/sh
 
+#this is an helper script to manipulate entries in /etc/hosts
+#this script is used by config-etc-host.sh script
+
 #usage examples:
 #/vagrant/scripts/linux/hosts.sh remove k8s-master-1.k8s-p9.local
 #/vagrant/scripts/linux/hosts.sh add k8s-master-1.k8s-p9.local 192.169.0.10

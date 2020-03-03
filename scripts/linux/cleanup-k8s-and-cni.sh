@@ -1,5 +1,9 @@
 #!/bin/sh
 
+#this script is useful to manually clean up the kubernetes, cni plugin, and
+#networking environments, so that the installation of kubernetes and cni plugin
+#can be repeated multiple times
+
 #usage:
 # cleanup-k8s-and-cni.sh PLAYGROUND_NAME
 #example:

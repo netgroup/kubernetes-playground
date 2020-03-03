@@ -1,5 +1,10 @@
 #!/bin/sh
 
+#this script is used to add the ip addresses of hosts in /etc/hosts
+#it is needed by flannel, because it does not work if there is no information
+#in /etc/hosts (it does not work even if DNS resolution is enabled)
+#this script is invoked by bootstrap-kubernetes-minion.sh
+#this script uses the script manage-hosts.sh
 
 SCRIPT_NAME="manage-hosts.sh"
 SCRIPT_PATH="/vagrant/scripts/linux"
