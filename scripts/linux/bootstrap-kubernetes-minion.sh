@@ -1,5 +1,7 @@
 #!/bin/sh
 
+SCRIPT_PATH="/vagrant/scripts/linux"
+
 master_address="$1"
 token="$2"
 
@@ -7,8 +9,7 @@ kubernetes_cluster_ip_cidr="$3"
 
 network_plugin_id="$4"
 
-echo "Initializing Kubernetes minion to join: $master_address and token: $token"
-kubeadm join "$master_address":6443 --token "$token" --discovery-token-unsafe-skip-ca-verification
+playground_name="$5"
 
 
 if [ "$network_plugin_id" = 'weavenet' ]; then
@@ -24,8 +25,11 @@ elif [ "$network_plugin_id" = 'calico' ]; then
 
 elif [ "$network_plugin_id" = 'flannel' ]; then
     echo "Setup networking for flannel"
-    # nothing is needed
+    
+    $SCRIPT_PATH/config-etc-hosts.sh "$playground_name"
     
 fi
 
 
+echo "Initializing Kubernetes minion to join: $master_address and token: $token"
+kubeadm join "$master_address":6443 --token "$token" --discovery-token-unsafe-skip-ca-verification
