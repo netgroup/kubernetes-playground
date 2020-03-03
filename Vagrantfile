@@ -25,7 +25,10 @@ KUBERNETES_MINION_1_IPV6 = NETWORK_PREFIX_IPV6 + settings["net"]["minion_1_ipv6_
 KUBERNETES_MINION_2_IPV6 = NETWORK_PREFIX_IPV6 + settings["net"]["minion_2_ipv6_part"]
 KUBERNETES_MINION_3_IPV6 = NETWORK_PREFIX_IPV6 + settings["net"]["minion_3_ipv6_part"]
 
-DOMAIN = "." + settings["conf"]["playground_name"] + ".local"
+IF_NAME_FOR_FLANNEL = settings["net"]["if_name_for_flannel"]
+
+PLAYGROUND_NAME = settings["conf"]["playground_name"]
+DOMAIN = "." + PLAYGROUND_NAME + ".local"
 
 DOCKER_REGISTRY_ALIAS = "registry" + DOMAIN
 NETWORK_TYPE_DHCP = "dhcp"
@@ -206,8 +209,10 @@ default_group_vars = {
   "kubeadm_token" => "#{KUBEADM_TOKEN}",
   "subnet_mask_ipv6" => "#{SUBNET_MASK_IPV6}",
   "wildcard_domain" => "#{WILDCARD_DOMAIN}",
+  "playground_name" => "#{PLAYGROUND_NAME}",  
   "cluster_ip_cidr"  => "#{CLUSTER_IP_CIDR}",
   "service_ip_cidr"  => "#{SERVICE_IP_CIDR}",
+  "if_name_for_flannel"  => "#{IF_NAME_FOR_FLANNEL}",
 }
 custom_all_group_vars = settings["ansible"]["group_vars"]["all"]
 if !custom_all_group_vars.nil?
