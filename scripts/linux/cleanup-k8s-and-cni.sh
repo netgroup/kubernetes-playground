@@ -13,7 +13,7 @@
 #clean up kubernetes control information and cni settings in all nodes
 
 sudo kubeadm reset -f
-sudo rm $HOME/.kube/config
+sudo rm "$HOME/.kube/config"
 sudo rm /root/.kube/config
 sudo rm -rf /etc/cni/net.d
 
