@@ -23,7 +23,8 @@ die() { yell "$*"; exit 111; }
 try() { "$@" || die "cannot $*"; }
 
 remove() {
-    if [ -n "$(grep -P "[[:space:]]$hostname" /etc/hosts)" ]; then
+#    if [ -n "$(grep -P "[[:space:]]$hostname" /etc/hosts)" ]; then
+    if grep -qP "[[:space:]]$hostname" /etc/hosts; then    
         echo "$hostname found in $hostsFile. Removing now...";
         try sudo sed -ie "/[[:space:]]$hostname/d" "$hostsFile";
     else
@@ -32,13 +33,16 @@ remove() {
 }
 
 add() {
-    if [ -n "$(grep -P "[[:space:]]$hostname" /etc/hosts)" ]; then
+#   if [ -n "$(grep -P "[[:space:]]$hostname" /etc/hosts)" ]; then
+   if grep -qP "[[:space:]]$hostname" /etc/hosts 
+    then
         yell "$hostname, already exists: $(grep $hostname $hostsFile)";
     else
         echo "Adding $hostname to $hostsFile...";
         try printf "%s\t%s\n" "$ip" "$hostname" | sudo tee -a "$hostsFile" > /dev/null;
 
-        if [ -n "$(grep $hostname /etc/hosts)" ]; then
+#        if [ -n "$(grep $hostname /etc/hosts)" ]; then
+        if grep -q $hostname /etc/hosts; then
             echo "$hostname was added succesfully:";
             echo "$(grep $hostname /etc/hosts)";
         else
