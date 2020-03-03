@@ -36,15 +36,15 @@ add() {
 #   if [ -n "$(grep -P "[[:space:]]$hostname" /etc/hosts)" ]; then
    if grep -qP "[[:space:]]$hostname" /etc/hosts 
     then
-        yell "$hostname, already exists: $(grep $hostname $hostsFile)";
+        yell "$hostname, already exists: $(grep "$hostname" $hostsFile)";
     else
         echo "Adding $hostname to $hostsFile...";
         try printf "%s\t%s\n" "$ip" "$hostname" | sudo tee -a "$hostsFile" > /dev/null;
 
 #        if [ -n "$(grep $hostname /etc/hosts)" ]; then
-        if grep -q $hostname /etc/hosts; then
+        if grep -q "$hostname" /etc/hosts; then
             echo "$hostname was added succesfully:";
-            echo "$(grep $hostname /etc/hosts)";
+            grep "$hostname" /etc/hosts;
         else
             die "Failed to add $hostname";
         fi
