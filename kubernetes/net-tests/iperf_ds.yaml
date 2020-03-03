@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: iperf-ds
+  labels:
+    app: iperf-ds
+spec:
+  selector:
+    matchLabels:
+      app: iperf
+  template:
+    metadata:
+      labels:
+        app: iperf
+    spec:
+      containers:
+      - name: iperf-server
+        image: networkstatic/iperf3
+        ports: 
+        - containerPort: 5201
+        args: ["-s"]
+ 
