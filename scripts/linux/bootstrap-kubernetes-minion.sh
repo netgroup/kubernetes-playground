@@ -26,7 +26,7 @@ elif [ "$network_plugin_id" = 'calico' ]; then
 elif [ "$network_plugin_id" = 'flannel' ]; then
     echo "Setup networking for flannel"
     
-    $SCRIPT_PATH/config-etc-hosts.sh $playground_name
+    $SCRIPT_PATH/config-etc-hosts.sh "$playground_name"
     
 fi
 
