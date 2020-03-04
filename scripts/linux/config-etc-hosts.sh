@@ -6,11 +6,18 @@
 #this script is invoked by bootstrap-kubernetes-minion.sh
 #this script uses the script manage-hosts.sh
 
+#usage:
+# manage-hosts.sh PLAYGROUND_NAME
+#example
+# manage-hosts.sh k8s-play
+
 SCRIPT_NAME="manage-hosts.sh"
 SCRIPT_PATH="/vagrant/scripts/linux"
 
 PLAYGROUND_NAME="$1"
-#PLAYGROUND_NAME="k8s-p9"
+#if you want to run this script without passing the PLAYGROUND_NAME
+#parameter you can replace the above definition with a fixed one:
+#PLAYGROUND_NAME="k8s-play"
 
 MASTER_1="k8s-master-1"
 MINION_1="k8s-minion-1"
