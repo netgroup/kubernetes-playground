@@ -58,6 +58,11 @@ KUBERNETES_MINION_3_VM_NAME = settings["conf"]["minion_3_name"]
 
 # VM IDs
 BASE_BOX_BUILDER_VM_ID = BASE_BOX_BUILDER_VM_NAME + DOMAIN
+ANSIBLE_CONTROLLER_VM_ID = ANSIBLE_CONTROLLER_VM_NAME + DOMAIN
+KUBERNETES_MASTER_1_VM_ID = KUBERNETES_MASTER_1_VM_NAME + DOMAIN
+KUBERNETES_MINION_1_VM_ID = KUBERNETES_MINION_1_VM_NAME + DOMAIN
+KUBERNETES_MINION_2_VM_ID = KUBERNETES_MINION_2_VM_NAME + DOMAIN
+KUBERNETES_MINION_3_VM_ID = KUBERNETES_MINION_3_VM_NAME + DOMAIN
 
 # memory for each host
 BASE_BOX_BUILDER_MEM = settings["conf"]["base_box_builder_mem"]
@@ -72,9 +77,12 @@ playground = {
     :cpus => 2,
     :mem => BASE_BOX_BUILDER_MEM,
     :net_auto_config => true,
-    :show_gui => false
+    :show_gui => false,
+    :host_vars => {
+      "assigned_hostname" => BASE_BOX_BUILDER_VM_ID
+    }
   },
-  KUBERNETES_MASTER_1_VM_NAME + DOMAIN => {
+  KUBERNETES_MASTER_1_VM_ID => {
     :alias => [DOCKER_REGISTRY_ALIAS],
     :autostart => true,
     :box => VAGRANT_X64_KUBERNETES_NODES_BOX_ID,
@@ -88,10 +96,11 @@ playground = {
     :subnet_mask_ipv6 => SUBNET_MASK_IPV6,
     :show_gui => false,
     :host_vars => {
-      "ipv6_address" => KUBERNETES_MASTER_1_IPV6
+      "ipv6_address" => KUBERNETES_MASTER_1_IPV6,
+      "assigned_hostname" => KUBERNETES_MASTER_1_VM_ID
     }
   },
-  KUBERNETES_MINION_1_VM_NAME + DOMAIN => {
+  KUBERNETES_MINION_1_VM_ID => {
     :autostart => true,
     :box => VAGRANT_X64_KUBERNETES_NODES_BOX_ID,
     :cpus => 1,
@@ -103,10 +112,11 @@ playground = {
     :subnet_mask => SUBNET_MASK,
     :show_gui => false,
     :host_vars => {
-      "ipv6_address" => KUBERNETES_MINION_1_IPV6
+      "ipv6_address" => KUBERNETES_MINION_1_IPV6,
+      "assigned_hostname" => KUBERNETES_MINION_1_VM_ID
     }
   },
-  KUBERNETES_MINION_2_VM_NAME + DOMAIN => {
+  KUBERNETES_MINION_2_VM_ID => {
     :autostart => true,
     :box => VAGRANT_X64_KUBERNETES_NODES_BOX_ID,
     :cpus => 1,
@@ -118,10 +128,11 @@ playground = {
     :subnet_mask => SUBNET_MASK,
     :show_gui => false,
     :host_vars => {
-      "ipv6_address" => KUBERNETES_MINION_2_IPV6
+      "ipv6_address" => KUBERNETES_MINION_2_IPV6,
+      "assigned_hostname" => KUBERNETES_MINION_2_VM_ID
     }
   },
-  KUBERNETES_MINION_3_VM_NAME + DOMAIN => {
+  KUBERNETES_MINION_3_VM_ID => {
     :autostart => true,
     :box => VAGRANT_X64_KUBERNETES_NODES_BOX_ID,
     :cpus => 1,
@@ -133,10 +144,11 @@ playground = {
     :subnet_mask => SUBNET_MASK,
     :show_gui => false,
     :host_vars => {
-      "ipv6_address" => KUBERNETES_MINION_3_IPV6
+      "ipv6_address" => KUBERNETES_MINION_3_IPV6,
+      "assigned_hostname" => KUBERNETES_MINION_3_VM_ID
     }
   },
-  ANSIBLE_CONTROLLER_VM_NAME + DOMAIN => {
+  ANSIBLE_CONTROLLER_VM_ID => {
     :autostart => true,
     :box => VAGRANT_X64_CONTROLLER_BOX_ID,
     :cpus => 1,

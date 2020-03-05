@@ -63,7 +63,7 @@
       when: inventory_hostname == kubernetes_master_1_ip
     - name: Initialize Kubernetes cluster (workers)
       become: yes
-      shell: "/vagrant/scripts/linux/bootstrap-kubernetes-{{kubernetes_classifier}}.sh {{kubernetes_master_1_ip}} {{kubeadm_token}} {{cluster_ip_cidr}} {{kubernetes_network_plugin}} {{playground_name}}"
+      shell: "/vagrant/scripts/linux/bootstrap-kubernetes-{{kubernetes_classifier}}.sh {{kubernetes_master_1_ip}} {{kubeadm_token}} {{cluster_ip_cidr}} {{kubernetes_network_plugin}}"
       args:
         creates: /etc/kubernetes/kubelet.conf
       when: "'kubernetes-minions' in group_names"
