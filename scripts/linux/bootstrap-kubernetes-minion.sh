@@ -9,15 +9,12 @@ network_plugin_id="$4"
 
 if [ "$network_plugin_id" = 'weavenet' ]; then
     echo "Setup networking for weavenet"
-    echo "Setting up a route to Kubernetes cluster IP ($kubernetes_cluster_ip_cidr) via $master_address"
 
-    #TODO this is not persistent across reboot
-    ip route add "$kubernetes_cluster_ip_cidr" via "$master_address"
+    echo "Setting up a route to Kubernetes cluster IP ($kubernetes_cluster_ip_cidr) via $master_address"
+    ip route add "$kubernetes_cluster_ip_cidr" via "$master_address" #TODO this is not persistent across reboot
 
 elif [ "$network_plugin_id" = 'calico' ]; then
     echo "Setup networking for calico"
-    # nothing is needed
-
 elif [ "$network_plugin_id" = 'flannel' ]; then
     echo "Setup networking for flannel"
 fi
