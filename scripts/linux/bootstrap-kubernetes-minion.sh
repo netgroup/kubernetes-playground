@@ -1,7 +1,5 @@
 #!/bin/sh
 
-SCRIPT_PATH="/vagrant/scripts/linux"
-
 master_address="$1"
 token="$2"
 
