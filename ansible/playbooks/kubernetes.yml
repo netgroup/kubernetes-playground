@@ -84,6 +84,16 @@
         owner: root
         group: root
         mode: 0644
+    - name: Add the FQDN to the hosts file
+      become: yes
+      lineinfile:
+        path: /etc/hosts
+        regexp: "^{{inventory_hostname}}"
+        line: "{{inventory_hostname}} {{assigned_hostname}}"
+        owner: root
+        group: root
+        mode: 0644
+      when: assigned_hostname is defined
   roles:
     - role: ferrarimarco.kubernetes
       become: yes
