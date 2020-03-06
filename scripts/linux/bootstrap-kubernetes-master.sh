@@ -13,6 +13,7 @@ chown "$(id -u)":"$(id -g)" "$HOME"/.kube/config
 # Setup vagrant user environment
 mkdir -p /home/vagrant/.kube
 cp -i /etc/kubernetes/admin.conf /home/vagrant/.kube/config
+chown vagrant:vagrant /home/vagrant/.kube
 chown vagrant:vagrant /home/vagrant/.kube/config
 
 network_plugin_id="$2"
@@ -26,14 +27,8 @@ elif [ "$network_plugin_id" = 'calico' ]; then
     kubectl apply -f /tmp/calico-config.yaml
     # /tmp/calico-config.yaml is generated from ansible/playbooks/templates/calico-config.yaml.j2
     # which is based on https://docs.projectcalico.org/v3.10/manifests/calico.yaml
-    # with the following customization
-    # - name: CALICO_IPV4POOL_CIDR
-    #   value: "{{cluster_ip_cidr}}"
 elif [ "$network_plugin_id" = 'flannel' ]; then
-	kubectl apply -f /tmp/kube-flannel-config.yaml
+    kubectl apply -f /tmp/kube-flannel-config.yaml
     # /tmp/kube-flannel-config.yaml is generated from ansible/playbooks/templates/kube-flannel-config.yaml.j2
     # which is based on https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
-    # with the following customization
-    # "Network": "10.244.0.0/16" => "Network": "{{cluster_ip_cidr}}",
-
 fi
