@@ -3,6 +3,12 @@
 master_address="$1"
 token="$2"
 
+#kubernetes_cluster_ip_cidr variable is currently unused
+#but it is maintained because it could be needed for the configuration
+#of specific networking plugins
+kubernetes_cluster_ip_cidr="$3"
+
+
 network_plugin_id="$4"
 
 if [ "$network_plugin_id" = 'weavenet' ]; then
