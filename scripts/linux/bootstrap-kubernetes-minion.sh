@@ -3,10 +3,11 @@
 master_address="$1"
 token="$2"
 
-#kubernetes_cluster_ip_cidr variable is currently unused
-#but it is maintained because it could be needed for the configuration
-#of specific networking plugins
-kubernetes_cluster_ip_cidr="$3"
+# kubernetes_cluster_ip_cidr variable is currently unused
+# but it is maintained as a comment to keep track that there is a parameter
+# that it is passed to this script and because it could be needed
+# for the configuration of specific networking plugins
+#kubernetes_cluster_ip_cidr="$3"
 
 network_plugin_id="$4"
 
