@@ -1,5 +1,11 @@
 #!/bin/sh
 
+echo "making IPv4 forwarding permanent"
+
+fgrep -v net.ipv4.ip_forward /etc/sysctl.conf > /etc/sysctl.conf.mytmp
+echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf.mytmp
+mv /etc/sysctl.conf.mytmp /etc/sysctl.conf
+
 echo "Configuring the IPv6 interface"
 
 CURRENT_IPV4_ADDRESS="$2"
