@@ -8,7 +8,6 @@ token="$2"
 #of specific networking plugins
 kubernetes_cluster_ip_cidr="$3"
 
-
 network_plugin_id="$4"
 
 if [ "$network_plugin_id" = 'weavenet' ]; then
