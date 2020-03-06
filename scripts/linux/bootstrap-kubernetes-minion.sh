@@ -3,8 +3,6 @@
 master_address="$1"
 token="$2"
 
-kubernetes_cluster_ip_cidr="$3"
-
 network_plugin_id="$4"
 
 if [ "$network_plugin_id" = 'weavenet' ]; then
