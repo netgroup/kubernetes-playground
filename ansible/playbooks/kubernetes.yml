@@ -35,6 +35,16 @@
         owner: root
         src: templates/kubeadm-config.yaml.j2
       when: inventory_hostname == kubernetes_master_1_ip
+    - name: Generate weavenet configuration file
+      become: yes
+      template:
+        backup: no
+        dest: /tmp/weavenet-config.yaml
+        group: root
+        mode: 0755
+        owner: root
+        src: templates/weavenet-config.yaml.j2
+      when: inventory_hostname == kubernetes_master_1_ip
     - name: Generate Calico configuration file
       become: yes
       template:
@@ -76,13 +86,12 @@
         src: https://github.com/gluster/gluster-kubernetes/archive/master.zip
       when: "'kubernetes-masters' in group_names"
     - name: Configure registry name resolution in hosts file
-      become: yes
       lineinfile:
         path: /etc/hosts
         regexp: "^{{kubernetes_master_1_ip}}"
         line: "{{kubernetes_master_1_ip}} {{docker_registry_host}}"
         owner: root
-        group: root
+        group: root        
         mode: 0644
   roles:
     - role: ferrarimarco.kubernetes
