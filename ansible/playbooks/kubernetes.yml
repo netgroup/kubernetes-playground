@@ -10,6 +10,14 @@
       become: yes
       shell: "/vagrant/scripts/linux/configure-ipv6-interface.sh {{ipv6_address}} {{hostvars[inventory_hostname]['ansible_env'].SSH_CONNECTION.split(' ')[2]}} {{subnet_mask_ipv6}}"
       when: ipv6_address is defined
+    - name: Remove FQDN from 127.0.0.1
+      become: yes
+      shell: "/vagrant/scripts/linux/manage-hosts.sh remove {{assigned_hostname}}"
+      when: assigned_hostname is defined
+    - name: Add the FQDN to the hosts file
+      become: yes
+      shell: "/vagrant/scripts/linux/manage-hosts.sh add {{assigned_hostname}} {{inventory_hostname}}"
+      when: assigned_hostname is defined
     - name: Configure Kubelet
       become: yes
       template:
@@ -34,6 +42,16 @@
         mode: 0755
         owner: root
         src: templates/kubeadm-config.yaml.j2
+      when: inventory_hostname == kubernetes_master_1_ip
+    - name: Generate weavenet configuration file
+      become: yes
+      template:
+        backup: no
+        dest: /tmp/weavenet-config.yaml
+        group: root
+        mode: 0755
+        owner: root
+        src: templates/weavenet-config.yaml.j2
       when: inventory_hostname == kubernetes_master_1_ip
     - name: Generate Calico configuration file
       become: yes
@@ -77,13 +95,7 @@
       when: "'kubernetes-masters' in group_names"
     - name: Configure registry name resolution in hosts file
       become: yes
-      lineinfile:
-        path: /etc/hosts
-        regexp: "^{{kubernetes_master_1_ip}}"
-        line: "{{kubernetes_master_1_ip}} {{docker_registry_host}}"
-        owner: root
-        group: root
-        mode: 0644
+      shell: "/vagrant/scripts/linux/manage-hosts.sh add {{docker_registry_host}} {{kubernetes_master_1_ip}}"
   roles:
     - role: ferrarimarco.kubernetes
       become: yes
