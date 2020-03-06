@@ -18,6 +18,9 @@
       become: yes
       shell: "/vagrant/scripts/linux/manage-hosts.sh add {{assigned_hostname}} {{inventory_hostname}}"
       when: assigned_hostname is defined
+    - name: Configure registry name resolution in hosts file
+      become: yes
+      shell: "/vagrant/scripts/linux/manage-hosts.sh add {{docker_registry_host}} {{kubernetes_master_1_ip}}"
     - name: Configure Kubelet
       become: yes
       template:
@@ -83,9 +86,6 @@
         remote_src: yes
         src: https://github.com/gluster/gluster-kubernetes/archive/master.zip
       when: "'kubernetes-masters' in group_names"
-    - name: Configure registry name resolution in hosts file
-      become: yes
-      shell: "/vagrant/scripts/linux/manage-hosts.sh add {{docker_registry_host}} {{kubernetes_master_1_ip}}"
   roles:
     - role: ferrarimarco.kubernetes
       become: yes
