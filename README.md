@@ -25,7 +25,7 @@ This project is a playground to play with Kubernetes.
 The provisioning and configuration process has two phases:
 
 1. Prepare a base Vagrant box.
-   1. Provision and configure a VM (`vagrant base-box-builder.k8s-play.local`).
+   1. Provision and configure the `base-box-builder.k8s-play.local` VM.
    1. Export a Vagrant box based on the `vagrant base-box-builder.k8s-play.local` VM.
 1. Provision and configure the rest of the environment using the base box.
 
