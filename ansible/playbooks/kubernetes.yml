@@ -10,6 +10,14 @@
       become: yes
       shell: "/vagrant/scripts/linux/configure-ipv6-interface.sh {{ipv6_address}} {{hostvars[inventory_hostname]['ansible_env'].SSH_CONNECTION.split(' ')[2]}} {{subnet_mask_ipv6}}"
       when: ipv6_address is defined
+    - name: Remove FQDN from 127.0.0.1
+      become: yes
+      shell: "/vagrant/scripts/linux/manage-hosts.sh remove {{assigned_hostname}}"
+      when: assigned_hostname is defined
+    - name: Add the FQDN to the hosts file
+      become: yes
+      shell: "/vagrant/scripts/linux/manage-hosts.sh add {{assigned_hostname}} {{inventory_hostname}}"
+      when: assigned_hostname is defined
     - name: Configure Kubelet
       become: yes
       template:

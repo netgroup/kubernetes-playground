@@ -13,6 +13,7 @@ chown "$(id -u)":"$(id -g)" "$HOME"/.kube/config
 # Setup vagrant user environment
 mkdir -p /home/vagrant/.kube
 cp -i /etc/kubernetes/admin.conf /home/vagrant/.kube/config
+chown vagrant:vagrant /home/vagrant/.kube
 chown vagrant:vagrant /home/vagrant/.kube/config
 
 network_plugin_id="$2"
