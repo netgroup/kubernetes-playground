@@ -20,9 +20,11 @@ network_plugin_id="$2"
 echo "Installing $network_plugin_id network plugin"
 
 if [ "$network_plugin_id" = 'weavenet' ]; then
-    kubever=$(kubectl version | base64 | tr -d '\n')
-    export kubever
-    kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$kubever"
+    kubectl apply -f /tmp/weavenet-config.yaml
+    # /tmp/weavenet-config.yaml is generated from ansible/playbooks/templates/weavenet-config.yaml.j2
+    # which is obtained by running the following command on the kubernetes master node
+    # curl -fsSLo /vagrant/ansible/playbooks/templates/weavenet-config.yaml.j2 "https://cloud.weave.works/k8s/net?env.IPALLOC_RANGE=\{\{cluster_ip_cidr\}\}&k8s-version=$(kubectl version | base64 | tr -d '\n')"
+
 elif [ "$network_plugin_id" = 'calico' ]; then
     kubectl apply -f /tmp/calico-config.yaml
     # /tmp/calico-config.yaml is generated from ansible/playbooks/templates/calico-config.yaml.j2
