@@ -189,6 +189,7 @@ spec:
         args:
         - --ip-masq
         - --kube-subnet-mgr
+        - --iface={{if_name_for_flannel}}
         resources:
           requests:
             cpu: "100m"
@@ -283,6 +284,7 @@ spec:
         args:
         - --ip-masq
         - --kube-subnet-mgr
+        - --iface={{if_name_for_flannel}}
         resources:
           requests:
             cpu: "100m"
@@ -377,6 +379,7 @@ spec:
         args:
         - --ip-masq
         - --kube-subnet-mgr
+        - --iface={{if_name_for_flannel}}
         resources:
           requests:
             cpu: "100m"
@@ -471,6 +474,7 @@ spec:
         args:
         - --ip-masq
         - --kube-subnet-mgr
+        - --iface={{if_name_for_flannel}}
         resources:
           requests:
             cpu: "100m"
@@ -565,6 +569,7 @@ spec:
         args:
         - --ip-masq
         - --kube-subnet-mgr
+        - --iface={{if_name_for_flannel}}
         resources:
           requests:
             cpu: "100m"

@@ -25,7 +25,10 @@ KUBERNETES_MINION_1_IPV6 = NETWORK_PREFIX_IPV6 + settings["net"]["minion_1_ipv6_
 KUBERNETES_MINION_2_IPV6 = NETWORK_PREFIX_IPV6 + settings["net"]["minion_2_ipv6_part"]
 KUBERNETES_MINION_3_IPV6 = NETWORK_PREFIX_IPV6 + settings["net"]["minion_3_ipv6_part"]
 
-DOMAIN = "." + settings["conf"]["playground_name"] + ".local"
+IF_NAME_FOR_FLANNEL = settings["net"]["if_name_for_flannel"]
+
+PLAYGROUND_NAME = settings["conf"]["playground_name"]
+DOMAIN = "." + PLAYGROUND_NAME + ".local"
 
 DOCKER_REGISTRY_ALIAS = "registry" + DOMAIN
 NETWORK_TYPE_DHCP = "dhcp"
@@ -55,6 +58,11 @@ KUBERNETES_MINION_3_VM_NAME = settings["conf"]["minion_3_name"]
 
 # VM IDs
 BASE_BOX_BUILDER_VM_ID = BASE_BOX_BUILDER_VM_NAME + DOMAIN
+ANSIBLE_CONTROLLER_VM_ID = ANSIBLE_CONTROLLER_VM_NAME + DOMAIN
+KUBERNETES_MASTER_1_VM_ID = KUBERNETES_MASTER_1_VM_NAME + DOMAIN
+KUBERNETES_MINION_1_VM_ID = KUBERNETES_MINION_1_VM_NAME + DOMAIN
+KUBERNETES_MINION_2_VM_ID = KUBERNETES_MINION_2_VM_NAME + DOMAIN
+KUBERNETES_MINION_3_VM_ID = KUBERNETES_MINION_3_VM_NAME + DOMAIN
 
 # memory for each host
 BASE_BOX_BUILDER_MEM = settings["conf"]["base_box_builder_mem"]
@@ -69,9 +77,12 @@ playground = {
     :cpus => 2,
     :mem => BASE_BOX_BUILDER_MEM,
     :net_auto_config => true,
-    :show_gui => false
+    :show_gui => false,
+    :host_vars => {
+      "assigned_hostname" => BASE_BOX_BUILDER_VM_ID
+    }
   },
-  KUBERNETES_MASTER_1_VM_NAME + DOMAIN => {
+  KUBERNETES_MASTER_1_VM_ID => {
     :alias => [DOCKER_REGISTRY_ALIAS],
     :autostart => true,
     :box => VAGRANT_X64_KUBERNETES_NODES_BOX_ID,
@@ -85,10 +96,11 @@ playground = {
     :subnet_mask_ipv6 => SUBNET_MASK_IPV6,
     :show_gui => false,
     :host_vars => {
-      "ipv6_address" => KUBERNETES_MASTER_1_IPV6
+      "ipv6_address" => KUBERNETES_MASTER_1_IPV6,
+      "assigned_hostname" => KUBERNETES_MASTER_1_VM_ID
     }
   },
-  KUBERNETES_MINION_1_VM_NAME + DOMAIN => {
+  KUBERNETES_MINION_1_VM_ID => {
     :autostart => true,
     :box => VAGRANT_X64_KUBERNETES_NODES_BOX_ID,
     :cpus => 1,
@@ -100,10 +112,11 @@ playground = {
     :subnet_mask => SUBNET_MASK,
     :show_gui => false,
     :host_vars => {
-      "ipv6_address" => KUBERNETES_MINION_1_IPV6
+      "ipv6_address" => KUBERNETES_MINION_1_IPV6,
+      "assigned_hostname" => KUBERNETES_MINION_1_VM_ID
     }
   },
-  KUBERNETES_MINION_2_VM_NAME + DOMAIN => {
+  KUBERNETES_MINION_2_VM_ID => {
     :autostart => true,
     :box => VAGRANT_X64_KUBERNETES_NODES_BOX_ID,
     :cpus => 1,
@@ -115,10 +128,11 @@ playground = {
     :subnet_mask => SUBNET_MASK,
     :show_gui => false,
     :host_vars => {
-      "ipv6_address" => KUBERNETES_MINION_2_IPV6
+      "ipv6_address" => KUBERNETES_MINION_2_IPV6,
+      "assigned_hostname" => KUBERNETES_MINION_2_VM_ID
     }
   },
-  KUBERNETES_MINION_3_VM_NAME + DOMAIN => {
+  KUBERNETES_MINION_3_VM_ID => {
     :autostart => true,
     :box => VAGRANT_X64_KUBERNETES_NODES_BOX_ID,
     :cpus => 1,
@@ -130,10 +144,11 @@ playground = {
     :subnet_mask => SUBNET_MASK,
     :show_gui => false,
     :host_vars => {
-      "ipv6_address" => KUBERNETES_MINION_3_IPV6
+      "ipv6_address" => KUBERNETES_MINION_3_IPV6,
+      "assigned_hostname" => KUBERNETES_MINION_3_VM_ID
     }
   },
-  ANSIBLE_CONTROLLER_VM_NAME + DOMAIN => {
+  ANSIBLE_CONTROLLER_VM_ID => {
     :autostart => true,
     :box => VAGRANT_X64_CONTROLLER_BOX_ID,
     :cpus => 1,
@@ -206,8 +221,10 @@ default_group_vars = {
   "kubeadm_token" => "#{KUBEADM_TOKEN}",
   "subnet_mask_ipv6" => "#{SUBNET_MASK_IPV6}",
   "wildcard_domain" => "#{WILDCARD_DOMAIN}",
+  "playground_name" => "#{PLAYGROUND_NAME}",  
   "cluster_ip_cidr"  => "#{CLUSTER_IP_CIDR}",
   "service_ip_cidr"  => "#{SERVICE_IP_CIDR}",
+  "if_name_for_flannel"  => "#{IF_NAME_FOR_FLANNEL}",
 }
 custom_all_group_vars = settings["ansible"]["group_vars"]["all"]
 if !custom_all_group_vars.nil?
@@ -308,6 +325,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         vb.customize ["modifyvm", :id, "--memory", info[:mem]]
         vb.customize ["modifyvm", :id, "--name", hostname]
         vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+        vb.customize ["modifyvm", :id, "--natdnshostresolver2", "on"]
         vb.gui = info[:show_gui]
         vb.name = hostname
       end
