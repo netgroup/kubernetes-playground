@@ -2,7 +2,7 @@
 
 echo "making IPv4 forwarding permanent"
 
-fgrep -v net.ipv4.ip_forward /etc/sysctl.conf > /etc/sysctl.conf.mytmp
+grep -Fv net.ipv4.ip_forward /etc/sysctl.conf > /etc/sysctl.conf.mytmp
 echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf.mytmp
 mv /etc/sysctl.conf.mytmp /etc/sysctl.conf
 
