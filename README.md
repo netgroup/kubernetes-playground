@@ -43,6 +43,15 @@ commands from the root of the repository:
 You can find the default configuration in [`defaults.yaml`](defaults.yaml). If you want to override any default setting, create `env.yaml` and save it in the
 same directory as the `defaults.yaml`. The [`Vagrantfile`](Vagrantfile) will instruct Vagrant to load it.
 
+### Cleaning up
+
+If you want to re-test the initializion of the Kubernetes cluster, you can run
+a specific Vagrant provisioner that doesen't run in during the normal provisioning
+phase, and then execute the normal provisioning again:
+
+1. `vagrant provision --provision-with cleanup`
+1. `vagrant provision`
+
 ### Cloud Native Storage
 
 To deploy GlusterFS, SSH into the master and run the configuration script:
