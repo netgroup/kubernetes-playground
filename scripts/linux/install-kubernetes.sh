@@ -1,5 +1,5 @@
 #!/bin/sh
-erqewr
+
 if ! TEMP="$(getopt -o vdm: --long inventory: -n 'install-kubernetes' -- "$@")" ; then echo "Terminating..." >&2 ; exit 1 ; fi
 eval set -- "$TEMP"
 
@@ -13,12 +13,16 @@ while true; do
   esac
 done
 
-ansible_debug="$3"
+ansible_debug="$1"
+
+echo "Ansible debug: $ansible_debug"
 
 verbose_flag=
 if [ "$ansible_debug" = 'on' ]; then
     verbose_flag="-vv"
 fi
+
+echo "Verbose verbose_flag: $verbose_flag"
 
 echo "Ensure the Docker service is enabled and running"
 
