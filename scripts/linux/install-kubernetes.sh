@@ -1,5 +1,5 @@
 #!/bin/sh
-
+erqewr
 if ! TEMP="$(getopt -o vdm: --long inventory: -n 'install-kubernetes' -- "$@")" ; then echo "Terminating..." >&2 ; exit 1 ; fi
 eval set -- "$TEMP"
 
@@ -13,16 +13,38 @@ while true; do
   esac
 done
 
+ansible_debug="$3"
+
+verbose_flag=
+if [ "$ansible_debug" = 'on' ]; then
+    verbose_flag="-vv"
+fi
+
 echo "Ensure the Docker service is enabled and running"
+
+exit
+
 systemctl enable docker
 systemctl restart docker
 
 inventory="/etc/"$inventory
 
 echo "Running Ansible playbooks against $inventory inventory"
-docker run --rm \
-    -v /vagrant/ansible:/etc/ansible \
-    -v /vagrant/ansible/playbooks/files/tls:/opt/tls/self_signed \
-    --net=host \
-    ferrarimarco/open-development-environment-ansible:2.7.12-alpine \
-    /bin/sh -c "ansible-galaxy install -r /etc/ansible/requirements.yml && ansible-playbook -i $inventory /etc/ansible/playbooks/kubernetes.yml && ansible-playbook -i $inventory /etc/ansible/playbooks/openssl-self-signed-certificate.yml"
+
+if [ "$ansible_debug" = 'on' ]; then
+    docker run --rm \
+        -v /vagrant/ansible:/etc/ansible \
+        -v /vagrant/ansible/playbooks/files/tls:/opt/tls/self_signed \
+        --net=host \
+        ferrarimarco/open-development-environment-ansible:2.7.12-alpine \
+        /bin/sh -c "ansible-galaxy install -r /etc/ansible/requirements.yml && ansible-playbook -i $inventory /etc/ansible/playbooks/kubernetes.yml $verbose_flag && ansible-playbook -i $inventory /etc/ansible/playbooks/openssl-self-signed-certificate.yml" \
+        2>&1 | tee /vagrant/ansible_output.txt
+else
+    docker run --rm \
+        -v /vagrant/ansible:/etc/ansible \
+        -v /vagrant/ansible/playbooks/files/tls:/opt/tls/self_signed \
+        --net=host \
+        ferrarimarco/open-development-environment-ansible:2.7.12-alpine \
+        /bin/sh -c "ansible-galaxy install -r /etc/ansible/requirements.yml && ansible-playbook -i $inventory /etc/ansible/playbooks/kubernetes.yml $verbose_flag && ansible-playbook -i $inventory /etc/ansible/playbooks/openssl-self-signed-certificate.yml"
+fi
+

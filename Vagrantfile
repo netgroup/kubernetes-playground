@@ -13,6 +13,8 @@ if File.exist?(env_specific_config_path)
   end
 end
 
+ANSIBLE_DEBUG = settings["conf"]["ansible_debug"]
+
 NETWORK_PREFIX = settings["net"]["network_prefix"]
 NETWORK_PREFIX_IPV6 = settings["net"]["network_prefix_ipv6"]
 SUBNET_MASK = settings["net"]["subnet_mask"]
@@ -340,12 +342,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         host.vm.provision "shell", path: "scripts/linux/check-kubeadm-requirements.sh"
         host.vm.provision "shell" do |s|
           s.path = "scripts/linux/install-kubernetes.sh"
-          s.args = ["--inventory", ansible_base_inventory_path]
+          s.args = ["--inventory", ansible_base_inventory_path, ANSIBLE_DEBUG]
         end
       elsif(hostname.include?(ANSIBLE_CONTROLLER_VM_NAME))
         host.vm.provision "shell" do |s|
           s.path = "scripts/linux/install-kubernetes.sh"
-          s.args = ["--inventory", ansible_inventory_path]
+          s.args = ["--inventory", ansible_inventory_path, ANSIBLE_DEBUG]
         end
       end
     end
