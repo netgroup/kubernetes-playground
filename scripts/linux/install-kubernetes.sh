@@ -33,7 +33,7 @@ inventory="/etc/"$inventory
 
 echo "Running Ansible playbooks against $inventory inventory"
 
-if [ "$ansible_debug" = 'on' ]; then
+if [ "$debug_output" = "on" ]; then
     docker run --rm \
         -v /vagrant/ansible:/etc/ansible \
         -v /vagrant/ansible/playbooks/files/tls:/opt/tls/self_signed \
