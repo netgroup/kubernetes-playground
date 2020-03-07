@@ -19,7 +19,7 @@ IPV6_ADDRESS="$1"
 IPV6_NETMASK="$3"
 echo "Adding $IPV6_ADDRESS to $DEVICE"
 #ip -6 address add "$IPV6_ADDRESS/$IPV6_NETMASK" dev "$DEVICE"
-nmcli con mod $UUID ipv6.address "$IPV6_ADDRESS/$IPV6_NETMASK" ipv6.method manual
+nmcli con mod "$UUID" ipv6.address "$IPV6_ADDRESS/$IPV6_NETMASK" ipv6.method manual
 
 echo "Restarting NetworkManager"
 systemctl restart network
