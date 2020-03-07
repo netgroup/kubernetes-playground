@@ -13,16 +13,16 @@ while true; do
   esac
 done
 
-ansible_debug="$1"
+debug_output="$1"
 
-echo "Ansible debug flag: $ansible_debug"
+echo "debug_output: $debug_output"
 
 verbose_flag=
 if [ "$ansible_debug" = "on" ]; then
     verbose_flag="-vv"
 fi
 
-echo "Verbose verbose_flag value: $verbose_flag"
+echo "verbose_flag: $verbose_flag"
 
 echo "Ensure the Docker service is enabled and running"
 
