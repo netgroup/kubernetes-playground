@@ -13,7 +13,15 @@ if File.exist?(env_specific_config_path)
   end
 end
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 additional_ansible_arguments = settings["conf"]["additional_ansible_arguments"]
+=======
+ANSIBLE_DEBUG = settings["conf"]["ansible_debug"]
+>>>>>>> 6f31f79... ansible debug work in progress
+=======
+DEBUG_OUTPUT = settings["conf"]["debug_output"]
+>>>>>>> b8b0810... rename ansible_debug to debug_output
 
 NETWORK_PREFIX = settings["net"]["network_prefix"]
 NETWORK_PREFIX_IPV6 = settings["net"]["network_prefix_ipv6"]
@@ -348,6 +356,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         host.vm.provision "shell" do |s|
           s.path = "scripts/linux/install-kubernetes.sh"
           s.args = ["--inventory", ansible_inventory_path, "--additional-ansible-arguments", additional_ansible_arguments]
+        end
+
+        host.vm.provision "k8s-cni-quick-setup", type: "shell", run: "never" do |s|
+          s.path = "scripts/linux/install-kubernetes.sh"
+          s.args = ["--inventory", ansible_inventory_path, "--additional-ansible-arguments", additional_ansible_arguments, "--quick-setup" ]
         end
       else
         host.vm.provision "cleanup", type: "shell", run: "never" do |s|
