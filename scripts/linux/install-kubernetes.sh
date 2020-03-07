@@ -18,7 +18,7 @@ debug_output="$1"
 echo "debug_output: $debug_output"
 
 verbose_flag=
-if [ "$ansible_debug" = "on" ]; then
+if [ "$debug_output" = "on" ]; then
     verbose_flag="-vv"
 fi
 
