@@ -347,6 +347,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           s.path = "scripts/linux/install-kubernetes.sh"
           s.args = ["--inventory", ansible_inventory_path]
         end
+      else
+        host.vm.provision "cleanup", type: "shell", run: "never" do |s|
+          s.path = "scripts/linux/cleanup-k8s-and-cni.sh"
+        end
       end
     end
   end
