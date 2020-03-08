@@ -45,8 +45,10 @@ broadcast_address = n | (~n.instance_variable_get(:@mask_addr) & IPAddr::IN4MASK
 cluster_ip_cidr = settings["pod_network"]["cluster_ip_cidr"]
 service_ip_cidr = settings["pod_network"]["service_ip_cidr"]
 
+VAGRANT_PROVIDER = settings["conf"]["vagrant_provider"]
+
 # Vagrant boxes
-vagrant_x64_kubernetes_nodes_base_box_id = settings["conf"]["kubernetes_nodes_base_box_id"]
+vagrant_x64_kubernetes_nodes_base_box_id = settings["conf"]["kubernetes_nodes_base_box_id_"+VAGRANT_PROVIDER]
 vagrant_x64_kubernetes_nodes_box_id = "ferrarimarco/kubernetes-playground-node"
 vagrant_x64_controller_box_id = vagrant_x64_kubernetes_nodes_box_id
 
@@ -319,16 +321,26 @@ Vagrant.configure("2") do |config|
         host.hostsupdater.aliases = info[:alias]
       end
 
-      host.vm.provider :virtualbox do |vb|
-        vb.customize ["modifyvm", :id, "--cpus", info[:cpus]]
-        vb.customize ["modifyvm", :id, "--hwvirtex", "on"]
-        vb.customize ["modifyvm", :id, "--memory", info[:mem]]
-        vb.customize ["modifyvm", :id, "--name", hostname]
-        vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
-        vb.customize ["modifyvm", :id, "--natdnshostresolver2", "on"]
-        vb.gui = info[:show_gui]
-        vb.name = hostname
+      if(VAGRANT_PROVIDER == 'virtualbox')
+        host.vm.provider :virtualbox do |vb|
+          vb.customize ["modifyvm", :id, "--cpus", info[:cpus]]
+          vb.customize ["modifyvm", :id, "--hwvirtex", "on"]
+          vb.customize ["modifyvm", :id, "--memory", info[:mem]]
+          vb.customize ["modifyvm", :id, "--name", hostname]
+          vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+          vb.customize ["modifyvm", :id, "--natdnshostresolver2", "on"]
+          vb.gui = info[:show_gui]
+          vb.name = hostname
+        end
+      elsif(VAGRANT_PROVIDER == 'libvirt')
+        host.vm.provider :libvirt do |libvirt|
+          libvirt.cpus = info[:cpus]
+          libvirt.memory = info[:mem]
+        end
+        
+        host.vm.provision "shell", path: "scripts/linux/ssh-psw.sh"
       end
+
 
       host.vm.hostname = hostname
       if(hostname.include? base_box_builder_vm_name)
