@@ -349,7 +349,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         end
       else
         host.vm.provision "cleanup", type: "shell", run: "never" do |s|
-          s.path = "scripts/linux/cleanup-k8s-and-cni.sh"
+          s.path = "scripts/linux/launch-cleanup.sh"
         end
       end
     end
