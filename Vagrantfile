@@ -344,7 +344,9 @@ Vagrant.configure("2") do |config|
           s.path = "scripts/linux/install-docker.sh"
           s.args = ["--user", "vagrant"]
         end
-
+        if(VAGRANT_PROVIDER == 'libvirt')
+          config.ssh.insert_key = false
+        end
         host.vm.provision "shell", path: "scripts/linux/check-kubeadm-requirements.sh"
         host.vm.provision "shell" do |s|
           s.path = "scripts/linux/install-kubernetes.sh"
