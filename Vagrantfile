@@ -337,11 +337,7 @@ Vagrant.configure("2") do |config|
           libvirt.cpus = info[:cpus]
           libvirt.memory = info[:mem]
         end
-        
-        host.vm.provision "shell", path: "scripts/linux/ssh-psw.sh"
       end
-
-
       host.vm.hostname = hostname
       if(hostname.include? base_box_builder_vm_name)
         host.vm.provision "shell" do |s|
