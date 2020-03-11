@@ -15,7 +15,6 @@ KUBE_CONFIG_PATH="$HOME/.kube/config"
 KUBE_CONFIG_PATH="/home/vagrant/.kube/config"
 [ -d "$KUBE_CONFIG_PATH" ] && rm -rf "$KUBE_CONFIG_PATH"
 unset KUBE_CONFIG_VAGRANT_PATH
-
 rm -rf /etc/cni/net.d
 
 #clean up iptables
