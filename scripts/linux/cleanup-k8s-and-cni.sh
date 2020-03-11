@@ -4,8 +4,12 @@
 #networking environments, so that the installation of kubernetes and cni plugin
 #can be repeated multiple times
 
-#usage:
+#usage (as vagrant user):
+# sudo cleanup-k8s-and-cni.sh
+
+#usage (as root)
 # cleanup-k8s-and-cni.sh
+
 
 #clean up kubernetes control information and cni settings in all nodes
 
