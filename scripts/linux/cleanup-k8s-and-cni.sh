@@ -5,12 +5,16 @@
 #can be repeated multiple times
 
 #usage:
-# cleanup-k8s-and-cni.sh 
+# cleanup-k8s-and-cni.sh
 
 #clean up kubernetes control information and cni settings in all nodes
 
 sudo kubeadm reset -f
-sudo rm "$HOME/.kube/config"
+KUBE_CONFIG_PATH="$HOME/.kube/config"
+[ -d "$KUBE_CONFIG_PATH" ] && sudo rm "$KUBE_CONFIG_PATH"
+KUBE_CONFIG_PATH="/home/vagrant/.kube/config"
+[ -d "$KUBE_CONFIG_PATH" ] && rm -rf "$KUBE_CONFIG_PATH"
+unset KUBE_CONFIG_VAGRANT_PATH
 sudo rm /root/.kube/config
 sudo rm -rf /etc/cni/net.d
 
@@ -23,4 +27,3 @@ sudo iptables -t nat -F
 sudo iptables -t mangle -F
 sudo iptables -F
 sudo iptables -X
-

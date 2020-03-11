@@ -221,7 +221,7 @@ default_group_vars = {
   "kubeadm_token" => "#{KUBEADM_TOKEN}",
   "subnet_mask_ipv6" => "#{SUBNET_MASK_IPV6}",
   "wildcard_domain" => "#{WILDCARD_DOMAIN}",
-  "playground_name" => "#{PLAYGROUND_NAME}",  
+  "playground_name" => "#{PLAYGROUND_NAME}",
   "cluster_ip_cidr"  => "#{CLUSTER_IP_CIDR}",
   "service_ip_cidr"  => "#{SERVICE_IP_CIDR}",
   "if_name_for_flannel"  => "#{IF_NAME_FOR_FLANNEL}",
@@ -349,7 +349,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         end
       else
         host.vm.provision "cleanup", type: "shell", run: "never" do |s|
-          s.path = "scripts/linux/launch-cleanup.sh"
+          s.path = "scripts/linux/cleanup-k8s-and-cni.sh"
         end
       end
     end
