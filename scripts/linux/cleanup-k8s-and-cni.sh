@@ -9,21 +9,21 @@
 
 #clean up kubernetes control information and cni settings in all nodes
 
-sudo kubeadm reset -f
+kubeadm reset -f
 KUBE_CONFIG_PATH="$HOME/.kube/config"
-[ -d "$KUBE_CONFIG_PATH" ] && sudo rm "$KUBE_CONFIG_PATH"
+[ -d "$KUBE_CONFIG_PATH" ] && rm "$KUBE_CONFIG_PATH"
 KUBE_CONFIG_PATH="/home/vagrant/.kube/config"
 [ -d "$KUBE_CONFIG_PATH" ] && rm -rf "$KUBE_CONFIG_PATH"
 unset KUBE_CONFIG_VAGRANT_PATH
-sudo rm /root/.kube/config
-sudo rm -rf /etc/cni/net.d
+rm /root/.kube/config
+rm -rf /etc/cni/net.d
 
 #clean up iptables
 
-sudo iptables -P INPUT ACCEPT
-sudo iptables -P FORWARD ACCEPT
-sudo iptables -P OUTPUT ACCEPT
-sudo iptables -t nat -F
-sudo iptables -t mangle -F
-sudo iptables -F
-sudo iptables -X
+iptables -P INPUT ACCEPT
+iptables -P FORWARD ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -t nat -F
+iptables -t mangle -F
+iptables -F
+iptables -X
