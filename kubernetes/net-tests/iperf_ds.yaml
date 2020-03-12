@@ -1,3 +1,4 @@
+---
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -14,8 +15,8 @@ spec:
         app: iperf
     spec:
       containers:
-      - name: iperf-server
-        image: networkstatic/iperf3
-        ports: 
-        - containerPort: 5201
-        args: ["-s"]
+        - name: iperf-server
+          image: networkstatic/iperf3
+          ports:
+            - containerPort: 5201
+          args: ["-s"]

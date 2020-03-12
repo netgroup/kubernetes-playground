@@ -20,19 +20,19 @@ spec:
       serviceAccountName: traefik-ingress-controller
       terminationGracePeriodSeconds: 60
       containers:
-      - image: traefik
-        name: traefik-ingress-lb
-        ports:
-        - name: http
-          containerPort: 80
-        - name: admin
-          containerPort: 8080
-        volumeMounts:
-        - mountPath: "/config"
-          name: "config"
-        args:
-        - --configfile=/config/traefik.toml
+        - image: traefik
+          name: traefik-ingress-lb
+          ports:
+            - name: http
+              containerPort: 80
+            - name: admin
+              containerPort: 8080
+          volumeMounts:
+            - mountPath: "/config"
+              name: "config"
+          args:
+            - --configfile=/config/traefik.toml
       volumes:
-      - name: config
-        configMap:
-          name: traefik-ingress-config
+        - name: config
+          configMap:
+            name: traefik-ingress-config

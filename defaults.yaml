@@ -1,3 +1,4 @@
+---
 conf:
   additional_ansible_arguments: ""
   base_box_builder_mem: 2048

@@ -1,19 +1,28 @@
 ---
 - hosts: all
-  gather_facts: yes
+  gather_facts: true
   post_tasks:
-    - name: Get IP address corresponding to the interface with the specified broadcast address
-      changed_when: no
-      shell: "/usr/sbin/ip addr | grep {{broadcast_address}} | awk -F'[ /]+' '{print $3}'"
+    - name: >-
+        Get IP address corresponding to the interface with the specified
+        broadcast address
+      changed_when: false
+      shell: |
+        /usr/sbin/ip addr \
+        | grep {{broadcast_address}} \
+        | awk -F'[ /]+' '{print $3}'
       register: ip_addr_broadcast
       tags:
         - quick_setup
     - name: Initialize an IPv6 interface
-      become: yes
-      shell: "/vagrant/scripts/linux/configure-ipv6-interface.sh {{ipv6_address}} {{hostvars[inventory_hostname]['ansible_env'].SSH_CONNECTION.split(' ')[2]}} {{subnet_mask_ipv6}}"
+      become: true
+      shell: |
+        /vagrant/scripts/linux/configure-ipv6-interface.sh \
+        {{ipv6_address}} \
+        {{hostvars[inventory_hostname]['ansible_env'].SSH_CONNECTION.split(' ')[2]}} \
+        {{subnet_mask_ipv6}}
       when: ipv6_address is defined
     - name: Remove FQDN from 127.0.0.1
-      become: yes
+      become: true
       lineinfile:
         path: /etc/hosts
         regexp: "^127[.]0[.]0[.]1.*{{assigned_hostname}}"
@@ -23,7 +32,7 @@
         state: absent
       when: assigned_hostname is defined
     - name: Add the FQDN to the hosts file
-      become: yes
+      become: true
       lineinfile:
         path: /etc/hosts
         regexp: "^{{inventory_hostname}} {{assigned_hostname}}"
@@ -33,7 +42,7 @@
         mode: 0644
       when: assigned_hostname is defined
     - name: Configure registry name resolution in hosts file
-      become: yes
+      become: true
       lineinfile:
         path: /etc/hosts
         regexp: "^{{kubernetes_master_1_ip}} {{docker_registry_host}}"
@@ -43,9 +52,9 @@
         mode: 0644
       when: docker_registry_host is defined
     - name: Configure Kubelet
-      become: yes
+      become: true
       template:
-        backup: no
+        backup: false
         dest: /usr/lib/systemd/system/kubelet.service.d/90-node-ip.conf
         group: root
         mode: 0755
@@ -53,14 +62,14 @@
         src: templates/90-node-ip.conf.j2
       register: configure_kubelet
     - name: Force systemd to reread configs
-      become: yes
+      become: true
       systemd:
-        daemon_reload: yes
+        daemon_reload: true
       when: configure_kubelet.changed
     - name: Generate Kubeadm configuration file
-      become: yes
+      become: true
       template:
-        backup: no
+        backup: false
         dest: /tmp/kubeadm-config.yaml
         group: root
         mode: 0755
@@ -70,9 +79,9 @@
       tags:
         - quick_setup
     - name: Generate weavenet configuration file
-      become: yes
+      become: true
       template:
-        backup: no
+        backup: false
         dest: /tmp/weavenet-config.yaml
         group: root
         mode: 0755
@@ -82,9 +91,9 @@
       tags:
         - quick_setup
     - name: Generate Calico configuration file
-      become: yes
+      become: true
       template:
-        backup: no
+        backup: false
         dest: /tmp/calico-config.yaml
         group: root
         mode: 0755
@@ -94,9 +103,9 @@
       tags:
         - quick_setup
     - name: Generate Flannel configuration file
-      become: yes
+      become: true
       template:
-        backup: no
+        backup: false
         dest: /tmp/kube-flannel-config.yaml
         group: root
         mode: 0755
@@ -106,32 +115,40 @@
       tags:
         - quick_setup
     - name: Initialize Kubernetes cluster (master)
-      become: yes
-      shell: "/vagrant/scripts/linux/bootstrap-kubernetes-{{kubernetes_classifier}}.sh /tmp/kubeadm-config.yaml {{kubernetes_network_plugin}}"
+      become: true
+      shell: |
+        /vagrant/scripts/linux/bootstrap-kubernetes-{{kubernetes_classifier}}.sh \
+        /tmp/kubeadm-config.yaml \
+        {{kubernetes_network_plugin}}
       args:
         creates: /home/vagrant/.kube/config
       when: inventory_hostname == kubernetes_master_1_ip
       tags:
         - quick_setup
     - name: Initialize Kubernetes cluster (workers)
-      become: yes
-      shell: "/vagrant/scripts/linux/bootstrap-kubernetes-{{kubernetes_classifier}}.sh {{kubernetes_master_1_ip}} {{kubeadm_token}} {{cluster_ip_cidr}} {{kubernetes_network_plugin}}"
+      become: true
+      shell: |
+        /vagrant/scripts/linux/bootstrap-kubernetes-{{kubernetes_classifier}}.sh \
+        {{kubernetes_master_1_ip}} \
+        {{kubeadm_token}} \
+        {{cluster_ip_cidr}} \
+        {{kubernetes_network_plugin}}
       args:
         creates: /etc/kubernetes/kubelet.conf
       when: "'kubernetes-minions' in group_names"
       tags:
         - quick_setup
     - name: Download gluster-kubernetes
-      become: yes
+      become: true
       unarchive:
         creates: /opt/gluster-kubernetes-master/deploy/gk-deploy
         dest: /opt
-        remote_src: yes
+        remote_src: true
         src: https://github.com/gluster/gluster-kubernetes/archive/master.zip
       when: "'kubernetes-masters' in group_names"
   roles:
     - role: ferrarimarco.kubernetes
-      become: yes
+      become: true
       ferrarimarco_kubernetes_filesystem: glusterfs
     - role: andrewrothstein.kubernetes-helm
-      become: yes
+      become: true

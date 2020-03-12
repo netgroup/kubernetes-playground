@@ -33,11 +33,11 @@ metadata:
     traefik.ingress.kubernetes.io/rule-type: PathPrefixStrip
 spec:
   rules:
-  - http:
-      paths:
-      - path: /monitoring/ingress
-        backend:
-          serviceName: traefik-ingress-service
-          servicePort: admin
+    - http:
+        paths:
+          - path: /monitoring/ingress
+            backend:
+              serviceName: traefik-ingress-service
+              servicePort: admin
   tls:
-   - secretName: traefik-ui-tls-cert
+    - secretName: traefik-ui-tls-cert
