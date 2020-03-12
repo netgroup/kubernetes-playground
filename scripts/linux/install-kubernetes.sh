@@ -13,12 +13,12 @@ while true; do
   esac
 done
 
-debug_output="$1"
+verbose_output="$1"
 
-echo "debug_output: $debug_output"
+echo "verbose_output: $verbose_output"
 
 verbose_flag=
-if [ "$debug_output" = "on" ]; then
+if [ "$verbose_output" = "on" ]; then
     verbose_flag="-vv"
 fi
 
@@ -33,20 +33,12 @@ inventory="/etc/"$inventory
 
 echo "Running Ansible playbooks against $inventory inventory"
 
-if [ "$debug_output" = "on" ]; then
-    docker run --rm \
-        -v /vagrant/ansible:/etc/ansible \
-        -v /vagrant/ansible/playbooks/files/tls:/opt/tls/self_signed \
-        --net=host \
-        ferrarimarco/open-development-environment-ansible:2.7.12-alpine \
-        /bin/sh -c "ansible-galaxy install -r /etc/ansible/requirements.yml && ansible-playbook -i $inventory /etc/ansible/playbooks/kubernetes.yml $verbose_flag && ansible-playbook -i $inventory /etc/ansible/playbooks/openssl-self-signed-certificate.yml" \
-        2>&1 | tee /vagrant/ansible_output.txt
-else
-    docker run --rm \
-        -v /vagrant/ansible:/etc/ansible \
-        -v /vagrant/ansible/playbooks/files/tls:/opt/tls/self_signed \
-        --net=host \
-        ferrarimarco/open-development-environment-ansible:2.7.12-alpine \
-        /bin/sh -c "ansible-galaxy install -r /etc/ansible/requirements.yml && ansible-playbook -i $inventory /etc/ansible/playbooks/kubernetes.yml $verbose_flag && ansible-playbook -i $inventory /etc/ansible/playbooks/openssl-self-signed-certificate.yml"
-fi
+
+docker run --rm \
+    -v /vagrant/ansible:/etc/ansible \
+    -v /vagrant/ansible/playbooks/files/tls:/opt/tls/self_signed \
+    --net=host \
+    ferrarimarco/open-development-environment-ansible:2.7.12-alpine \
+    /bin/sh -c "ansible-galaxy install -r /etc/ansible/requirements.yml && ansible-playbook -i $inventory /etc/ansible/playbooks/kubernetes.yml $verbose_flag && ansible-playbook -i $inventory /etc/ansible/playbooks/openssl-self-signed-certificate.yml" \
+    2>&1 | tee /vagrant/ansible_output.txt
 
