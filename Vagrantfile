@@ -350,7 +350,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           s.args = ["--inventory", ansible_inventory_path, "--additional-ansible-arguments", additional_ansible_arguments]
         end
 
-        host.vm.provision "k8s-cni-quick-setup", type: "shell", run: "never" do |s|
+        host.vm.provision "quick-setup", type: "shell", run: "never" do |s|
           s.path = "scripts/linux/install-kubernetes.sh"
           s.args = ["--inventory", ansible_inventory_path, "--additional-ansible-arguments", additional_ansible_arguments, "--quick-setup" ]
         end
