@@ -336,6 +336,7 @@ Vagrant.configure("2") do |config|
         host.vm.provider :libvirt do |libvirt|
           libvirt.cpus = info[:cpus]
           libvirt.memory = info[:mem]
+          libvirt.nested = true
         end
       end
       host.vm.hostname = hostname
