@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if ! TEMP="$(getopt -o a:i: --long additional-ansible-arguments:,inventory: -n 'install-kubernetes' -- "$@")"; then
+if ! TEMP="$(getopt -o a:i:q --long additional-ansible-arguments:,inventory:,quick-setup -n 'install-kubernetes' -- "$@")"; then
     echo "Terminating..." >&2
     exit 1
 fi
@@ -8,6 +8,7 @@ eval set -- "$TEMP"
 
 additional_ansible_arguments=
 inventory=
+quick_setup=
 
 while true; do
     case "$1" in
@@ -19,6 +20,11 @@ while true; do
         inventory="$2"
         shift 2
         ;;
+    -q | --quick-setup)
+        quick_setup=true
+        shift
+        break
+        ;;
     --)
         shift
         break
@@ -27,7 +33,12 @@ while true; do
     esac
 done
 
+if $quick_setup; then
+    additional_ansible_arguments="$additional_ansible_arguments --tags quick_setup"
+fi
+
 echo "Ensure the Docker service is enabled and running"
+
 systemctl enable docker
 systemctl restart docker
 

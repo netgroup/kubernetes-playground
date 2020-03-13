@@ -6,6 +6,8 @@
       changed_when: no
       shell: "/usr/sbin/ip addr | grep {{broadcast_address}} | awk -F'[ /]+' '{print $3}'"
       register: ip_addr_broadcast
+      tags:
+        - quick_setup
     - name: Initialize an IPv6 interface
       become: yes
       shell: "/vagrant/scripts/linux/configure-ipv6-interface.sh {{ipv6_address}} {{hostvars[inventory_hostname]['ansible_env'].SSH_CONNECTION.split(' ')[2]}} {{subnet_mask_ipv6}}"
@@ -65,6 +67,8 @@
         owner: root
         src: templates/kubeadm-config.yaml.j2
       when: inventory_hostname == kubernetes_master_1_ip
+      tags:
+        - quick_setup
     - name: Generate weavenet configuration file
       become: yes
       template:
@@ -75,6 +79,8 @@
         owner: root
         src: templates/weavenet-config.yaml.j2
       when: inventory_hostname == kubernetes_master_1_ip
+      tags:
+        - quick_setup
     - name: Generate Calico configuration file
       become: yes
       template:
@@ -85,6 +91,8 @@
         owner: root
         src: templates/calico-config.yaml.j2
       when: inventory_hostname == kubernetes_master_1_ip
+      tags:
+        - quick_setup
     - name: Generate Flannel configuration file
       become: yes
       template:
@@ -95,18 +103,24 @@
         owner: root
         src: templates/kube-flannel-config.yaml.j2
       when: inventory_hostname == kubernetes_master_1_ip
+      tags:
+        - quick_setup
     - name: Initialize Kubernetes cluster (master)
       become: yes
       shell: "/vagrant/scripts/linux/bootstrap-kubernetes-{{kubernetes_classifier}}.sh /tmp/kubeadm-config.yaml {{kubernetes_network_plugin}}"
       args:
         creates: /home/vagrant/.kube/config
       when: inventory_hostname == kubernetes_master_1_ip
+      tags:
+        - quick_setup
     - name: Initialize Kubernetes cluster (workers)
       become: yes
       shell: "/vagrant/scripts/linux/bootstrap-kubernetes-{{kubernetes_classifier}}.sh {{kubernetes_master_1_ip}} {{kubeadm_token}} {{cluster_ip_cidr}} {{kubernetes_network_plugin}}"
       args:
         creates: /etc/kubernetes/kubelet.conf
       when: "'kubernetes-minions' in group_names"
+      tags:
+        - quick_setup
     - name: Download gluster-kubernetes
       become: yes
       unarchive:
