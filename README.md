@@ -24,6 +24,11 @@ This project is a playground to play with Kubernetes.
 1. [vagrant-hostsupdater](https://github.com/cogitatio/vagrant-hostsupdater)
 1. Virtualbox >= 5.2.8
 
+### Dependencies Libvirt provider
+1. libvirt >= 4.0.0
+1. QUEMU >= 2.22.1
+1. [vagrant-libvirt](https://github.com/vagrant-libvirt/vagrant-libvirt)
+
 ## How to Run
 
 The provisioning and configuration process has two phases:
@@ -52,7 +57,17 @@ you want to override any default setting, create `env.yaml` and save it in the
 same directory as the `defaults.yaml`. The [`Vagrantfile`](Vagrantfile) will
 instruct Vagrant to load it.
 
-### Cleaning up and re-provisioning
+#### Use Libvirt as provider
+
+In order to use libvirt as provider you need to set the variable `vagrant_provider` inside [`defaults.yaml`](defaults.yaml)
+
+      vagrant_provider: libvirt
+
+Vagrant needs to know that you want to use libvirt and not default VirtualBox. Then you can use the option `--provider=libvirt`, or you can setup environment variable
+
+      export VAGRANT_DEFAULT_PROVIDER=libvirt
+
+### Cleaning up
 
 If you want to re-test the initializion of the Kubernetes cluster, you can run
 a specific Vagrant provisioner that doesen't run in during the normal
