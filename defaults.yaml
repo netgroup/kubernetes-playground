@@ -12,7 +12,6 @@ conf:
   minion_2_name: k8s-minion-2
   minion_3_name: k8s-minion-3
   kubernetes_nodes_base_box_id: "bento/centos-7.4"
-  debug_output: "off"
 net:
   network_prefix: "192.168.0."
   network_prefix_ipv6: "fde4:8dba:82e1:"

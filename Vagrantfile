@@ -13,15 +13,7 @@ if File.exist?(env_specific_config_path)
   end
 end
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 additional_ansible_arguments = settings["conf"]["additional_ansible_arguments"]
-=======
-ANSIBLE_DEBUG = settings["conf"]["ansible_debug"]
->>>>>>> 6f31f79... ansible debug work in progress
-=======
-DEBUG_OUTPUT = settings["conf"]["debug_output"]
->>>>>>> b8b0810... rename ansible_debug to debug_output
 
 NETWORK_PREFIX = settings["net"]["network_prefix"]
 NETWORK_PREFIX_IPV6 = settings["net"]["network_prefix_ipv6"]
