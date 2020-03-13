@@ -48,7 +48,7 @@ service_ip_cidr = settings["pod_network"]["service_ip_cidr"]
 VAGRANT_PROVIDER = settings["conf"]["vagrant_provider"]
 
 # Vagrant boxes
-vagrant_x64_kubernetes_nodes_base_box_id = settings["conf"]["kubernetes_nodes_base_box_id_"+VAGRANT_PROVIDER]
+vagrant_x64_kubernetes_nodes_base_box_id = settings["conf"]["kubernetes_nodes_base_box_id"][VAGRANT_PROVIDER]
 vagrant_x64_kubernetes_nodes_box_id = "ferrarimarco/kubernetes-playground-node"
 vagrant_x64_controller_box_id = vagrant_x64_kubernetes_nodes_box_id
 
