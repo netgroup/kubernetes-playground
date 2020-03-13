@@ -1,4 +1,5 @@
 conf:
+  additional_ansible_arguments: ""
   base_box_builder_mem: 2048
   master_mem: 2048
   minion_mem: 1024

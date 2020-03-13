@@ -8,3 +8,5 @@
 env.yaml
 
 kubernetes-playground-base.box
+
+ansible_output.txt
