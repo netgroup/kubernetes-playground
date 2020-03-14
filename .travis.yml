@@ -2,9 +2,48 @@
 jobs:
   fast_finish: true
   include:
-    - stage: linting
-      script: find . -type f -iname "*.sh" | while read -r line; do echo "Linting $line"; docker run -v "$(pwd)":/mnt --rm koalaman/shellcheck:v0.7.0 "$line" || exit 1; done;
-language: shell
+    - before_install: gem install travis --no-document
+      name: "Travis lint"
+      stage: linting
+      script: echo "n" | travis lint
+    - name: "Shellcheck"
+      language: shell
+      script: |
+        for file in $(find "$(pwd)" \
+          -type f \
+          -not -path "*/\.git/*" \
+          -not -name "*.md" \
+          -exec grep -Eq '^#!(.*/|.*env +)(sh|bash|ksh)' {} \; -print); do \
+            f="${file#$(pwd)}"; \
+            f="${f/\//}"; \
+            echo "Linting $f"; \
+            docker run -v "$(pwd)":/mnt:ro --rm -t koalaman/shellcheck:v0.7.0 \
+              "$f" || exit 1; \
+        done;
+    - name: "YAMLlint"
+      language: shell
+      install: sudo pip install -r requirements.txt
+      script: yamllint --strict $(git ls-files '*.yaml' '*.yml') || exit 1
+    - name: "Markdownlint"
+      install: npm install
+      language: node_js
+      node_js: node
+      script: |
+        find -name "*.md" -not -path "*/node_modules/*" \
+        | xargs markdownlint || exit 1
+    - name: "Vagrant validate"
+      env:
+        - VAGRANT_VERSION="2.2.6"
+      install:
+        - |
+          TEMP_DEB="$(mktemp)" \
+          && wget -O "$TEMP_DEB" \
+            "https://releases.hashicorp.com/vagrant/${VAGRANT_VERSION}/vagrant_${VAGRANT_VERSION}_x86_64.deb" \
+          && sudo dpkg -i "$TEMP_DEB"
+        - vagrant plugin install vagrant-hostsupdater
+      language: shell
+      script: vagrant validate --ignore-provider
+os: linux
 services:
   - docker
 stages:

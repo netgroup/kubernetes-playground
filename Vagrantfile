@@ -15,151 +15,153 @@ end
 
 additional_ansible_arguments = settings["conf"]["additional_ansible_arguments"]
 
-NETWORK_PREFIX = settings["net"]["network_prefix"]
-NETWORK_PREFIX_IPV6 = settings["net"]["network_prefix_ipv6"]
-SUBNET_MASK = settings["net"]["subnet_mask"]
-SUBNET_MASK_IPV6 = settings["net"]["subnet_mask_ipv6"]
+network_prefix = settings["net"]["network_prefix"]
+network_prefix_ipv6 = settings["net"]["network_prefix_ipv6"]
+subnet_mask = settings["net"]["subnet_mask"]
+subnet_mask_ipv6 = settings["net"]["subnet_mask_ipv6"]
 
-KUBEADM_TOKEN = "0y5van.5qxccw2ewiarl68v"
-KUBERNETES_MASTER_1_IP = NETWORK_PREFIX + "10"
-KUBERNETES_MASTER_1_IPV6 = NETWORK_PREFIX_IPV6 + settings["net"]["master_ipv6_part"]
-KUBERNETES_MINION_1_IPV6 = NETWORK_PREFIX_IPV6 + settings["net"]["minion_1_ipv6_part"]
-KUBERNETES_MINION_2_IPV6 = NETWORK_PREFIX_IPV6 + settings["net"]["minion_2_ipv6_part"]
-KUBERNETES_MINION_3_IPV6 = NETWORK_PREFIX_IPV6 + settings["net"]["minion_3_ipv6_part"]
+kubeadm_token = "0y5van.5qxccw2ewiarl68v"
+kubernetes_master_1_ip = network_prefix + "10"
+kubernetes_master_1_ipv6 = network_prefix_ipv6 + settings["net"]["master_ipv6_part"]
+kubernetes_minion_1_ipv6 = network_prefix_ipv6 + settings["net"]["minion_1_ipv6_part"]
+kubernetes_minion_2_ipv6 = network_prefix_ipv6 + settings["net"]["minion_2_ipv6_part"]
+kubernetes_minion_3_ipv6 = network_prefix_ipv6 + settings["net"]["minion_3_ipv6_part"]
 
-IF_NAME_FOR_FLANNEL = settings["net"]["if_name_for_flannel"]
+if_name_for_flannel = settings["net"]["if_name_for_flannel"]
 
-PLAYGROUND_NAME = settings["conf"]["playground_name"]
-DOMAIN = "." + PLAYGROUND_NAME + ".local"
+playground_name = settings["conf"]["playground_name"]
+domain = "." + playground_name + ".local"
 
-DOCKER_REGISTRY_ALIAS = "registry" + DOMAIN
-NETWORK_TYPE_DHCP = "dhcp"
-NETWORK_TYPE_STATIC_IP = "static_ip"
-WILDCARD_DOMAIN = "*" + DOMAIN
+docker_registry_alias = "registry" + domain
+network_type_dhcp = "dhcp"
+network_type_static_ip = "static_ip"
+wildcard_domain = "*" + domain
 
-IP_V4_CIDR = IPAddr.new(SUBNET_MASK).to_i.to_s(2).count("1")
-n = IPAddr.new("#{KUBERNETES_MASTER_1_IP}/#{IP_V4_CIDR}")
-BROADCAST_ADDRESS = n | (~n.instance_variable_get(:@mask_addr) & IPAddr::IN4MASK)
+ip_v4_cidr = IPAddr.new(subnet_mask).to_i.to_s(2).count("1")
+n = IPAddr.new("#{kubernetes_master_1_ip}/#{ip_v4_cidr}")
+broadcast_address = n | (~n.instance_variable_get(:@mask_addr) & IPAddr::IN4MASK)
 
 # Cluster network
-CLUSTER_IP_CIDR = settings["pod_network"]["cluster_ip_cidr"]
-SERVICE_IP_CIDR = settings["pod_network"]["service_ip_cidr"]
+cluster_ip_cidr = settings["pod_network"]["cluster_ip_cidr"]
+service_ip_cidr = settings["pod_network"]["service_ip_cidr"]
 
 # Vagrant boxes
-VAGRANT_X64_KUBERNETES_NODES_BASE_BOX_ID = settings["conf"]["kubernetes_nodes_base_box_id"]
-VAGRANT_X64_KUBERNETES_NODES_BOX_ID = "ferrarimarco/kubernetes-playground-node"
-VAGRANT_X64_CONTROLLER_BOX_ID = VAGRANT_X64_KUBERNETES_NODES_BOX_ID
+vagrant_x64_kubernetes_nodes_base_box_id = settings["conf"]["kubernetes_nodes_base_box_id"]
+vagrant_x64_kubernetes_nodes_box_id = "ferrarimarco/kubernetes-playground-node"
+vagrant_x64_controller_box_id = vagrant_x64_kubernetes_nodes_box_id
 
 # VM Names
-BASE_BOX_BUILDER_VM_NAME = settings["conf"]["base_box_builder_name"]
-ANSIBLE_CONTROLLER_VM_NAME = settings["conf"]["ansi_ctrl_name"]
-KUBERNETES_MASTER_1_VM_NAME = settings["conf"]["master_name"]
-KUBERNETES_MINION_1_VM_NAME = settings["conf"]["minion_1_name"]
-KUBERNETES_MINION_2_VM_NAME = settings["conf"]["minion_2_name"]
-KUBERNETES_MINION_3_VM_NAME = settings["conf"]["minion_3_name"]
+base_box_builder_vm_name = settings["conf"]["base_box_builder_name"]
+ansible_controller_vm_name = settings["conf"]["ansi_ctrl_name"]
+kubernetes_master_1_vm_name = settings["conf"]["master_name"]
+kubernetes_minion_1_vm_name = settings["conf"]["minion_1_name"]
+kubernetes_minion_2_vm_name = settings["conf"]["minion_2_name"]
+kubernetes_minion_3_vm_name = settings["conf"]["minion_3_name"]
 
 # VM IDs
-BASE_BOX_BUILDER_VM_ID = BASE_BOX_BUILDER_VM_NAME + DOMAIN
-ANSIBLE_CONTROLLER_VM_ID = ANSIBLE_CONTROLLER_VM_NAME + DOMAIN
-KUBERNETES_MASTER_1_VM_ID = KUBERNETES_MASTER_1_VM_NAME + DOMAIN
-KUBERNETES_MINION_1_VM_ID = KUBERNETES_MINION_1_VM_NAME + DOMAIN
-KUBERNETES_MINION_2_VM_ID = KUBERNETES_MINION_2_VM_NAME + DOMAIN
-KUBERNETES_MINION_3_VM_ID = KUBERNETES_MINION_3_VM_NAME + DOMAIN
+base_box_builder_vm_id = base_box_builder_vm_name + domain
+ansible_controller_vm_id = ansible_controller_vm_name + domain
+kubernetes_master_1_vm_id = kubernetes_master_1_vm_name + domain
+kubernetes_minion_1_vm_id = kubernetes_minion_1_vm_name + domain
+kubernetes_minion_2_vm_id = kubernetes_minion_2_vm_name + domain
+kubernetes_minion_3_vm_id = kubernetes_minion_3_vm_name + domain
 
 # memory for each host
-BASE_BOX_BUILDER_MEM = settings["conf"]["base_box_builder_mem"]
-MASTER_MEM = settings["conf"]["master_mem"]
-MINION_MEM = settings["conf"]["minion_mem"]
-ANSI_CTRL_MEM = settings["conf"]["ansi_ctrl_mem"]
+base_box_builder_mem = settings["conf"]["base_box_builder_mem"]
+master_mem = settings["conf"]["master_mem"]
+minion_mem = settings["conf"]["minion_mem"]
+ansi_ctrl_mem = settings["conf"]["ansi_ctrl_mem"]
+
+additional_disk_size = 10240
 
 playground = {
-  BASE_BOX_BUILDER_VM_ID => {
+  base_box_builder_vm_id => {
     :autostart => false,
-    :box => VAGRANT_X64_KUBERNETES_NODES_BASE_BOX_ID,
+    :box => vagrant_x64_kubernetes_nodes_base_box_id,
     :cpus => 2,
-    :mem => BASE_BOX_BUILDER_MEM,
+    :mem => base_box_builder_mem,
     :net_auto_config => true,
     :show_gui => false,
     :host_vars => {
-      "assigned_hostname" => BASE_BOX_BUILDER_VM_ID
+      "assigned_hostname" => base_box_builder_vm_id
     }
   },
-  KUBERNETES_MASTER_1_VM_ID => {
-    :alias => [DOCKER_REGISTRY_ALIAS],
+  kubernetes_master_1_vm_id => {
+    :alias => [docker_registry_alias],
     :autostart => true,
-    :box => VAGRANT_X64_KUBERNETES_NODES_BOX_ID,
+    :box => vagrant_x64_kubernetes_nodes_box_id,
     :cpus => 2,
     :mac_address => "0800271F9D02",
-    :mem => MASTER_MEM,
-    :ip => KUBERNETES_MASTER_1_IP,
+    :mem => master_mem,
+    :ip => kubernetes_master_1_ip,
     :net_auto_config => true,
-    :net_type => NETWORK_TYPE_STATIC_IP,
-    :subnet_mask => SUBNET_MASK,
-    :subnet_mask_ipv6 => SUBNET_MASK_IPV6,
+    :net_type => network_type_static_ip,
+    :subnet_mask => subnet_mask,
+    :subnet_mask_ipv6 => subnet_mask_ipv6,
     :show_gui => false,
     :host_vars => {
-      "ipv6_address" => KUBERNETES_MASTER_1_IPV6,
-      "assigned_hostname" => KUBERNETES_MASTER_1_VM_ID
+      "ipv6_address" => kubernetes_master_1_ipv6,
+      "assigned_hostname" => kubernetes_master_1_vm_id
     }
   },
-  KUBERNETES_MINION_1_VM_ID => {
+  kubernetes_minion_1_vm_id => {
     :autostart => true,
-    :box => VAGRANT_X64_KUBERNETES_NODES_BOX_ID,
+    :box => vagrant_x64_kubernetes_nodes_box_id,
     :cpus => 1,
     :mac_address => "0800271F9D03",
-    :mem => MINION_MEM,
-    :ip => NETWORK_PREFIX + "30",
+    :mem => minion_mem,
+    :ip => network_prefix + "30",
     :net_auto_config => true,
-    :net_type => NETWORK_TYPE_STATIC_IP,
-    :subnet_mask => SUBNET_MASK,
+    :net_type => network_type_static_ip,
+    :subnet_mask => subnet_mask,
     :show_gui => false,
     :host_vars => {
-      "ipv6_address" => KUBERNETES_MINION_1_IPV6,
-      "assigned_hostname" => KUBERNETES_MINION_1_VM_ID
+      "ipv6_address" => kubernetes_minion_1_ipv6,
+      "assigned_hostname" => kubernetes_minion_1_vm_id
     }
   },
-  KUBERNETES_MINION_2_VM_ID => {
+  kubernetes_minion_2_vm_id => {
     :autostart => true,
-    :box => VAGRANT_X64_KUBERNETES_NODES_BOX_ID,
+    :box => vagrant_x64_kubernetes_nodes_box_id,
     :cpus => 1,
     :mac_address => "0800271F9D04",
-    :mem => MINION_MEM,
-    :ip => NETWORK_PREFIX + "31",
+    :mem => minion_mem,
+    :ip => network_prefix + "31",
     :net_auto_config => true,
-    :net_type => NETWORK_TYPE_STATIC_IP,
-    :subnet_mask => SUBNET_MASK,
+    :net_type => network_type_static_ip,
+    :subnet_mask => subnet_mask,
     :show_gui => false,
     :host_vars => {
-      "ipv6_address" => KUBERNETES_MINION_2_IPV6,
-      "assigned_hostname" => KUBERNETES_MINION_2_VM_ID
+      "ipv6_address" => kubernetes_minion_2_ipv6,
+      "assigned_hostname" => kubernetes_minion_2_vm_id
     }
   },
-  KUBERNETES_MINION_3_VM_ID => {
+  kubernetes_minion_3_vm_id => {
     :autostart => true,
-    :box => VAGRANT_X64_KUBERNETES_NODES_BOX_ID,
+    :box => vagrant_x64_kubernetes_nodes_box_id,
     :cpus => 1,
     :mac_address => "0800271F9D05",
-    :mem => MINION_MEM,
-    :ip => NETWORK_PREFIX + "32",
+    :mem => minion_mem,
+    :ip => network_prefix + "32",
     :net_auto_config => true,
-    :net_type => NETWORK_TYPE_STATIC_IP,
-    :subnet_mask => SUBNET_MASK,
+    :net_type => network_type_static_ip,
+    :subnet_mask => subnet_mask,
     :show_gui => false,
     :host_vars => {
-      "ipv6_address" => KUBERNETES_MINION_3_IPV6,
-      "assigned_hostname" => KUBERNETES_MINION_3_VM_ID
+      "ipv6_address" => kubernetes_minion_3_ipv6,
+      "assigned_hostname" => kubernetes_minion_3_vm_id
     }
   },
-  ANSIBLE_CONTROLLER_VM_ID => {
+  ansible_controller_vm_id => {
     :autostart => true,
-    :box => VAGRANT_X64_CONTROLLER_BOX_ID,
+    :box => vagrant_x64_controller_box_id,
     :cpus => 1,
     :mac_address => "0800271F9D01",
-    :mem => ANSI_CTRL_MEM,
-    :ip => NETWORK_PREFIX + "9",
+    :mem => ansi_ctrl_mem,
+    :ip => network_prefix + "9",
     :net_auto_config => true,
-    :net_type => NETWORK_TYPE_STATIC_IP,
-    :subnet_mask => SUBNET_MASK,
+    :net_type => network_type_static_ip,
+    :subnet_mask => subnet_mask,
     :show_gui => false
   },
 }
@@ -191,7 +193,7 @@ ansible_base_inventory_path = "ansible/hosts-base"
 inventory_base = {
   "all" => {
     "hosts" => {
-      BASE_BOX_BUILDER_VM_ID => nil
+      base_box_builder_vm_id => nil
     }
   }
 }
@@ -217,16 +219,16 @@ default_group_vars = {
   "ansible_ssh_extra_args" => "-o StrictHostKeyChecking=no",
   "ansible_ssh_pass" => "vagrant",
   "ansible_user" => "vagrant",
-  "broadcast_address" => "#{BROADCAST_ADDRESS}",
-  "docker_registry_host" => "#{DOCKER_REGISTRY_ALIAS}",
-  "kubernetes_master_1_ip" => "#{KUBERNETES_MASTER_1_IP}",
-  "kubeadm_token" => "#{KUBEADM_TOKEN}",
-  "subnet_mask_ipv6" => "#{SUBNET_MASK_IPV6}",
-  "wildcard_domain" => "#{WILDCARD_DOMAIN}",
-  "playground_name" => "#{PLAYGROUND_NAME}",
-  "cluster_ip_cidr"  => "#{CLUSTER_IP_CIDR}",
-  "service_ip_cidr"  => "#{SERVICE_IP_CIDR}",
-  "if_name_for_flannel"  => "#{IF_NAME_FOR_FLANNEL}",
+  "broadcast_address" => "#{broadcast_address}",
+  "docker_registry_host" => "#{docker_registry_alias}",
+  "kubernetes_master_1_ip" => "#{kubernetes_master_1_ip}",
+  "kubeadm_token" => "#{kubeadm_token}",
+  "subnet_mask_ipv6" => "#{subnet_mask_ipv6}",
+  "wildcard_domain" => "#{wildcard_domain}",
+  "playground_name" => "#{playground_name}",
+  "cluster_ip_cidr"  => "#{cluster_ip_cidr}",
+  "service_ip_cidr"  => "#{service_ip_cidr}",
+  "if_name_for_flannel"  => "#{if_name_for_flannel}",
 }
 custom_all_group_vars = settings["ansible"]["group_vars"]["all"]
 if !custom_all_group_vars.nil?
@@ -251,8 +253,6 @@ if !custom_minion_group_vars.nil?
   minion_group_vars = minion_group_vars.merge(custom_minion_group_vars)
 end
 IO.write("ansible/group_vars/#{ansible_minion_group_name}.yaml", minion_group_vars.to_yaml)
-
-ADDITIONAL_DISK_SIZE = 10240
 
 # Workaround for https://github.com/hashicorp/vagrant/issues/8878
 class VagrantPlugins::ProviderVirtualBox::Action::Network
@@ -283,7 +283,7 @@ class VagrantPlugins::ProviderVirtualBox::Action::SetName
       end
     end
 
-    size = ADDITIONAL_DISK_SIZE
+    size = additional_disk_size
     name = env[:machine].provider_config.name
     disk_file = vm_folder + "/#{name}-disk-2.vmdk"
 
@@ -301,15 +301,13 @@ class VagrantPlugins::ProviderVirtualBox::Action::SetName
   end
 end
 
-VAGRANTFILE_API_VERSION = "2"
-
-Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+Vagrant.configure("2") do |config|
   playground.each do |(hostname, info)|
     config.vm.define hostname, autostart: info[:autostart] do |host|
       host.vm.box = "#{info[:box]}"
-      if(NETWORK_TYPE_DHCP == info[:net_type])
+      if(network_type_dhcp == info[:net_type])
         host.vm.network :private_network, auto_config: info[:net_auto_config], :mac => "#{info[:mac_address]}", type: info[:net_type]
-      elsif(NETWORK_TYPE_STATIC_IP == info[:net_type])
+      elsif(network_type_static_ip == info[:net_type])
         host.vm.network :private_network, auto_config: info[:net_auto_config], :mac => "#{info[:mac_address]}", ip: "#{info[:ip]}", :netmask => "#{info[:subnet_mask]}"
 
         if(info.key?(:ipv6))
@@ -333,7 +331,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       end
 
       host.vm.hostname = hostname
-      if(hostname.include? BASE_BOX_BUILDER_VM_NAME)
+      if(hostname.include? base_box_builder_vm_name)
         host.vm.provision "shell" do |s|
           s.path = "scripts/linux/install-docker.sh"
           s.args = ["--user", "vagrant"]
@@ -344,7 +342,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           s.path = "scripts/linux/install-kubernetes.sh"
           s.args = ["--inventory", ansible_base_inventory_path, "--additional-ansible-arguments", additional_ansible_arguments]
         end
-      elsif(hostname.include?(ANSIBLE_CONTROLLER_VM_NAME))
+      elsif(hostname.include?(ansible_controller_vm_name))
         host.vm.provision "shell" do |s|
           s.path = "scripts/linux/install-kubernetes.sh"
           s.args = ["--inventory", ansible_inventory_path, "--additional-ansible-arguments", additional_ansible_arguments]

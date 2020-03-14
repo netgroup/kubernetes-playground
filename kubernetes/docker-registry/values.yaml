@@ -1,3 +1,4 @@
+---
 replicaCount: 1
 
 ingress:
@@ -9,9 +10,9 @@ ingress:
   hosts:
     - registry.kubernetes-playground.local
   tls:
-  - secretName: docker-registry-tls-cert
-    hosts:
-      - registry.kubernetes-playground.local
+    - secretName: docker-registry-tls-cert
+      hosts:
+        - registry.kubernetes-playground.local
 
 persistence:
   enabled: true

@@ -1,24 +1,25 @@
+---
 replicas: 1
 
 persistence:
   enabled: true
   size: 0.5Gi
   accessModes:
-  - ReadWriteOnce
+    - ReadWriteOnce
   storageClassName: "glusterfs-storage"
 
 adminUser: admin
 adminPassword: strongpassword
 
 datasources:
- datasources.yaml:
-   apiVersion: 1
-   datasources:
-   - name: Prometheus
-     type: prometheus
-     url: http://prometheus-server.prometheus.svc.cluster.local
-     access: proxy
-     isDefault: true
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        type: prometheus
+        url: http://prometheus-server.prometheus.svc.cluster.local
+        access: proxy
+        isDefault: true
 
 grafana.ini:
   server:

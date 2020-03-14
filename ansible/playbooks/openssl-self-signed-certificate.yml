@@ -1,6 +1,6 @@
 ---
 - hosts: all
-  gather_facts: yes
+  gather_facts: true
   tasks:
     - set_fact:
         registry_cert_path: "/etc/docker/certs.d/{{docker_registry_host}}"
@@ -12,7 +12,7 @@
     - name: Generate an OpenSSL private key for Docker Registry
       local_action:
         module: openssl_privatekey
-        force: False
+        force: false
         path: "{{openssl_key_path}}"
         size: 4096
         type: RSA
@@ -30,7 +30,9 @@
         privatekey_path: "{{openssl_key_path}}"
         state_or_province_name: Lazio
       run_once: true
-    - name: Generate a Self Signed OpenSSL certificate for Ingress and Docker Registry
+    - name: >-
+        Generate a Self Signed OpenSSL certificate forIngress and Docker
+        Registry
       local_action:
         module: openssl_certificate
         csr_path: "{{openssl_csr_path}}"
@@ -39,7 +41,7 @@
         provider: selfsigned
       run_once: true
     - name: Ensure directories exist for self-signed TLS certs
-      become: yes
+      become: true
       file:
         group: root
         owner: root
@@ -48,7 +50,7 @@
       with_items:
         - "{{self_signed_cert_path}}"
     - name: Ensure directories exist for Docker registry self-signed TLS certs
-      become: yes
+      become: true
       file:
         group: root
         owner: root
@@ -57,7 +59,7 @@
       with_items:
         - "{{registry_cert_path}}"
     - name: Copy key, CSR, CRT to master
-      become: yes
+      become: true
       copy:
         dest: "{{item.destination}}"
         group: root
@@ -73,7 +75,7 @@
           destination: "{{self_signed_cert_path}}/tls.key"
       when: "'kubernetes-masters' in group_names"
     - name: Configure self-signed TLS certificate for Docker Registry
-      become: yes
+      become: true
       copy:
         dest: "{{item.destination}}"
         group: root
