@@ -25,6 +25,7 @@ This project is a playground to play with Kubernetes.
 1. Virtualbox >= 5.2.8
 
 ### Dependencies Libvirt provider
+
 1. libvirt >= 4.0.0
 1. QUEMU >= 2.22.1
 1. [vagrant-libvirt](https://github.com/vagrant-libvirt/vagrant-libvirt)
