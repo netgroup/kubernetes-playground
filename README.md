@@ -60,15 +60,18 @@ instruct Vagrant to load it.
 
 #### Use Libvirt as provider
 
-In order to use libvirt as provider you need to set the variable `vagrant_provider` inside [`defaults.yaml`](defaults.yaml)
+In order to use libvirt as provider you need to set
+the variable `vagrant_provider` inside [`defaults.yaml`](defaults.yaml)
 
       vagrant_provider: libvirt
 
-Vagrant needs to know that you want to use libvirt and not default VirtualBox. Then you can use the option `--provider=libvirt`, or you can setup environment variable
+Vagrant needs to know that you want to use libvirt and not default VirtualBox.
+Then you can use the option `--provider=libvirt`,
+or you can setup environment variable
 
       export VAGRANT_DEFAULT_PROVIDER=libvirt
 
-### Cleaning up
+### Cleaning up and re-provisioning
 
 If you want to re-test the initializion of the Kubernetes cluster, you can run
 a specific Vagrant provisioner that doesen't run in during the normal

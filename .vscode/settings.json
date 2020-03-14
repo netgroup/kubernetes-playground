@@ -1,0 +1,4 @@
+{
+    "debug.showBreakpointsInOverviewRuler": true,
+    "editor.rulers": [80],
+}
