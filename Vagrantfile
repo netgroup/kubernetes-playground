@@ -347,14 +347,16 @@ Vagrant.configure("2") do |config|
         end
         
         config.ssh.insert_key = false
-
-        $enablePswSSH = <<-SCRIPT
-        sudo sed -i "/^[^#]*PasswordAuthentication[[:space:]]no/c\PasswordAuthentication yes" /etc/ssh/sshd_config
-        sudo service sshd restart
-        SCRIPT
-
-        host.vm.provision "shell", inline: $enablePswSSH
         
+        if(VAGRANT_PROVIDER == 'libvirt')
+          $enableSshPasswordAuthentication = <<-'SCRIPT'
+          sudo grep -q "^PasswordAuthentication" /etc/ssh/sshd_config && sudo sed -i "s/^PasswordAuthentication no/PasswordAuthentication yes/" /etc/ssh/sshd_config || sudo sed -i -e "\$aPasswordAuthentication yes" /etc/ssh/sshd_config
+          sudo service sshd restart
+          SCRIPT
+          
+          host.vm.provision "shell", inline: $enableSshPasswordAuthentication
+        end
+
         host.vm.provision "shell", path: "scripts/linux/check-kubeadm-requirements.sh"
         host.vm.provision "shell" do |s|
           s.path = "scripts/linux/install-kubernetes.sh"
