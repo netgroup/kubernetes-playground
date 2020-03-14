@@ -45,10 +45,10 @@ broadcast_address = n | (~n.instance_variable_get(:@mask_addr) & IPAddr::IN4MASK
 cluster_ip_cidr = settings["pod_network"]["cluster_ip_cidr"]
 service_ip_cidr = settings["pod_network"]["service_ip_cidr"]
 
-VAGRANT_PROVIDER = settings["conf"]["vagrant_provider"]
+vagrant_provider = settings["conf"]["vagrant_provider"]
 
 # Vagrant boxes
-vagrant_x64_kubernetes_nodes_base_box_id = settings["conf"]["kubernetes_nodes_base_box_id"][VAGRANT_PROVIDER]
+vagrant_x64_kubernetes_nodes_base_box_id = settings["conf"]["kubernetes_nodes_base_box_id"][vagrant_provider]
 vagrant_x64_kubernetes_nodes_box_id = "ferrarimarco/kubernetes-playground-node"
 vagrant_x64_controller_box_id = vagrant_x64_kubernetes_nodes_box_id
 
@@ -321,7 +321,7 @@ Vagrant.configure("2") do |config|
         host.hostsupdater.aliases = info[:alias]
       end
 
-      if(VAGRANT_PROVIDER == 'virtualbox')
+      if(vagrant_provider == 'virtualbox')
         host.vm.provider :virtualbox do |vb|
           vb.customize ["modifyvm", :id, "--cpus", info[:cpus]]
           vb.customize ["modifyvm", :id, "--hwvirtex", "on"]
@@ -332,7 +332,7 @@ Vagrant.configure("2") do |config|
           vb.gui = info[:show_gui]
           vb.name = hostname
         end
-      elsif(VAGRANT_PROVIDER == 'libvirt')
+      elsif(vagrant_provider == 'libvirt')
         host.vm.provider :libvirt do |libvirt|
           libvirt.cpus = info[:cpus]
           libvirt.memory = info[:mem]
@@ -348,7 +348,7 @@ Vagrant.configure("2") do |config|
         
         config.ssh.insert_key = false
         
-        if(VAGRANT_PROVIDER == 'libvirt')
+        if(vagrant_provider == 'libvirt')
           $enableSshPasswordAuthentication = <<-'SCRIPT'
           sudo grep -q "^PasswordAuthentication" /etc/ssh/sshd_config && sudo sed -i "s/^PasswordAuthentication no/PasswordAuthentication yes/" /etc/ssh/sshd_config || sudo sed -i -e "\$aPasswordAuthentication yes" /etc/ssh/sshd_config
           sudo service sshd restart
