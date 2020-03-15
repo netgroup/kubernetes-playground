@@ -21,7 +21,7 @@ while true; do
         shift 2
         ;;
     -q | --quick-setup)
-        quick_setup=true
+        quick_setup=enabled
         shift
         break
         ;;
@@ -33,7 +33,7 @@ while true; do
     esac
 done
 
-if $quick_setup; then
+if [ "$quick_setup" = "enabled" ]; then
     additional_ansible_arguments="$additional_ansible_arguments --tags quick_setup"
 fi
 
@@ -43,6 +43,7 @@ systemctl enable docker
 systemctl restart docker
 
 inventory="/etc/$inventory"
+echo ""
 echo "Running Ansible playbooks against $inventory inventory, with additional arguments: $additional_ansible_arguments"
 docker run --rm \
     -v /vagrant/ansible:/etc/ansible \
