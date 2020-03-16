@@ -1,3 +1,6 @@
+# EditorConfig
+# See https://EditorConfig.org for more information
+
 # Unix-style newlines at the bottom of every file
 [*]
 end_of_line = lf
