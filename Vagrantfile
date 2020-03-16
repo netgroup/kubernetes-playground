@@ -74,8 +74,6 @@ master_mem = settings["conf"]["master_mem"]
 minion_mem = settings["conf"]["minion_mem"]
 ansi_ctrl_mem = settings["conf"]["ansi_ctrl_mem"]
 
-additional_disk_size = 10240
-
 playground = {
   base_box_builder_vm_id => {
     :autostart => false,
@@ -99,7 +97,6 @@ playground = {
     :net_auto_config => true,
     :net_type => network_type_static_ip,
     :subnet_mask => subnet_mask,
-    :subnet_mask_ipv6 => subnet_mask_ipv6,
     :show_gui => false,
     :host_vars => {
       "ipv6_address" => kubernetes_master_1_ipv6,
@@ -285,7 +282,7 @@ class VagrantPlugins::ProviderVirtualBox::Action::SetName
       end
     end
 
-    size = additional_disk_size
+    size = 10240
     name = env[:machine].provider_config.name
     disk_file = vm_folder + "/#{name}-disk-2.vmdk"
 
@@ -311,10 +308,6 @@ Vagrant.configure("2") do |config|
         host.vm.network :private_network, auto_config: info[:net_auto_config], :mac => "#{info[:mac_address]}", type: info[:net_type]
       elsif(network_type_static_ip == info[:net_type])
         host.vm.network :private_network, auto_config: info[:net_auto_config], :mac => "#{info[:mac_address]}", ip: "#{info[:ip]}", :netmask => "#{info[:subnet_mask]}"
-
-        if(info.key?(:ipv6))
-          host.vm.network :private_network, auto_config: info[:net_auto_config], :mac => "#{info[:mac_address_ipv6]}", ip: "#{info[:ipv6]}", :netmask => "#{info[:subnet_mask_ipv6]}"
-        end
       end
 
       if info.key?(:alias)
