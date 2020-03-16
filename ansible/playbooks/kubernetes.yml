@@ -13,6 +13,7 @@
       register: ip_addr_broadcast
       tags:
         - quick_setup
+      when: "'kubernetes-masters' in group_names or 'kubernetes-minions' in group_names"
     - name: Initialize an IPv6 interface
       become: true
       shell: |
@@ -61,6 +62,7 @@
         owner: root
         src: templates/90-node-ip.conf.j2
       register: configure_kubelet
+      when: "'kubernetes-masters' in group_names or 'kubernetes-minions' in group_names"
     - name: Force systemd to reread configs
       become: true
       systemd:
