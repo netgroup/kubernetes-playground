@@ -10,7 +10,6 @@
 #usage (as root)
 # cleanup-k8s-and-cni.sh
 
-
 #clean up kubernetes control information and cni settings in all nodes
 
 kubeadm reset -f
