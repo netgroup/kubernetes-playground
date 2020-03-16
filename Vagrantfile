@@ -343,8 +343,10 @@ Vagrant.configure("2") do |config|
         
         if(vagrant_provider == 'libvirt')
           $enableSshPasswordAuthentication = <<-'SCRIPT'
-          sudo grep -q "^PasswordAuthentication" /etc/ssh/sshd_config && sudo sed -i "s/^PasswordAuthentication no/PasswordAuthentication yes/" /etc/ssh/sshd_config || sudo sed -i -e "\$aPasswordAuthentication yes" /etc/ssh/sshd_config
-          sudo service sshd restart
+          grep -q "^PasswordAuthentication" /etc/ssh/sshd_config && \
+          sed -i "s/^PasswordAuthentication no/PasswordAuthentication yes/" /etc/ssh/sshd_config || \
+          sed -i -e "\$aPasswordAuthentication yes" /etc/ssh/sshd_config;
+          service sshd restart
           SCRIPT
           
           host.vm.provision "shell", inline: $enableSshPasswordAuthentication
