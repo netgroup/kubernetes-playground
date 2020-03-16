@@ -61,15 +61,9 @@ instruct Vagrant to load it.
 #### Use Libvirt as provider
 
 In order to use libvirt as provider you need to set
-the variable `vagrant_provider` inside [`defaults.yaml`](defaults.yaml)
-
-      vagrant_provider: libvirt
-
-Vagrant needs to know that you want to use libvirt and not default VirtualBox.
-Then you can use the option `--provider=libvirt`,
-or you can setup environment variable
-
-      export VAGRANT_DEFAULT_PROVIDER=libvirt
+the value of `vagrant_provider` variable to `libvirt` inside `env.yaml`.
+Vagrant needs to know that you want to use libvirt and not default VirtualBox,
+then you can use the option `--provider=libvirt.
 
 ### Cleaning up and re-provisioning
 
