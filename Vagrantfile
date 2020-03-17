@@ -339,9 +339,9 @@ Vagrant.configure("2") do |config|
           s.path = "scripts/linux/install-docker.sh"
           s.args = ["--user", "vagrant"]
         end
-        
+
         config.ssh.insert_key = false
-        
+
         if(vagrant_provider == 'libvirt')
           $enableSshPasswordAuthentication = <<-'SCRIPT'
           grep -q "^PasswordAuthentication" /etc/ssh/sshd_config && \
@@ -349,7 +349,7 @@ Vagrant.configure("2") do |config|
           sed -i -e "\$aPasswordAuthentication yes" /etc/ssh/sshd_config;
           service sshd restart
           SCRIPT
-          
+
           host.vm.provision "shell", inline: $enableSshPasswordAuthentication
         end
 
