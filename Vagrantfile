@@ -175,7 +175,12 @@ playground.each do |(hostname, info)|
   elsif(hostname.include? "minion")
     minions[info[:ip]] = nil
   end
-  host_var_path = "ansible/host_vars/#{info[:ip]}.yaml"
+  if info.key?(:ip)
+    host_var_filename = "#{info[:ip]}"
+  else
+    host_var_filename = "#{hostname}"
+  end
+  host_var_path = "ansible/host_vars/#{host_var_filename}.yaml"
   if info.key?(:host_vars)
     IO.write(host_var_path, info[:host_vars].to_yaml)
   else
