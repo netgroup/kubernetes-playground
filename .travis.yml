@@ -61,6 +61,13 @@ jobs:
       language: go
       before_install: GO111MODULE=on go get mvdan.cc/sh/v3/cmd/shfmt
       script: shfmt -d . || exit 1;
+    - name: kubeval
+      language: shell
+      script: |
+        docker run -t \
+          -v "$(pwd)":/kubernetes-playground:ro \
+          garethr/kubeval:0.14.0 \
+          --strict  -d /kubernetes-playground/kubernetes
 os: linux
 services:
   - docker
