@@ -6,8 +6,7 @@ This project is a playground to play with Kubernetes.
 
 ## Components
 
-1. "Controller" VM: a Vagrant box running Docker where we run an Ansible
-   instance to configure the whole environment
+1. "Controller": a Docker container where we run an Ansible instance to configure the whole environment
 1. 1x Kubernetes Master
 1. 3x Kubernetes Minions
 1. A hyper-converged, cloud native storage cluster managed with
@@ -77,7 +76,7 @@ instruct Vagrant to load it.
 In order to use libvirt as provider you need to set
 the value of `vagrant_provider` variable to `libvirt` inside `env.yaml`.
 Vagrant needs to know that you want to use libvirt and not default VirtualBox,
-then you can use the option `--provider=libvirt.
+then you can use the option `--provider=libvirt`.
 
 ### Cleaning up and re-provisioning
 
