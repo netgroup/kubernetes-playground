@@ -161,6 +161,7 @@
     - when: not kubernetes_helm_binary_dir.stat.exists
       block:
         - name: Install unarchive packages
+          become: true
           package:
             name: "{{ item }}"
             state: present
