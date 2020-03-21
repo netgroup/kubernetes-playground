@@ -57,7 +57,7 @@ commands from the root of the repository:
    `vagrant package base-box-builder.k8s-play.local --output kubernetes-playground-base.box`
 1. Destroy the base VM: `vagrant destroy --force base-box-builder.k8s-play.local`
 1. Register the base Vagrant box to make it avaliable to Vagrant:
-   `vagrant box add kubernetes-playground-base.box --name ferrarimarco/kubernetes-playground-node`
+   `vagrant box add --force kubernetes-playground-base.box --name ferrarimarco/kubernetes-playground-node`
 1. Provision and configure the rest of the environment: `vagrant up`
 
 ### Running in Windows Subsystem for Linux (WSL)
