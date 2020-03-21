@@ -40,7 +40,8 @@ ansible:
       kubernetes_helm_archive_type: tar.gz
       kubernetes_helm_bin_dir: /usr/local/bin
       kubernetes_helm_checksums:
-        # https://get.helm.sh/helm-v3.1.2-linux-amd64.tar.gz.sha256
-        linux-amd64: sha256:e6be589df85076108c33e12e60cfb85dcd82c5d756a6f6ebc8de0ee505c9fd4c
+        v3.1.2:
+          # https://get.helm.sh/helm-v3.1.2-linux-amd64.tar.gz.sha256
+          linux-amd64: sha256:e6be589df85076108c33e12e60cfb85dcd82c5d756a6f6ebc8de0ee505c9fd4c
     kubernetes-masters:
     kubernetes-minions:
