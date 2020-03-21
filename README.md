@@ -104,14 +104,18 @@ To deploy GlusterFS, SSH into the master and run the configuration script:
 
 ### Running the tests
 
-See [.travis.yml](.travis.yml) for details about the linters.
+The test suite checks the whole environment for compliance using a verifier (
+[InSpec](https://www.inspec.io/) in this case).
 
-If you want to run tests manually:
+You can run the test suite manually. [Test-Kitchen](https://kitchen.ci/) will
+manage the lifecycle of the test instances.
 
 1. Install the dependencies:
     1. `gem install bundler`
     1. `bundle install`
-1. Run the tests with [Test-Kitchen](https://kitchen.ci/): `kitchen test`
+1. Run the tests with Test-Kitchen: `kitchen test`
+
+The CI builds run additional checks and linters. See [.travis.yml](.travis.yml).
 
 ### Ingress Controller
 

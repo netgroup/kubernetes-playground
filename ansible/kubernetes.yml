@@ -1,6 +1,13 @@
 ---
 - hosts: all
   gather_facts: true
+  handlers:
+    - name: Reload systemd daemon
+      become: true
+      systemd:
+        daemon_reload: true
+      listen:
+        - systemd_read_configs
   post_tasks:
     - name: >-
         Get IP address corresponding to the interface with the specified

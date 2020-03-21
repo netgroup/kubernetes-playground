@@ -1,9 +1,18 @@
 #!/bin/sh
 
 echo "making IPv4 forwarding permanent"
-
 grep -Fv net.ipv4.ip_forward /etc/sysctl.conf >/etc/sysctl.conf.mytmp
 echo "net.ipv4.ip_forward=1" >>/etc/sysctl.conf.mytmp
+mv /etc/sysctl.conf.mytmp /etc/sysctl.conf
+
+echo "enabling iptables bridging for IPv4 traffic"
+grep -Fv net.bridge.bridge-nf-call-iptables /etc/sysctl.conf >/etc/sysctl.conf.mytmp
+echo "net.bridge.bridge-nf-call-iptables=1" >>/etc/sysctl.conf.mytmp
+mv /etc/sysctl.conf.mytmp /etc/sysctl.conf
+
+echo "enabling iptables bridging for IPv6 traffic"
+grep -Fv net.bridge.bridge-nf-call-ip6tables /etc/sysctl.conf >/etc/sysctl.conf.mytmp
+echo "net.bridge.bridge-nf-call-ip6tables=1" >>/etc/sysctl.conf.mytmp
 mv /etc/sysctl.conf.mytmp /etc/sysctl.conf
 
 echo "Configuring the IPv6 interface"
