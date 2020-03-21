@@ -20,15 +20,24 @@ This project is a playground to play with Kubernetes.
 
 ## Dependencies
 
+### Runtime
+
 1. Vagrant >= 2.1.1
 1. [vagrant-hostsupdater](https://github.com/cogitatio/vagrant-hostsupdater)
-1. Virtualbox >= 5.2.8
+1. Virtualbox provider:
+    1. Virtualbox >= 5.2.8
+1. libvirt provider:
+    1. libvirt >= 4.0.0
+    1. QUEMU >= 2.22.1
+    1. [vagrant-libvirt](https://github.com/vagrant-libvirt/vagrant-libvirt)
 
-### Dependencies Libvirt provider
+## Test environment
 
-1. libvirt >= 4.0.0
-1. QUEMU >= 2.22.1
-1. [vagrant-libvirt](https://github.com/vagrant-libvirt/vagrant-libvirt)
+1. Bundler 1.13.0+
+1. Ruby 2.4.0+
+1. See [Gemfile](Gemfile)
+1. See [requirements.txt](requirements.txt)
+1. See [package.json](package.json)
 
 ## How to Run
 
@@ -48,8 +57,13 @@ commands from the root of the repository:
    `vagrant package base-box-builder.k8s-play.local --output kubernetes-playground-base.box`
 1. Destroy the base VM: `vagrant destroy --force base-box-builder.k8s-play.local`
 1. Register the base Vagrant box to make it avaliable to Vagrant:
-   `vagrant box add kubernetes-playground-base.box --name ferrarimarco/kubernetes-playground-node`
+   `vagrant box add --force kubernetes-playground-base.box --name ferrarimarco/kubernetes-playground-node`
 1. Provision and configure the rest of the environment: `vagrant up`
+
+### Running in Windows Subsystem for Linux (WSL)
+
+If you want to run this project in WSL, follow the instructions in the
+[official Vagrant docs](https://www.vagrantup.com/docs/other/wsl.html).
 
 ### Environment-specific configuration
 
@@ -87,6 +101,21 @@ To deploy GlusterFS, SSH into the master and run the configuration script:
 
 1. `vagrant ssh kubernetes-master-1.kubernetes-playground.local`
 1. `sudo /vagrant/scripts/linux/bootstrap-glusterfs.sh`
+
+### Running the tests
+
+The test suite checks the whole environment for compliance using a verifier (
+[InSpec](https://www.inspec.io/) in this case).
+
+You can run the test suite manually. [Test-Kitchen](https://kitchen.ci/) will
+manage the lifecycle of the test instances.
+
+1. Install the dependencies:
+    1. `gem install bundler`
+    1. `bundle install`
+1. Run the tests with Test-Kitchen: `kitchen test`
+
+The CI builds run additional checks and linters. See [.travis.yml](.travis.yml).
 
 ### Ingress Controller
 

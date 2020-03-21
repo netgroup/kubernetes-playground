@@ -1,14 +1,22 @@
 ---
 - hosts: all
   gather_facts: true
+  handlers:
+    - name: Reload systemd daemon
+      become: true
+      systemd:
+        daemon_reload: true
+      listen:
+        - systemd_read_configs
   post_tasks:
     - name: >-
         Get IP address corresponding to the interface with the specified
         broadcast address
       changed_when: false
       shell: |
+        set -o pipefail; \
         /usr/sbin/ip addr \
-        | grep {{broadcast_address}} \
+        | grep {{ broadcast_address }} \
         | awk -F'[ /]+' '{print $3}'
       register: ip_addr_broadcast
       tags:
@@ -18,15 +26,15 @@
       become: true
       shell: |
         /vagrant/scripts/linux/configure-ipv6-interface.sh \
-        {{ipv6_address}} \
-        {{hostvars[inventory_hostname]['ansible_env'].SSH_CONNECTION.split(' ')[2]}} \
-        {{subnet_mask_ipv6}}
+        {{ ipv6_address }} \
+        {{ hostvars[inventory_hostname]['ansible_env'].SSH_CONNECTION.split(' ')[2] }} \
+        {{ subnet_mask_ipv6 }}
       when: ipv6_address is defined
     - name: Remove FQDN from 127.0.0.1
       become: true
       lineinfile:
         path: /etc/hosts
-        regexp: "^127[.]0[.]0[.]1.*{{assigned_hostname}}"
+        regexp: "^127[.]0[.]0[.]1.*{{ assigned_hostname }}"
         owner: root
         group: root
         mode: 0644
@@ -36,8 +44,8 @@
       become: true
       lineinfile:
         path: /etc/hosts
-        regexp: "^{{inventory_hostname}} {{assigned_hostname}}"
-        line: "{{inventory_hostname}} {{assigned_hostname}}"
+        regexp: "^{{ inventory_hostname }} {{ assigned_hostname }}"
+        line: "{{ inventory_hostname }} {{ assigned_hostname }}"
         owner: root
         group: root
         mode: 0644
@@ -46,8 +54,8 @@
       become: true
       lineinfile:
         path: /etc/hosts
-        regexp: "^{{kubernetes_master_1_ip}} {{docker_registry_host}}"
-        line: "{{kubernetes_master_1_ip}} {{docker_registry_host}}"
+        regexp: "^{{ kubernetes_master_1_ip }} {{ docker_registry_host }}"
+        line: "{{ kubernetes_master_1_ip }} {{ docker_registry_host }}"
         owner: root
         group: root
         mode: 0644
@@ -61,13 +69,14 @@
         mode: 0755
         owner: root
         src: templates/90-node-ip.conf.j2
-      register: configure_kubelet
+      notify:
+        - systemd_read_configs
       when: "'kubernetes-masters' in group_names or 'kubernetes-minions' in group_names"
-    - name: Force systemd to reread configs
-      become: true
-      systemd:
-        daemon_reload: true
-      when: configure_kubelet.changed
+    - name: Look up docker cgroup driver
+      shell: "set -o pipefail && docker info | grep 'Cgroup Driver' | awk -F': ' '{ print $2; }'"
+      register: docker_cgroup_driver
+      changed_when: false
+      when: inventory_hostname == kubernetes_master_1_ip
     - name: Generate Kubeadm configuration file
       become: true
       template:
@@ -115,26 +124,28 @@
         src: templates/kube-flannel-config.yaml.j2
       when: inventory_hostname == kubernetes_master_1_ip
       tags:
+        - initialize_kubernetes_cluster
         - quick_setup
     - name: Initialize Kubernetes cluster (master)
       become: true
       shell: |
-        /vagrant/scripts/linux/bootstrap-kubernetes-{{kubernetes_classifier}}.sh \
+        /vagrant/scripts/linux/bootstrap-kubernetes-{{ kubernetes_classifier }}.sh \
         /tmp/kubeadm-config.yaml \
-        {{kubernetes_network_plugin}}
+        {{ kubernetes_network_plugin }}
       args:
         creates: /home/vagrant/.kube/config
       when: inventory_hostname == kubernetes_master_1_ip
       tags:
+        - initialize_kubernetes_cluster
         - quick_setup
     - name: Initialize Kubernetes cluster (workers)
       become: true
       shell: |
-        /vagrant/scripts/linux/bootstrap-kubernetes-{{kubernetes_classifier}}.sh \
-        {{kubernetes_master_1_ip}} \
-        {{kubeadm_token}} \
-        {{cluster_ip_cidr}} \
-        {{kubernetes_network_plugin}}
+        /vagrant/scripts/linux/bootstrap-kubernetes-{{ kubernetes_classifier }}.sh \
+        {{ kubernetes_master_1_ip }} \
+        {{ kubeadm_token }} \
+        {{ cluster_ip_cidr }} \
+        {{ kubernetes_network_plugin }}
       args:
         creates: /etc/kubernetes/kubelet.conf
       when: "'kubernetes-minions' in group_names"
@@ -148,9 +159,69 @@
         remote_src: true
         src: https://github.com/gluster/gluster-kubernetes/archive/master.zip
       when: "'kubernetes-masters' in group_names"
+    - name: check for installation of helm
+      become: true
+      stat:
+        path: '{{ kubernetes_helm_install_dir }}'
+      changed_when: false
+      register: kubernetes_helm_binary_dir
+    - when: not kubernetes_helm_binary_dir.stat.exists
+      block:
+        - name: Install unarchive packages
+          become: true
+          package:
+            name: "{{ item }}"
+            state: present
+          with_items:
+            - bzip2
+            - gzip
+            - tar
+            - unzip
+            - xz
+        - name: Download helm
+          become: true
+          get_url:
+            url: '{{ kubernetes_helm_url }}'
+            dest: /tmp/{{ kubernetes_helm_archive }}
+            checksum: '{{ kubernetes_helm_checksum }}'
+            mode: 0644
+        - name: Create helm install directory
+          become: true
+          file:
+            path: '{{ kubernetes_helm_install_dir }}'
+            state: directory
+            mode: 0755
+        - name: Unarchive helm
+          become: true
+          unarchive:
+            copy: false
+            src: /tmp/{{ kubernetes_helm_archive }}
+            dest: '{{ kubernetes_helm_install_dir }}'
+            creates: '{{ kubernetes_helm_install_dir }}/{{ kubernetes_helm_platform }}'
+      always:
+        - name: Cleanup helm installer
+          become: true
+          file:
+            path: /tmp/{{ kubernetes_helm_archive }}
+            state: absent
+        - name: Link helm binary
+          become: true
+          with_items:
+            - helm
+          file:
+            src: '{{ kubernetes_helm_install_dir }}/{{ kubernetes_helm_platform }}/{{ item }}'
+            dest: '{{ kubernetes_helm_bin_dir }}/{{ item }}'
+            state: link
   roles:
-    - role: ferrarimarco.kubernetes
+    - role: docker
+      become: true
+    - role: kubernetes
       become: true
       ferrarimarco_kubernetes_filesystem: glusterfs
-    - role: andrewrothstein.kubernetes-helm
-      become: true
+  vars:
+    kubernetes_helm_platform: '{{ kubernetes_helm_os }}-{{ kubernetes_helm_arch }}'
+    kubernetes_helm_name: helm-{{ kubernetes_helm_ver }}-{{ kubernetes_helm_platform }}
+    kubernetes_helm_archive: '{{ kubernetes_helm_name }}.{{ kubernetes_helm_archive_type }}'
+    kubernetes_helm_url: '{{ kubernetes_helm_mirror }}/{{ kubernetes_helm_archive }}'
+    kubernetes_helm_install_dir: '{{ kubernetes_helm_bin_dir }}/helm-{{ kubernetes_helm_ver }}'
+    kubernetes_helm_checksum: '{{ kubernetes_helm_checksums[kubernetes_helm_ver][kubernetes_helm_platform] }}'

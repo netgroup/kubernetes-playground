@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 master_address="$1"
 token="$2"
 
@@ -21,3 +23,5 @@ fi
 
 echo "Initializing Kubernetes minion to join: $master_address and token: $token"
 kubeadm join "$master_address":6443 --token "$token" --discovery-token-unsafe-skip-ca-verification
+
+set +e

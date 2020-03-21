@@ -47,8 +47,8 @@ echo ""
 echo "Running Ansible playbooks against $inventory inventory, with additional arguments: $additional_ansible_arguments"
 docker run --rm \
     -v /vagrant/ansible:/etc/ansible \
-    -v /vagrant/ansible/playbooks/files/tls:/opt/tls/self_signed \
+    -v /vagrant/ansible/files/tls:/opt/tls/self_signed \
     --net=host \
     ferrarimarco/open-development-environment-ansible:2.7.12-alpine \
-    /bin/sh -c "ansible-galaxy install -r /etc/ansible/requirements.yml && ansible-playbook -i $inventory $additional_ansible_arguments /etc/ansible/playbooks/kubernetes.yml && ansible-playbook -i $inventory $additional_ansible_arguments /etc/ansible/playbooks/openssl-self-signed-certificate.yml" \
+    /bin/sh -c "ansible-playbook -i $inventory $additional_ansible_arguments /etc/ansible/kubernetes.yml && ansible-playbook -i $inventory $additional_ansible_arguments /etc/ansible/openssl-self-signed-certificate.yml" \
     2>&1 | tee /vagrant/ansible_output.txt
