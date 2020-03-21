@@ -82,9 +82,6 @@ playground = {
     :mem => base_box_builder_mem,
     :net_auto_config => true,
     :show_gui => false,
-    :host_vars => {
-      "assigned_hostname" => base_box_builder_vm_id
-    }
   },
   kubernetes_master_1_vm_id => {
     :alias => [docker_registry_alias],
