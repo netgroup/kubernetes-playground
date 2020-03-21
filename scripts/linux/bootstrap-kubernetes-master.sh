@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 configuration_file_path="$1"
 
 echo "Initializing Kubernetes master with configuration file: $configuration_file_path. Contents: $(cat "$configuration_file_path")"
@@ -34,3 +36,5 @@ elif [ "$network_plugin_id" = 'flannel' ]; then
     # /tmp/kube-flannel-config.yaml is generated from ansible/playbooks/templates/kube-flannel-config.yaml.j2
     # which is based on https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
 fi
+
+set +e

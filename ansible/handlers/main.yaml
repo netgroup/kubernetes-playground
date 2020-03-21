@@ -1,7 +1,0 @@
----
-- name: Reload systemd daemon
-  become: true
-  systemd:
-    daemon_reload: true
-  listen:
-    - systemd_read_configs
