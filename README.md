@@ -6,7 +6,8 @@ This project is a playground to play with Kubernetes.
 
 ## Components
 
-1. "Controller": a Docker container where we run an Ansible instance to configure the whole environment
+1. "Controller": a Docker container where we run an Ansible instance to 
+   configure the whole environment
 1. 1x Kubernetes Master
 1. 3x Kubernetes Minions
 1. A hyper-converged, cloud native storage cluster managed with
