@@ -302,6 +302,37 @@ class VagrantPlugins::ProviderVirtualBox::Action::SetName
   end
 end
 
+# Let's extend the Destroy class
+# to delete the second disk
+class VagrantPlugins::ProviderVirtualBox::Action::Destroy
+  alias_method :original_call, :call
+  def call(env)
+    machine = env[:machine]
+    driver = machine.provider.driver
+    uuid = driver.instance_eval { @uuid }
+    ui = env[:ui]
+
+    # Find out folder of VM
+    vm_folder = ""
+    vm_info = driver.execute("showvminfo", uuid, "--machinereadable")
+    lines = vm_info.split("\n")
+    lines.each do |line|
+      if line.start_with?("CfgFile")
+        vm_folder = line.split("=")[1].gsub('"','')
+        vm_folder = File.expand_path("..", vm_folder)
+        ui.info "VM Folder is: #{vm_folder}"
+      end
+    end
+
+    name = env[:machine].provider_config.name
+
+    ui.info "Deleting all VMDK files in #{vm_folder}"
+    Dir.glob("#{vm_folder}/*").select{ |file| /.vmdk/.match file }.each { |file| File.delete(file)}
+
+    original_call(env)
+  end
+end
+
 Vagrant.configure("2") do |config|
   playground.each do |(hostname, info)|
     config.vm.define hostname, autostart: info[:autostart] do |host|
