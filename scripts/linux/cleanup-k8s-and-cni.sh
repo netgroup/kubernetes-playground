@@ -14,9 +14,11 @@
 
 kubeadm reset -f
 KUBE_CONFIG_PATH="$HOME/.kube/config"
-[ -d "$KUBE_CONFIG_PATH" ] && rm "$KUBE_CONFIG_PATH"
+[ -d "$KUBE_CONFIG_PATH" ] && rm -rf "$KUBE_CONFIG_PATH"
+echo "Manually cleaned up $KUBE_CONFIG_PATH"
 KUBE_CONFIG_PATH="/home/vagrant/.kube/config"
 [ -d "$KUBE_CONFIG_PATH" ] && rm -rf "$KUBE_CONFIG_PATH"
+echo "Manually cleaned up $KUBE_CONFIG_PATH"
 unset KUBE_CONFIG_VAGRANT_PATH
 rm -rf /etc/cni/net.d
 
