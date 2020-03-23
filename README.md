@@ -83,7 +83,7 @@ then you can use the option `--provider=libvirt`.
 ### Cleaning up and re-provisioning
 
 If you want to re-test the initializion of the Kubernetes cluster, you can run
-a specific Vagrant provisioner that doesen't run in during the normal
+a specific Vagrant provisioner that doesn't run during the normal
 provisioning phase, and then execute the normal provisioning again:
 
 1. `vagrant provision --provision-with cleanup`
@@ -94,6 +94,10 @@ provisioning phase, and then execute the normal provisioning again:
 If you want to test a different CNI plugin, run:
 
 1. `vagrant provision --provision-with cleanup`
+
+edit the [`defaults.yaml`](defaults.yaml) or better the `env.yaml` to
+change the network plugin, then run
+
 1. `vagrant provision --provision-with quick-setup`
 
 ### Cloud Native Storage
