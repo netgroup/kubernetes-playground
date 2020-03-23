@@ -13,10 +13,10 @@
 #clean up kubernetes control information and cni settings in all nodes
 
 kubeadm reset -f
-KUBE_CONFIG_PATH="$HOME/.kube/config"
+KUBE_CONFIG_PATH="$HOME/.kube"
 [ -d "$KUBE_CONFIG_PATH" ] && rm -rf "$KUBE_CONFIG_PATH"
 echo "Manually cleaned up $KUBE_CONFIG_PATH"
-KUBE_CONFIG_PATH="/home/vagrant/.kube/config"
+KUBE_CONFIG_PATH="/home/vagrant/.kube"
 [ -d "$KUBE_CONFIG_PATH" ] && rm -rf "$KUBE_CONFIG_PATH"
 echo "Manually cleaned up $KUBE_CONFIG_PATH"
 unset KUBE_CONFIG_VAGRANT_PATH
