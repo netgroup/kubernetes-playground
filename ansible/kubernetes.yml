@@ -77,6 +77,8 @@
       register: docker_cgroup_driver
       changed_when: false
       when: inventory_hostname == kubernetes_master_1_ip
+      tags:
+        - quick_setup
     - name: Generate Kubeadm configuration file
       become: true
       template:
