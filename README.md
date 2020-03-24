@@ -179,3 +179,18 @@ Note that the contents of those file will be overidden on each run.
 
 We generate a self-signed wildcard certificate to use for all the ingress
 controllers.
+
+### How to build docker image with the right tag:
+
+docker build -t kitesproject/net-test:1.0 /docker/kites/net-tests/
+
+
+### How to deploy net-test DaemonSet 
+On the Master node, run:
+`kubectl apply -f /vagrant/kubernetes/net-tests/net-test_ds.yaml`
+And check with:
+`kubectl get pod -o wide`
+when the pods created are in the "Running" state.
+Finally, to enter the newly created pod you have to run:
+`kubectl exec -it POD_NAME -- /bin/bash`
+
