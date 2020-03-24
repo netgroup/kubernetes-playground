@@ -180,7 +180,7 @@ Note that the contents of those file will be overidden on each run.
 We generate a self-signed wildcard certificate to use for all the ingress
 controllers.
 
-### How to build docker image with the right tag:
+### How to build docker image with the right tag
 
 docker build -t kitesproject/net-test:1.0 /docker/kites/net-tests/
 
