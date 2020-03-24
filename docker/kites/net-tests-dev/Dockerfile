@@ -1,8 +1,9 @@
 FROM debian:10
 RUN apt-get update \
-    && apt-get install -y iperf3 \
+    && apt-get install -y \
+    iperf3 \
     netsniff-ng \
-    nano \ 
+    nano \
     tcpdump \
     screen \
     && rm -rf /var/lib/apt/lists/*
