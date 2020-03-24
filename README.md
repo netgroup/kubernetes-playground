@@ -6,10 +6,11 @@ This project is a playground to play with Kubernetes.
 
 ## Components
 
-1. "Controller" VM: a Vagrant box running Docker where we run an Ansible
-   instance to configure the whole environment
-1. 1x Kubernetes Master
-1. 3x Kubernetes Minions
+1. 1x Kubernetes Master VM
+1. 3x Kubernetes Minions VMs
+1. "Controller": a Docker container where we run an Ansible instance to
+   configure the whole environment (the Docker container runs in a
+   separate VM)
 1. A hyper-converged, cloud native storage cluster managed with
    [GlusterFS](https://github.com/gluster/gluster-kubernetes) and [Heketi](https://github.com/heketi/heketi)
 1. A monitoring solution based on [Prometheus](https://prometheus.io/) and [Grafana](https://grafana.com/)
@@ -77,12 +78,12 @@ instruct Vagrant to load it.
 In order to use libvirt as provider you need to set
 the value of `vagrant_provider` variable to `libvirt` inside `env.yaml`.
 Vagrant needs to know that you want to use libvirt and not default VirtualBox,
-then you can use the option `--provider=libvirt.
+then you can use the option `--provider=libvirt`.
 
 ### Cleaning up and re-provisioning
 
 If you want to re-test the initializion of the Kubernetes cluster, you can run
-a specific Vagrant provisioner that doesen't run in during the normal
+a specific Vagrant provisioner that doesn't run during the normal
 provisioning phase, and then execute the normal provisioning again:
 
 1. `vagrant provision --provision-with cleanup`
@@ -93,6 +94,10 @@ provisioning phase, and then execute the normal provisioning again:
 If you want to test a different CNI plugin, run:
 
 1. `vagrant provision --provision-with cleanup`
+
+edit the [`defaults.yaml`](defaults.yaml) or better the `env.yaml` to
+change the network plugin, then run
+
 1. `vagrant provision --provision-with quick-setup`
 
 ### Cloud Native Storage
