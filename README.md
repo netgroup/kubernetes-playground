@@ -192,4 +192,3 @@ And check with:
 when the pods created are in the "Running" state.
 Finally, to enter the newly created pod you have to run:
 `kubectl exec -it POD_NAME -- /bin/bash`
-
