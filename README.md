@@ -184,8 +184,7 @@ controllers.
 
 docker build -t kitesproject/net-test:1.0 /docker/kites/net-tests/
 
-
-### How to deploy net-test DaemonSet 
+### How to deploy net-test DaemonSet
 On the Master node, run:
 `kubectl apply -f /vagrant/kubernetes/net-tests/net-test_ds.yaml`
 And check with:
