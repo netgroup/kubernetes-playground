@@ -84,13 +84,17 @@ jobs:
         find . -name "Dockerfile" -type f -print0 \
         | xargs -0 -I file sh -c 'docker run --rm -i hadolint/hadolint:v1.17.5-8-gc8bf307-alpine < "file"' \
         || exit 1
-    - name: "Build kitesproject/net-tests container image"
+    - name: "Build kitesproject/net-tests container image (final)"
       stage: build_container_images
       language: shell
       before_script: cd docker/kites/net-tests || exit 1
       script: |
-        docker build --target=final -t kitesproject/net-test . \
-        && docker build --target=dev -t kitesproject/net-test .
+        docker build --target=final -t kitesproject/net-test .
+    - name: "Build kitesproject/net-tests container image (dev)"
+      language: shell
+      before_script: cd docker/kites/net-tests-dev || exit 1
+      script: |
+        docker build --target=dev -t kitesproject/net-test .
     - name: "Test Kitchen"
       stage: test_kitchen
       before_script: kitchen diagnose
