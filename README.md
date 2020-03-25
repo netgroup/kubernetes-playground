@@ -197,4 +197,3 @@ Note that the contents of those file will be overidden on each run.
 
 We generate a self-signed wildcard certificate to use for all the ingress
 controllers.
-
