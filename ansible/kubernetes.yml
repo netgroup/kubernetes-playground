@@ -140,6 +140,10 @@
       tags:
         - initialize_kubernetes_cluster
         - quick_setup
+    - name: Enable kubectl autocompletion (master)
+      shell: |
+        echo 'source <(kubectl completion bash)' >>~/.bashrc
+      when: inventory_hostname == kubernetes_master_1_ip
     - name: Initialize Kubernetes cluster (workers)
       become: true
       shell: |
