@@ -116,4 +116,5 @@ services:
   - docker
 stages:
   - linting
+  - build_container_images
   - test_kitchen
