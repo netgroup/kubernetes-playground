@@ -156,7 +156,7 @@ The monitoring dashboard is accessible at `http://kubernetes-master-1.kubernetes
 #### How to deploy the net-test-dev DaemonSet
 
 On the Master node, run:
-`kubectl apply -f /vagrant/kubernetes/net-tests/net-test-dev_ds.yaml`
+`kubectl apply -f /vagrant/kubernetes/kites/net-test-dev_ds.yaml`
 
 Check that the pods created are in the "Running" state with:
 `kubectl get pod -o wide`
@@ -167,7 +167,7 @@ Finally, to enter the newly created pod you have to run:
 #### How to build docker image with the right tag
 
 (you don't actually have to build this image, this is just FYI)
-`docker build -t kitesproject/net-test:1.0 docker/kites/net-tests/`
+`docker build -t kitesproject/net-test:1.0 docker/kites/net-tests-dev/`
 
 ### Docker Registry
 
