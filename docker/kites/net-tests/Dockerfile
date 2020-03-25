@@ -1,6 +1,7 @@
 FROM debian:10
 RUN apt-get update \
-    && apt-get install -y iperf3 \
+    && apt-get install -y --no-install-recommends \
+    iperf3 \
     netsniff-ng \
     && rm -rf /var/lib/apt/lists/*
 

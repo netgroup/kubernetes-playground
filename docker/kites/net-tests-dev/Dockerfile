@@ -1,11 +1,11 @@
 FROM debian:10
 RUN apt-get update \
-    && apt-get install -y \
+    && apt-get install -y --no-install-recommends \
     iperf3 \
-    netsniff-ng \
     nano \
-    tcpdump \
+    netsniff-ng \
     screen \
+    tcpdump \
     && rm -rf /var/lib/apt/lists/*
 
 EXPOSE 5201
