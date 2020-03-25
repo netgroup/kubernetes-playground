@@ -1,6 +1,18 @@
 require 'yaml'
 require 'ipaddr'
 
+# Proc settings merger
+settings_merger = proc {
+    |key, v_default, v_env|
+    if Hash === v_default && Hash === v_env
+        v_default.merge(v_env, &settings_merger)
+    elsif [:undefined, nil, :nil].include?(v_env)
+        v_default
+    else
+        v_env
+    end
+}
+
 # Load default settings
 settings = YAML::load_file("defaults.yaml")
 
@@ -9,7 +21,7 @@ env_specific_config_path = "env.yaml"
 if File.exist?(env_specific_config_path)
   env_settings = YAML::load_file(env_specific_config_path)
   if !env_settings.nil?
-    settings = settings.merge(env_settings)
+    settings = settings.merge(env_settings, &settings_merger)
   end
 end
 
