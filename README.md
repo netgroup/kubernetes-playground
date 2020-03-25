@@ -167,7 +167,7 @@ Finally, to enter the newly created pod you have to run:
 #### How to build docker image with the right tag
 
 (you don't actually have to build this image, this is just FYI)
-`docker build -t kitesproject/net-test:1.0 docker/kites/net-tests-dev/`
+`docker build -t kitesproject/net-test:1.0.0 docker/kites/net-tests-dev/`
 
 ### Docker Registry
 
