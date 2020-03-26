@@ -153,21 +153,18 @@ The monitoring dashboard is accessible at `http://kubernetes-master-1.kubernetes
 
 ### Kites experiments
 
-#### How to deploy the net-test-dev DaemonSet
+Kites allows you to test the traffic exchanged between nodes and pods 
+thanks to the use of the iperf3 and netsniff-ng tools.
 
-On the Master node, run:
-`kubectl apply -f /vagrant/kubernetes/kites/net-test-dev_ds.yaml`
+#### Net-Test DaemonSet
 
-Check that the pods created are in the "Running" state with:
-`kubectl get pod -o wide`
+To deploy net-test DaemonSet, open a new SSH connection into the master and run the configuration script:
 
-Finally, to enter the newly created pod you have to run:
-`kubectl exec -it POD_NAME -- /bin/bash`
+1. `vagrant ssh kubernetes-master-1.kubernetes-playground.local`
+1. `sudo /vagrant/scripts/linux/bootstrap-net-test-ds.sh`
 
-#### How to build docker image with the right tag
-
-(you don't actually have to build this image, this is just FYI)
-`docker build -t kitesproject/net-test:1.0.0 docker/kites/net-tests-dev/`
+If you want to open a shell in the newly created container you have to run, follow the instructions in the
+[official Kubernetes docs](https://kubernetes.io/docs/tasks/debug-application-cluster/get-shell-running-container/).
 
 ### Docker Registry
 

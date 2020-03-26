@@ -94,7 +94,7 @@ jobs:
       language: shell
       before_script: cd docker/kites/net-tests || exit 1
       script: |
-        docker build --target dev -t kitesproject/net-test .
+        docker build --target dev -t kitesproject/net-test:latest-dev .
     - name: "Test Kitchen"
       stage: test_kitchen
       before_script: kitchen diagnose
