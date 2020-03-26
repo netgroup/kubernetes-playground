@@ -151,6 +151,23 @@ script:
 
 The monitoring dashboard is accessible at `http://kubernetes-master-1.kubernetes-playground.local/monitoring/cluster`
 
+### Kites experiments
+
+Kites allows you to test the traffic exchanged between Nodes
+and Pods.
+
+#### Net-Test DaemonSet
+
+To deploy Net-Test DaemonSet, open a new SSH connection into the master
+and run the configuration script:
+
+1. `vagrant ssh kubernetes-master-1.kubernetes-playground.local`
+1. `sudo /vagrant/scripts/linux/bootstrap-net-test-ds.sh`
+
+If you want to open a shell in the newly created container,
+follow the instructions in the
+[official Kubernetes docs](https://kubernetes.io/docs/tasks/debug-application-cluster/get-shell-running-container/).
+
 ### Docker Registry
 
 To deploy a private Docker Registry, SSH into the master and run the

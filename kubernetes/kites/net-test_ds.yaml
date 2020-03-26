@@ -1,0 +1,24 @@
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: net-test-ds
+  labels:
+    app: net-test-ds
+spec:
+  selector:
+    matchLabels:
+      app: net-test
+  template:
+    metadata:
+      labels:
+        app: net-test
+    spec:
+      containers:
+        - name: net-test-server
+          image: kitesproject/net-test:latest
+          securityContext:
+            privileged: true
+          ports:
+            - containerPort: 5201
+          args: ["-s"]
