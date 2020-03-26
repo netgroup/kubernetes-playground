@@ -165,8 +165,8 @@ and run the configuration script:
 1. `sudo /vagrant/scripts/linux/bootstrap-net-test-ds.sh`
 
 If you want to open a shell in the newly created container,
-follow the instructions in the[official Kubernetes docs]
-(https://kubernetes.io/docs/tasks/debug-application-cluster/get-shell-running-container/).
+follow the instructions in the
+[official Kubernetes docs](https://kubernetes.io/docs/tasks/debug-application-cluster/get-shell-running-container/).
 
 ### Docker Registry
 
