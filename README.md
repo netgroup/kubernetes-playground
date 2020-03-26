@@ -153,8 +153,8 @@ The monitoring dashboard is accessible at `http://kubernetes-master-1.kubernetes
 
 ### Kites experiments
 
-Kites allows you to test the traffic exchanged between nodes
-and pods thanks to the use of the iperf3 and netsniff-ng tools.
+Kites allows you to test the traffic exchanged between Nodes
+and Pods.
 
 #### Net-Test DaemonSet
 
