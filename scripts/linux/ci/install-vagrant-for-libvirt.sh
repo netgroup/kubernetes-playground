@@ -12,6 +12,7 @@ apt-get install -y qemu=1:3.1+dfsg-8+deb10u4 \
                    libxml2-dev=2.9.4+dfsg1-7+b3 \
                    libvirt-dev=5.0.0-4+deb10u1 \
                    zlib1g-dev=1:1.2.11.dfsg-1 \
+                   libguestfs-tools=1:1.40.2-2 \
                    ruby-dev=1:2.5.1 \
                    qemu-utils=1:3.1+dfsg-8+deb10u4 \
                    rsync=3.1.3-6
