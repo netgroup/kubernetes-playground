@@ -13,7 +13,8 @@ apt-get install -y qemu=1:3.1+dfsg-8+deb10u4 \
                    libvirt-dev=5.0.0-4+deb10u1 \
                    zlib1g-dev=1:1.2.11.dfsg-1 \
                    ruby-dev=1:2.5.1 \
-                   qemu-utils=1:3.1+dfsg-8+deb10u4
+                   qemu-utils=1:3.1+dfsg-8+deb10u4 \
+                   rsync=3.1.3-6
 vagrant plugin install vagrant-libvirt
 vagrant plugin install vagrant-hostsupdater
 usermod -a -G libvirt vagrant
