@@ -1,0 +1,6 @@
+#!/bin/sh
+# installation script for libvirt
+# tested on debian 10
+
+apt-get install -y --no-install-recommends qemu-kvm=1:3.1+dfsg-8+deb10u4 \
+libvirt-clients=5.0.0-4+deb10u1 libvirt-daemon-system=5.0.0-4+deb10u1
