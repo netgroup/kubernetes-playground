@@ -32,14 +32,6 @@ This project is a playground to play with Kubernetes.
     1. QUEMU >= 2.22.1
     1. [vagrant-libvirt](https://github.com/vagrant-libvirt/vagrant-libvirt)
 
-## Test environment
-
-1. Bundler 1.13.0+
-1. Ruby 2.4.0+
-1. See [Gemfile](Gemfile)
-1. See [requirements.txt](requirements.txt)
-1. See [package.json](package.json)
-
 ## How to Run
 
 The provisioning and configuration process has two phases:
@@ -106,21 +98,6 @@ To deploy GlusterFS, SSH into the master and run the configuration script:
 
 1. `vagrant ssh kubernetes-master-1.kubernetes-playground.local`
 1. `sudo /vagrant/scripts/linux/bootstrap-glusterfs.sh`
-
-### Running the tests
-
-The test suite checks the whole environment for compliance using a verifier (
-[InSpec](https://www.inspec.io/) in this case).
-
-You can run the test suite manually. [Test-Kitchen](https://kitchen.ci/) will
-manage the lifecycle of the test instances.
-
-1. Install the dependencies:
-    1. `gem install bundler`
-    1. `bundle install`
-1. Run the tests with Test-Kitchen: `kitchen test`
-
-The CI builds run additional checks and linters. See [.travis.yml](.travis.yml).
 
 ### Ingress Controller
 
@@ -196,3 +173,44 @@ Note that the contents of those file will be overidden on each run.
 
 We generate a self-signed wildcard certificate to use for all the ingress
 controllers.
+
+## Development and testing
+
+To bootstrap a development environment, you need to install the
+runtime dependencies listed above, plus the development environment
+dependencies.
+
+### Running the tests
+
+This section explains how to run linters and the compliance test suites.
+
+#### Linters and formatters
+
+The codebase is checked with linters and against common formatting rules.
+
+##### Linters and formatters dependencies
+
+1. Python 3, with pip.
+1. NodeJS, with npm.
+1. See [requirements.txt](requirements.txt).
+1. See [package.json](package.json).
+
+#### Compliance test suite
+
+The test suite checks the whole environment for compliance using a verifier (
+[InSpec](https://www.inspec.io/) in this case).
+
+##### Compliance test suites dependencies
+
+1. Ruby 2.6.0+
+1. Bundler 1.13.0+
+
+##### How to run the compliance test suites
+
+You can run the test suite manually. [Test-Kitchen](https://kitchen.ci/) will
+manage the lifecycle of the test instances.
+
+1. Install the dependencies (you need to have a working Ruby environment):
+    1. Install bundler: `gem install bundler`
+    1. Install required gems: `bundle install`
+1. Run the tests with Test-Kitchen: `kitchen test`
