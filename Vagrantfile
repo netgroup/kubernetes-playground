@@ -16,13 +16,21 @@ settings_merger = proc {
 # Load default settings
 settings = YAML::load_file("defaults.yaml")
 
-# Eventually customize the environment
+# If needed customize the environment
 env_specific_config_path = "env.yaml"
 if File.exist?(env_specific_config_path)
   env_settings = YAML::load_file(env_specific_config_path)
   if !env_settings.nil?
     settings = settings.merge(env_settings, &settings_merger)
   end
+end
+
+# Check that an allowed networking plugin is provided
+allowed_cni_plugins=["weavenet","calico","flannel","no-cni-plugin"]
+if not allowed_cni_plugins.include? settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"]
+  puts "kubernetes_network_plugin is not valid in defaults.yaml or env.yaml, allowed values are:"
+  allowed_cni_plugins.each {|valid| puts valid }
+  exit(1)
 end
 
 additional_ansible_arguments = settings["conf"]["additional_ansible_arguments"]
