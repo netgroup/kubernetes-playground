@@ -425,6 +425,9 @@ Vagrant.configure("2") do |config|
         host.vm.provision "cleanup", type: "shell", run: "never" do |s|
           s.path = "scripts/linux/cleanup-k8s-and-cni.sh"
         end
+        host.vm.provision "mount-shared", type: "shell", run: "never" do |s|
+          s.inline = "umount /vagrant; mount -t vboxsf vagrant /vagrant/"
+        end
       end
     end
   end
