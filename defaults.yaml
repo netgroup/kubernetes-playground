@@ -4,10 +4,8 @@ conf:
   base_box_builder_mem: 2048
   master_mem: 2048
   minion_mem: 1024
-  ansi_ctrl_mem: 1024
   playground_name: k8s-play
   base_box_builder_name: base-box-builder
-  ansi_ctrl_name: ansi-ctrl
   master_name: k8s-master-1
   minion_1_name: k8s-minion-1
   minion_2_name: k8s-minion-2

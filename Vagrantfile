@@ -70,19 +70,21 @@ vagrant_provider = settings["conf"]["vagrant_provider"]
 # Vagrant boxes
 vagrant_x64_kubernetes_nodes_base_box_id = settings["conf"]["kubernetes_nodes_base_box_id"][vagrant_provider]
 vagrant_x64_kubernetes_nodes_box_id = "ferrarimarco/kubernetes-playground-node"
-vagrant_x64_controller_box_id = vagrant_x64_kubernetes_nodes_box_id
 
 # VM Names
 base_box_builder_vm_name = settings["conf"]["base_box_builder_name"]
-ansible_controller_vm_name = settings["conf"]["ansi_ctrl_name"]
 kubernetes_master_1_vm_name = settings["conf"]["master_name"]
 kubernetes_minion_1_vm_name = settings["conf"]["minion_1_name"]
 kubernetes_minion_2_vm_name = settings["conf"]["minion_2_name"]
 kubernetes_minion_3_vm_name = settings["conf"]["minion_3_name"]
 
+# Defines where to run the Ansible container during the provisioning phase.
+# This must be the last machine to be created, because the other ones have to be
+# available before attempting any provisioning.
+ansible_controller_vm_name = kubernetes_minion_3_vm_name
+
 # VM IDs
 base_box_builder_vm_id = base_box_builder_vm_name + domain
-ansible_controller_vm_id = ansible_controller_vm_name + domain
 kubernetes_master_1_vm_id = kubernetes_master_1_vm_name + domain
 kubernetes_minion_1_vm_id = kubernetes_minion_1_vm_name + domain
 kubernetes_minion_2_vm_id = kubernetes_minion_2_vm_name + domain
@@ -92,7 +94,6 @@ kubernetes_minion_3_vm_id = kubernetes_minion_3_vm_name + domain
 base_box_builder_mem = settings["conf"]["base_box_builder_mem"]
 master_mem = settings["conf"]["master_mem"]
 minion_mem = settings["conf"]["minion_mem"]
-ansi_ctrl_mem = settings["conf"]["ansi_ctrl_mem"]
 
 playground = {
   base_box_builder_vm_id => {
@@ -167,19 +168,7 @@ playground = {
       "ipv6_address" => kubernetes_minion_3_ipv6,
       "assigned_hostname" => kubernetes_minion_3_vm_id
     }
-  },
-  ansible_controller_vm_id => {
-    :autostart => true,
-    :box => vagrant_x64_controller_box_id,
-    :cpus => 1,
-    :mac_address => "0800271F9D01",
-    :mem => ansi_ctrl_mem,
-    :ip => network_prefix + "9",
-    :net_auto_config => true,
-    :net_type => network_type_static_ip,
-    :subnet_mask => subnet_mask,
-    :show_gui => false
-  },
+  }
 }
 
 # Generate an inventory file
