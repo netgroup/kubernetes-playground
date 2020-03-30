@@ -82,7 +82,7 @@ then you can use the option `--provider=libvirt`.
 
 #### Show verbose output of Ansible operations
 
-Set `conf.additional_ansible_arguments` to `-vv` inside `env.yaml` to configure
+Set `conf.additional_ansible_arguments` to `"-vv"` inside `env.yaml` to configure
 verbose output in Ansible. Note that Ansible output is always saved on the
 `ansible_output.txt` file in the `/vagrant` folder.
 
