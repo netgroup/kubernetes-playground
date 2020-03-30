@@ -76,9 +76,15 @@ instruct Vagrant to load it.
 #### Use Libvirt as provider
 
 In order to use libvirt as provider you need to set
-the value of `vagrant_provider` variable to `libvirt` inside `env.yaml`.
+the value of `conf.vagrant_provider` variable to `libvirt` inside `env.yaml`.
 Vagrant needs to know that you want to use libvirt and not default VirtualBox,
 then you can use the option `--provider=libvirt`.
+
+#### Show verbose output of Ansible operations
+
+Set `conf.additional_ansible_arguments` to `-vv` inside `env.yaml` to configure
+verbose output in Ansible. Note that Ansible output is always saved on the
+`ansible_output.txt` file in the `/vagrant` folder.
 
 ### Cleaning up and re-provisioning
 
@@ -87,6 +93,7 @@ a specific Vagrant provisioner that doesn't run during the normal
 provisioning phase, and then execute the normal provisioning again:
 
 1. `vagrant provision --provision-with cleanup`
+1. `vagrant provision --provision-with mount-shared`
 1. `vagrant provision`
 
 ### Quick CNI provisioning
@@ -94,6 +101,7 @@ provisioning phase, and then execute the normal provisioning again:
 If you want to test a different CNI plugin, run:
 
 1. `vagrant provision --provision-with cleanup`
+1. `vagrant provision --provision-with mount-shared`
 
 edit the [`defaults.yaml`](defaults.yaml) or better the `env.yaml` to
 change the network plugin, then run
