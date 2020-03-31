@@ -176,9 +176,12 @@ controllers.
 
 ## Development and testing
 
-To bootstrap a development environment, you need to install the
-runtime dependencies listed above, plus the development environment
-dependencies.
+The test suite is executed automatically by Travis CI on each commit, according
+to the configuration (see [.travis.yml](.travis.yml)).
+
+You can also run the same test suite locally. To bootstrap a development
+environment, you need to install the runtime dependencies listed above, plus the
+development environment dependencies.
 
 ### Running the tests
 
@@ -214,8 +217,8 @@ We currently check the following file types, and enforce the following rules:
 
 #### Compliance test suite
 
-The test suite checks the whole environment for compliance using a verifier (
-[InSpec](https://www.inspec.io/) in this case).
+The test suite checks the whole environment for compliance using a verifier
+([InSpec](https://www.inspec.io/) in this case).
 
 ##### Compliance test suites dependencies
 
