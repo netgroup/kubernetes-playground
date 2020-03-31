@@ -214,3 +214,8 @@ manage the lifecycle of the test instances.
     1. Install bundler: `gem install bundler`
     1. Install required gems: `bundle install`
 1. Run the tests with Test-Kitchen: `kitchen test`
+
+## Contributing
+
+Contributions to this project are welcome! See the instructions in
+[CONTRIBUTING.md](CONTRIBUTING.md).
