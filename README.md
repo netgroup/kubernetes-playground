@@ -81,7 +81,7 @@ then you can use the option `--provider=libvirt`.
 
 #### Select a kubernetes networking plugin (CNI)
 
-The networking plugin is configured by setting 
+The networking plugin is configured by setting
 `ansible.group_vars.all.kubernetes_network_plugin`
 inside `env.yaml`. The currenlty allowed plugins are `weavenet`, `calico`
 and `flannel`. It is also possible to use `no-cni-plugin`. In this case,
