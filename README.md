@@ -200,8 +200,8 @@ The codebase is checked with linters and against common formatting rules.
 
 We currently check the following file types, and enforce the following rules:
 
-| File type                    | Formatting rules                   | Linters and validators |
-|------------------------------|------------------------------------|---------------|
+| File type      | Formatting rules | Linters and validators |
+|----------------|------------------|------------------------|
 | Travis CI configuration file | See [.editorconfig](.editorconfig) | [travis lint](https://github.com/travis-ci/travis.rb#lint) |
 | Shell scripts                | See [.editorconfig](.editorconfig), [shfmt](https://github.com/mvdan/sh) | [Shellcheck](https://github.com/koalaman/shellcheck) |
 | All YAML files               | See [.editorconfig](.editorconfig) | [YAMLlint (strict mode)](https://github.com/adrienverge/yamllint) |
