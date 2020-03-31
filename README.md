@@ -196,6 +196,22 @@ The codebase is checked with linters and against common formatting rules.
 1. See [requirements.txt](requirements.txt).
 1. See [package.json](package.json).
 
+##### Linting and formatting rules
+
+We currently check the following file types, and enforce the following rules:
+
+| File type                    | Formatting rules                   | Linters and validators |
+|------------------------------|------------------------------------|---------------|
+| Travis CI configuration file | See [.editorconfig](.editorconfig) | [travis lint](https://github.com/travis-ci/travis.rb#lint) |
+| Shell scripts                | See [.editorconfig](.editorconfig), [shfmt](https://github.com/mvdan/sh) | [Shellcheck](https://github.com/koalaman/shellcheck) |
+| All YAML files               | See [.editorconfig](.editorconfig) | [YAMLlint (strict mode)](https://github.com/adrienverge/yamllint) |
+| Markdown files               | See [.editorconfig](.editorconfig) | [markdownlint](https://github.com/DavidAnson/markdownlint) |
+| Vagrantfile                  | See [.editorconfig](.editorconfig) | [vagrant validate](https://www.vagrantup.com/docs/cli/validate.html) |
+| Kubernetes descriptors       | See [.editorconfig](.editorconfig) | [kubeval](https://github.com/instrumenta/kubeval) |
+| Ansible playbooks and roles  | See [.editorconfig](.editorconfig) | [ansible-lint](https://docs.ansible.com/ansible-lint/) |
+| Dockerfiles                  | See [.editorconfig](.editorconfig) | [hadolint](https://github.com/hadolint/hadolint) |
+| All text files               | See [.editorconfig](.editorconfig) | N/A |
+
 #### Compliance test suite
 
 The test suite checks the whole environment for compliance using a verifier (
