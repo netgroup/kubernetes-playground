@@ -422,7 +422,7 @@ Vagrant.configure("2") do |config|
         end
         host.vm.provision "mount-shared", type: "shell", run: "never" do |s|
             if(vagrant_provider == 'virtualbox')
-                s.inline = "umount /vagrant; mount -t vboxsf vagrant /vagrant/"
+                s.inline = "mount -t vboxsf vagrant /vagrant/"
             elsif(vagrant_provider == 'libvirt')
                 s.inline = "mount -t nfs -o 'vers=3' 192.168.121.1:" + vagrant_root + " /vagrant"
             end
