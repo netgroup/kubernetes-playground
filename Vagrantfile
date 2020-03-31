@@ -98,6 +98,8 @@ base_box_builder_mem = settings["conf"]["base_box_builder_mem"]
 master_mem = settings["conf"]["master_mem"]
 minion_mem = settings["conf"]["minion_mem"]
 
+vagrant_root = File.dirname(__FILE__)
+
 playground = {
   base_box_builder_vm_id => {
     :autostart => false,
@@ -419,7 +421,11 @@ Vagrant.configure("2") do |config|
           s.path = "scripts/linux/cleanup-k8s-and-cni.sh"
         end
         host.vm.provision "mount-shared", type: "shell", run: "never" do |s|
-          s.inline = "umount /vagrant; mount -t vboxsf vagrant /vagrant/"
+            if(vagrant_provider == 'virtualbox')
+                s.inline = "umount /vagrant; mount -t vboxsf vagrant /vagrant/"
+            elsif(vagrant_provider == 'libvirt')
+                s.inline = "mount -t nfs -o 'vers=3' 192.168.121.1:" + vagrant_root + " /vagrant"
+            end
         end
       end
     end
