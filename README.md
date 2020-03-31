@@ -81,10 +81,12 @@ then you can use the option `--provider=libvirt`.
 
 #### Select a kubernetes networking plugin (CNI)
 
-The networking plugin is configured by setting `ansible.group_vars.all.kubernetes_network_plugin`
-inside `env.yaml`. The currenlty allowed plugins are `weavenet`, `calico` and `flannel`. It is
-also possible to use `no-cni-plugin`. In this case, the provisioner will only prepare the
-environment, but will not start any Kubernetes cluster and will not run `kubeadm join` in the minions.
+The networking plugin is configured by setting 
+`ansible.group_vars.all.kubernetes_network_plugin`
+inside `env.yaml`. The currenlty allowed plugins are `weavenet`, `calico`
+and `flannel`. It is also possible to use `no-cni-plugin`. In this case,
+the provisioner will only prepare the environment, but will not start any
+Kubernetes cluster and will not run `kubeadm join` in the minions.
 
 #### Show verbose output of Ansible operations
 
