@@ -89,12 +89,15 @@ verbose output in Ansible. Note that Ansible output is always saved on the
 ### Cleaning up and re-provisioning
 
 If you want to re-test the initializion of the Kubernetes cluster, you can run
-a specific Vagrant provisioner that doesn't run during the normal
-provisioning phase, and then execute the normal provisioning again:
+two Vagrant provisioners (_cleanup_ and _mount-shared_ ) that do not run during the
+normal provisioning phase, and then execute the normal provisioning again:
 
 1. `vagrant provision --provision-with cleanup`
 1. `vagrant provision --provision-with mount-shared`
 1. `vagrant provision`
+
+The _cleanup_ provisioner also reboots the VMs, then the _mount-shared_ provisioner
+is needed to restore the shared folders between host and VMs.
 
 ### Quick CNI provisioning
 
