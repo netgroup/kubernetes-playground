@@ -182,7 +182,8 @@ dependencies.
 
 ### Running the tests
 
-This section explains how to run linters and the compliance test suites.
+This section explains how to run linters and the compliance test suites. The
+same linters and test suites run automatically on each commit.
 
 #### Linters and formatters
 
