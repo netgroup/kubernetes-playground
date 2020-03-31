@@ -1,6 +1,6 @@
 # Kubernetes Playground
 
-[![Build Status Master Branch](https://travis-ci.org/ferrarimarco/kubernetes-playground.svg?branch=master)](https://travis-ci.org/ferrarimarco/kubernetes-playground)
+[![Build Status Master Branch](https://travis-ci.com/ferrarimarco/kubernetes-playground.svg?branch=master)](https://travis-ci.com/ferrarimarco/kubernetes-playground)
 
 This project is a playground to play with Kubernetes.
 
@@ -30,14 +30,6 @@ This project is a playground to play with Kubernetes.
     1. libvirt >= 4.0.0
     1. QUEMU >= 2.22.1
     1. [vagrant-libvirt](https://github.com/vagrant-libvirt/vagrant-libvirt)
-
-## Test environment
-
-1. Bundler 1.13.0+
-1. Ruby 2.4.0+
-1. See [Gemfile](Gemfile)
-1. See [requirements.txt](requirements.txt)
-1. See [package.json](package.json)
 
 ## How to Run
 
@@ -123,21 +115,6 @@ To deploy GlusterFS, SSH into the master and run the configuration script:
 1. `vagrant ssh kubernetes-master-1.kubernetes-playground.local`
 1. `sudo /vagrant/scripts/linux/bootstrap-glusterfs.sh`
 
-### Running the tests
-
-The test suite checks the whole environment for compliance using a verifier (
-[InSpec](https://www.inspec.io/) in this case).
-
-You can run the test suite manually. [Test-Kitchen](https://kitchen.ci/) will
-manage the lifecycle of the test instances.
-
-1. Install the dependencies:
-    1. `gem install bundler`
-    1. `bundle install`
-1. Run the tests with Test-Kitchen: `kitchen test`
-
-The CI builds run additional checks and linters. See [.travis.yml](.travis.yml).
-
 ### Ingress Controller
 
 To deploy the Ingress controller, SSH into the master and run the configuration
@@ -212,3 +189,69 @@ Note that the contents of those file will be overidden on each run.
 
 We generate a self-signed wildcard certificate to use for all the ingress
 controllers.
+
+## Development and testing
+
+The test suite is executed automatically by Travis CI on each commit, according
+to the configuration (see [.travis.yml](.travis.yml)).
+
+You can also run the same test suite locally. To bootstrap a development
+environment, you need to install the runtime dependencies listed above, plus the
+development environment dependencies.
+
+### Running the tests
+
+This section explains how to run linters and the compliance test suites. The
+same linters and test suites run automatically on each commit.
+
+#### Linters and formatters
+
+The codebase is checked with linters and against common formatting rules.
+
+##### Linters and formatters dependencies
+
+1. Python 3, with pip.
+1. NodeJS, with npm.
+1. See [requirements.txt](requirements.txt).
+1. See [package.json](package.json).
+
+##### Linting and formatting rules
+
+We currently check the following file types, and enforce the following rules:
+
+| File type      | Formatting rules | Linters and validators |
+|----------------|------------------|------------------------|
+| Travis CI configuration file | See [.editorconfig](.editorconfig) | [travis lint](https://github.com/travis-ci/travis.rb#lint) |
+| Shell scripts                | See [.editorconfig](.editorconfig), [shfmt](https://github.com/mvdan/sh) | [Shellcheck](https://github.com/koalaman/shellcheck) |
+| All YAML files               | See [.editorconfig](.editorconfig) | [YAMLlint (strict mode)](https://github.com/adrienverge/yamllint) |
+| Markdown files               | See [.editorconfig](.editorconfig) | [markdownlint](https://github.com/DavidAnson/markdownlint) |
+| Vagrantfile                  | See [.editorconfig](.editorconfig) | [vagrant validate](https://www.vagrantup.com/docs/cli/validate.html) |
+| Kubernetes descriptors       | See [.editorconfig](.editorconfig) | [kubeval](https://github.com/instrumenta/kubeval) |
+| Ansible playbooks and roles  | See [.editorconfig](.editorconfig) | [ansible-lint](https://docs.ansible.com/ansible-lint/) |
+| Dockerfiles                  | See [.editorconfig](.editorconfig) | [hadolint](https://github.com/hadolint/hadolint) |
+| All text files               | See [.editorconfig](.editorconfig) | N/A |
+
+#### Compliance test suite
+
+The test suite checks the whole environment for compliance using a verifier
+([InSpec](https://www.inspec.io/) in this case).
+
+##### Compliance test suites dependencies
+
+1. Ruby 2.6.0+
+1. Bundler 1.13.0+
+
+##### How to run the compliance test suites
+
+You can run the test suite manually. [Test-Kitchen](https://kitchen.ci/) will
+manage the lifecycle of the test instances.
+
+1. Install the dependencies (you need to have a working Ruby environment):
+    1. Install bundler: `gem install bundler`
+    1. Install required gems: `bundle install`
+1. Run the tests with Test-Kitchen: `kitchen test`
+
+## Contributing
+
+Contributions to this project are welcome! See the instructions in
+[CONTRIBUTING.md](CONTRIBUTING.md).

@@ -99,7 +99,7 @@ master_mem = settings["conf"]["master_mem"]
 minion_mem = settings["conf"]["minion_mem"]
 
 vagrant_root = File.dirname(__FILE__)
-
+  
 playground = {
   base_box_builder_vm_id => {
     :autostart => false,

@@ -6,9 +6,10 @@ jobs:
   fast_finish: true
   include:
     - before_install: gem install travis --no-document
+      install: echo "Overriding the default install, to avoid installing gems from the Gemfile"
       name: "Travis lint"
       stage: linting
-      script: echo "n" | travis lint
+      script: echo "n" | travis lint -x
     - name: "Shellcheck"
       language: shell
       script: |
