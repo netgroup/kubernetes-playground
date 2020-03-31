@@ -421,6 +421,12 @@ Vagrant.configure("2") do |config|
           s.inline = "umount /vagrant; mount -t vboxsf vagrant /vagrant/"
         end
       end
+      #host.trigger.after :up do |trig|
+      #  trig.info "AFTER PROVISION"
+      #end
+      host.trigger.after :provision,
+        info: "AFTER PROVISION"
+
     end
   end
 end
