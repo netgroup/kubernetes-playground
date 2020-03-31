@@ -1,6 +1,6 @@
 # Kubernetes Playground
 
-[![Build Status Master Branch](https://travis-ci.org/ferrarimarco/kubernetes-playground.svg?branch=master)](https://travis-ci.org/ferrarimarco/kubernetes-playground)
+[![Build Status Master Branch](https://travis-ci.com/ferrarimarco/kubernetes-playground.svg?branch=master)](https://travis-ci.com/ferrarimarco/kubernetes-playground)
 
 This project is a playground to play with Kubernetes.
 
