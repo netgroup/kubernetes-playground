@@ -9,7 +9,7 @@ jobs:
       install: echo "Overriding the default install, to avoid installing gems from the Gemfile"
       name: "Travis lint"
       stage: linting
-      script: echo "n" | travis lint
+      script: echo "n" | travis lint -x
     - name: "Shellcheck"
       language: shell
       script: |
