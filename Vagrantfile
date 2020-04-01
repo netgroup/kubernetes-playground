@@ -430,7 +430,7 @@ Vagrant.configure("2") do |config|
             if(vagrant_provider == 'virtualbox')
                 s.inline = "mount -t vboxsf vagrant /vagrant/"
             elsif(vagrant_provider == 'libvirt')
-                s.inline = "mount -t nfs -o 'vers=3' "+libvirt_management_host_address+":" + vagrant_root + " /vagrant"
+                s.inline = "if [[ $(mount | grep /vagrant) ]] ; then mount -t nfs -o 'vers=3' "+libvirt_management_host_address+":" + vagrant_root + " /vagrant ; fi"
             end
         end
       end
