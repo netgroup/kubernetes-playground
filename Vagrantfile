@@ -36,6 +36,9 @@ if not allowed_cni_plugins.include? settings["ansible"]["group_vars"]["all"]["ku
   exit(1)
 end
 
+libvirt_management_network_address = '192.168.121.0/24'
+libvirt_management_host_address = '192.168.121.1'
+
 additional_ansible_arguments = settings["conf"]["additional_ansible_arguments"]
 
 network_prefix = settings["net"]["network_prefix"]
@@ -380,6 +383,7 @@ Vagrant.configure("2") do |config|
           libvirt.memory = info[:mem]
           libvirt.nested = true
           libvirt.default_prefix = ''
+          libvirt.management_network_address = libvirt_management_network_address
         end
       end
       host.vm.hostname = hostname
@@ -425,7 +429,7 @@ Vagrant.configure("2") do |config|
             if(vagrant_provider == 'virtualbox')
                 s.inline = "mount -t vboxsf vagrant /vagrant/"
             elsif(vagrant_provider == 'libvirt')
-                s.inline = "mount -t nfs -o 'vers=3' 192.168.121.1:" + vagrant_root + " /vagrant"
+                s.inline = "mount -t nfs -o 'vers=3' "+libvirt_management_host_address+":" + vagrant_root + " /vagrant"
             end
         end
       end
