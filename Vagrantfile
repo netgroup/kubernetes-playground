@@ -425,13 +425,23 @@ Vagrant.configure("2") do |config|
         host.vm.provision "cleanup", type: "shell", run: "never" do |s|
           s.path = "scripts/linux/cleanup-k8s-and-cni.sh"
         end
-        host.vm.provision "mount-shared", type: "shell", run: "never" do |s|
-            if(vagrant_provider == 'virtualbox')
-                s.inline = "if ! [[ $(mount | grep /vagrant) ]] ; then mount -t vboxsf vagrant /vagrant/ ; fi"
-            elsif(vagrant_provider == 'libvirt')
-                s.inline = "if ! [[ $(mount | grep /vagrant) ]] ; then mount -t nfs -o 'vers=3' "+libvirt_management_host_address+":" + vagrant_root + " /vagrant ; fi"
-            end
+        $mountNfsShare = ''
+        if(vagrant_provider == 'virtualbox')
+            $mountNfsShare = <<-'SCRIPT'
+            if ! "$(mount | grep /vagrant)" ; then
+                mount -t vboxsf vagrant /vagrant/
+            fi
+            SCRIPT
+        elsif(vagrant_provider == 'libvirt')
+            $mountNfsShare = <<-'SCRIPT'
+            if ! "$(mount | grep /vagrant)" ; then
+                mount -t nfs -o 'vers=3' $libvirt_management_host_address:$vagrant_root /vagrant
+            fi
+            SCRIPT
         end
+        $mountNfsShare.gsub!("$libvirt_management_host_address", libvirt_management_host_address)
+        $mountNfsShare.gsub!("$vagrant_root", vagrant_root)
+        host.vm.provision "mount-shared", run: "never", inline: $mountNfsShare
       end
     end
   end
