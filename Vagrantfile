@@ -441,7 +441,7 @@ Vagrant.configure("2") do |config|
         end
         $mountNfsShare.gsub!("$libvirt_management_host_address", libvirt_management_host_address)
         $mountNfsShare.gsub!("$vagrant_root", vagrant_root)
-        host.vm.provision "mount-shared", run: "never", inline: $mountNfsShare
+        host.vm.provision "mount-shared", type:"shell", run: "never", inline: $mountNfsShare
       end
     end
   end
