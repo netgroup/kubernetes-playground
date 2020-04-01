@@ -1,6 +1,8 @@
 require 'yaml'
 require 'ipaddr'
 
+@ui = Vagrant::UI::Colored.new
+
 # Proc settings merger
 settings_merger = proc {
     |key, v_default, v_env|
@@ -16,7 +18,7 @@ settings_merger = proc {
 # Load default settings
 settings = YAML::load_file("defaults.yaml")
 
-# Eventually customize the environment
+# If needed customize the environment
 env_specific_config_path = "env.yaml"
 if File.exist?(env_specific_config_path)
   env_settings = YAML::load_file(env_specific_config_path)
@@ -24,6 +26,24 @@ if File.exist?(env_specific_config_path)
     settings = settings.merge(env_settings, &settings_merger)
   end
 end
+
+# Check that an allowed networking plugin is provided
+allowed_cni_plugins=["weavenet","calico","flannel","no-cni-plugin"]
+if not allowed_cni_plugins.include? settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"]
+  @ui.error 'kubernetes_network_plugin is not valid in defaults.yaml or env.yaml, allowed values are:'
+  #puts "kubernetes_network_plugin is not valid in defaults.yaml or env.yaml, allowed values are:"
+  allowed_cni_plugins.each {|valid| @ui.error valid }
+  exit(1)
+end
+
+libvirt_management_network_address = settings["net"]["libvirt_management_network_address"]
+netmask=libvirt_management_network_address.split('/')
+if netmask[1].to_i > 24
+  @ui.error 'only netmasks <= 24 in libvirt_management_network_address are safely supported'
+  exit(1)
+end
+ip_split=libvirt_management_network_address.split('.')
+libvirt_management_host_address = ip_split[0]+'.'+ip_split[1]+'.'+ip_split[2]+'.1'
 
 additional_ansible_arguments = settings["conf"]["additional_ansible_arguments"]
 
@@ -86,6 +106,9 @@ kubernetes_minion_3_vm_id = kubernetes_minion_3_vm_name + domain
 base_box_builder_mem = settings["conf"]["base_box_builder_mem"]
 master_mem = settings["conf"]["master_mem"]
 minion_mem = settings["conf"]["minion_mem"]
+
+# path to the shared folder with the VMs
+vagrant_root = File.dirname(__FILE__)
 
 playground = {
   base_box_builder_vm_id => {
@@ -365,6 +388,7 @@ Vagrant.configure("2") do |config|
           libvirt.memory = info[:mem]
           libvirt.nested = true
           libvirt.default_prefix = ''
+          libvirt.management_network_address = libvirt_management_network_address
         end
       end
       host.vm.hostname = hostname
@@ -392,20 +416,38 @@ Vagrant.configure("2") do |config|
           s.path = "scripts/linux/install-kubernetes.sh"
           s.args = ["--inventory", ansible_base_inventory_path, "--additional-ansible-arguments", additional_ansible_arguments]
         end
-      elsif(hostname.include?(ansible_controller_vm_name))
-        host.vm.provision "shell" do |s|
-          s.path = "scripts/linux/install-kubernetes.sh"
-          s.args = ["--inventory", ansible_inventory_path, "--additional-ansible-arguments", additional_ansible_arguments]
-        end
-
-        host.vm.provision "quick-setup", type: "shell", run: "never" do |s|
-          s.path = "scripts/linux/install-kubernetes.sh"
-          s.args = ["--inventory", ansible_inventory_path, "--additional-ansible-arguments", additional_ansible_arguments, "--quick-setup" ]
-        end
       else
+        if(hostname.include?(ansible_controller_vm_name))
+          host.vm.provision "shell" do |s|
+            s.path = "scripts/linux/install-kubernetes.sh"
+            s.args = ["--inventory", ansible_inventory_path, "--additional-ansible-arguments", additional_ansible_arguments]
+          end
+
+          host.vm.provision "quick-setup", type: "shell", run: "never" do |s|
+            s.path = "scripts/linux/install-kubernetes.sh"
+            s.args = ["--inventory", ansible_inventory_path, "--additional-ansible-arguments", additional_ansible_arguments, "--quick-setup" ]
+          end
+        end
         host.vm.provision "cleanup", type: "shell", run: "never" do |s|
           s.path = "scripts/linux/cleanup-k8s-and-cni.sh"
         end
+        $mountNfsShare = ''
+        if(vagrant_provider == 'virtualbox')
+            $mountNfsShare = <<-'SCRIPT'
+            if ! "$(mount | grep /vagrant)" ; then
+                mount -t vboxsf vagrant /vagrant/
+            fi
+            SCRIPT
+        elsif(vagrant_provider == 'libvirt')
+            $mountNfsShare = <<-'SCRIPT'
+            if ! "$(mount | grep /vagrant)" ; then
+                mount -t nfs -o 'vers=3' $libvirt_management_host_address:$vagrant_root /vagrant
+            fi
+            SCRIPT
+        end
+        $mountNfsShare.gsub!("$libvirt_management_host_address", libvirt_management_host_address)
+        $mountNfsShare.gsub!("$vagrant_root", vagrant_root)
+        host.vm.provision "mount-shared", type:"shell", run: "never", inline: $mountNfsShare
       end
     end
   end

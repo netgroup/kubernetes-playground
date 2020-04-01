@@ -21,7 +21,9 @@ elif [ "$network_plugin_id" = 'flannel' ]; then
     echo "Setup networking for flannel"
 fi
 
-echo "Initializing Kubernetes minion to join: $master_address and token: $token"
-kubeadm join "$master_address":6443 --token "$token" --discovery-token-unsafe-skip-ca-verification
+if [ "$network_plugin_id" != 'no-cni-plugin' ]; then
+    echo "Initializing Kubernetes minion to join: $master_address and token: $token"
+    kubeadm join "$master_address":6443 --token "$token" --discovery-token-unsafe-skip-ca-verification
+fi
 
 set +e

@@ -67,24 +67,44 @@ instruct Vagrant to load it.
 #### Use Libvirt as provider
 
 In order to use libvirt as provider you need to set
-the value of `vagrant_provider` variable to `libvirt` inside `env.yaml`.
+the value of `conf.vagrant_provider` variable to `libvirt` inside `env.yaml`.
 Vagrant needs to know that you want to use libvirt and not default VirtualBox,
 then you can use the option `--provider=libvirt`.
+
+#### Select a kubernetes networking plugin (CNI)
+
+The networking plugin is configured by setting
+`ansible.group_vars.all.kubernetes_network_plugin`
+inside `env.yaml`. The currenlty allowed plugins are `weavenet`, `calico`
+and `flannel`. It is also possible to use `no-cni-plugin`. In this case,
+the provisioner will only prepare the environment, but will not start any
+Kubernetes cluster and will not run `kubeadm join` in the minions.
+
+#### Show verbose output of Ansible operations
+
+Set `conf.additional_ansible_arguments` to `"-vv"` inside `env.yaml` to configure
+verbose output in Ansible. Note that Ansible output is always saved on the
+`ansible_output.txt` file in the `/vagrant` folder.
 
 ### Cleaning up and re-provisioning
 
 If you want to re-test the initializion of the Kubernetes cluster, you can run
-a specific Vagrant provisioner that doesn't run during the normal
-provisioning phase, and then execute the normal provisioning again:
+two Vagrant provisioners (_cleanup_ and _mount-shared_ ) that do not run during the
+normal provisioning phase, and then execute the normal provisioning again:
 
 1. `vagrant provision --provision-with cleanup`
+1. `vagrant provision --provision-with mount-shared`
 1. `vagrant provision`
+
+The _cleanup_ provisioner also reboots the VMs, then the _mount-shared_ provisioner
+is needed to restore the shared folders between host and VMs.
 
 ### Quick CNI provisioning
 
 If you want to test a different CNI plugin, run:
 
 1. `vagrant provision --provision-with cleanup`
+1. `vagrant provision --provision-with mount-shared`
 
 edit the [`defaults.yaml`](defaults.yaml) or better the `env.yaml` to
 change the network plugin, then run
