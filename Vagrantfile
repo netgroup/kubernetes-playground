@@ -36,7 +36,7 @@ if not allowed_cni_plugins.include? settings["ansible"]["group_vars"]["all"]["ku
   exit(1)
 end
 
-libvirt_management_network_address = '192.168.121.0/24'
+libvirt_management_network_address = settings["net"]["libvirt_management_network_address"]
 libvirt_management_host_address = '192.168.121.1'
 
 additional_ansible_arguments = settings["conf"]["additional_ansible_arguments"]
@@ -377,7 +377,6 @@ Vagrant.configure("2") do |config|
           vb.name = hostname
         end
       elsif(vagrant_provider == 'libvirt')
-        host.vm.synced_folder ".", "/vagrant"
         host.vm.provider :libvirt do |libvirt|
           libvirt.cpus = info[:cpus]
           libvirt.memory = info[:mem]

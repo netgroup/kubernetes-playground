@@ -24,6 +24,7 @@ net:
   minion_2_ipv6_part: "c41f::"
   minion_3_ipv6_part: "c420::"
   if_name_for_flannel: enp0s8
+  libvirt_management_network_address: "192.168.121.0/24"
 pod_network:
   cluster_ip_cidr: "10.244.0.0/16"
   service_ip_cidr: "10.96.0.0/12"
