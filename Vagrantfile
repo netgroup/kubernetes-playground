@@ -411,17 +411,18 @@ Vagrant.configure("2") do |config|
           s.path = "scripts/linux/install-kubernetes.sh"
           s.args = ["--inventory", ansible_base_inventory_path, "--additional-ansible-arguments", additional_ansible_arguments]
         end
-      elsif(hostname.include?(ansible_controller_vm_name))
-        host.vm.provision "shell" do |s|
-          s.path = "scripts/linux/install-kubernetes.sh"
-          s.args = ["--inventory", ansible_inventory_path, "--additional-ansible-arguments", additional_ansible_arguments]
-        end
-
-        host.vm.provision "quick-setup", type: "shell", run: "never" do |s|
-          s.path = "scripts/linux/install-kubernetes.sh"
-          s.args = ["--inventory", ansible_inventory_path, "--additional-ansible-arguments", additional_ansible_arguments, "--quick-setup" ]
-        end
       else
+        if(hostname.include?(ansible_controller_vm_name))
+          host.vm.provision "shell" do |s|
+            s.path = "scripts/linux/install-kubernetes.sh"
+            s.args = ["--inventory", ansible_inventory_path, "--additional-ansible-arguments", additional_ansible_arguments]
+          end
+
+          host.vm.provision "quick-setup", type: "shell", run: "never" do |s|
+            s.path = "scripts/linux/install-kubernetes.sh"
+            s.args = ["--inventory", ansible_inventory_path, "--additional-ansible-arguments", additional_ansible_arguments, "--quick-setup" ]
+          end
+        end
         host.vm.provision "cleanup", type: "shell", run: "never" do |s|
           s.path = "scripts/linux/cleanup-k8s-and-cni.sh"
         end
