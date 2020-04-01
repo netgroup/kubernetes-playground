@@ -37,7 +37,8 @@ if not allowed_cni_plugins.include? settings["ansible"]["group_vars"]["all"]["ku
 end
 
 libvirt_management_network_address = settings["net"]["libvirt_management_network_address"]
-libvirt_management_host_address = '192.168.121.1'
+ip_split=libvirt_management_network_address.split('.')
+libvirt_management_host_address = ip_split[0]+'.'+ip_split[1]+'.'+ip_split[2]+'.1'
 
 additional_ansible_arguments = settings["conf"]["additional_ansible_arguments"]
 
