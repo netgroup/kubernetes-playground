@@ -428,7 +428,7 @@ Vagrant.configure("2") do |config|
         end
         host.vm.provision "mount-shared", type: "shell", run: "never" do |s|
             if(vagrant_provider == 'virtualbox')
-                s.inline = "mount -t vboxsf vagrant /vagrant/"
+                s.inline = "if ! [[ $(mount | grep /vagrant) ]] ; then mount -t vboxsf vagrant /vagrant/ ; fi"
             elsif(vagrant_provider == 'libvirt')
                 s.inline = "if ! [[ $(mount | grep /vagrant) ]] ; then mount -t nfs -o 'vers=3' "+libvirt_management_host_address+":" + vagrant_root + " /vagrant ; fi"
             end
