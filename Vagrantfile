@@ -37,6 +37,11 @@ if not allowed_cni_plugins.include? settings["ansible"]["group_vars"]["all"]["ku
 end
 
 libvirt_management_network_address = settings["net"]["libvirt_management_network_address"]
+netmask=libvirt_management_network_address.split('/')
+if netmask[1].to_i > 24 
+  @ui.error 'only netmasks <= 24 in libvirt_management_network_address are safely supported'
+  exit(1)
+end
 ip_split=libvirt_management_network_address.split('.')
 libvirt_management_host_address = ip_split[0]+'.'+ip_split[1]+'.'+ip_split[2]+'.1'
 
