@@ -98,8 +98,9 @@ base_box_builder_mem = settings["conf"]["base_box_builder_mem"]
 master_mem = settings["conf"]["master_mem"]
 minion_mem = settings["conf"]["minion_mem"]
 
+# path to the shared folder with the VMs
 vagrant_root = File.dirname(__FILE__)
-  
+
 playground = {
   base_box_builder_vm_id => {
     :autostart => false,
