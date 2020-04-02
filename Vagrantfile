@@ -435,12 +435,16 @@ Vagrant.configure("2") do |config|
         if(vagrant_provider == 'virtualbox')
             $mountNfsShare = <<-'SCRIPT'
             if ! mount | grep -qs /vagrant ; then
+                # From now on, we want the script to fail if we have problems mounting the shares
+                set -e
                 mount -t vboxsf vagrant /vagrant/
             fi
             SCRIPT
         elsif(vagrant_provider == 'libvirt')
             $mountNfsShare = <<-'SCRIPT'
             if ! mount | grep -qs /vagrant ; then
+                # From now on, we want the script to fail if we have problems mounting the shares
+                set -e
                 mount -t nfs -o 'vers=3' $libvirt_management_host_address:$vagrant_root /vagrant
             fi
             SCRIPT
