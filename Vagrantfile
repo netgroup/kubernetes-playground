@@ -433,8 +433,8 @@ Vagrant.configure("2") do |config|
         end
         $mountNfsShare = ''
         if(vagrant_provider == 'virtualbox')
-            set -e
             $mountNfsShare = <<-'SCRIPT'
+            set -e
             if ! mount | grep -qs /vagrant ; then
                 # From now on, we want the script to fail if we have problems mounting the shares
                 mount -t vboxsf vagrant /vagrant/
