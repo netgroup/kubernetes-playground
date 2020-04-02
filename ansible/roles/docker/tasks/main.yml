@@ -29,15 +29,6 @@
     name: docker
     state: "{{ docker_service_status|default('started') }}"
 
-- name: Install docker compose
-  get_url:
-    dest: "{{ docker_compose_executable_path }}"
-    force: true
-    mode: u=rwx,g=rx,o=rx
-    # yamllint disable-line rule:line-length
-    url: "https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/{{ docker_compose_archive_name }}"
-  when: docker_compose_version is defined
-
 - name: Ensure that the Docker group has been created
   group:
     name: docker
