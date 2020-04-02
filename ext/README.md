@@ -2,7 +2,7 @@
 
 External projects can create their own folder here.
 The files and folders under `ext` are not visible by git.
-Taking the kites project as an example, this is the recommended 
+Taking the kites project as an example, this is the recommended
 folder structure:
 
 ```
