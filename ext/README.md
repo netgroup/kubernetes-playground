@@ -5,7 +5,7 @@ The files and folders under `ext` are not visible by git.
 Taking the kites project as an example, this is the recommended
 folder structure:
 
-```
+```text
 ext/kites
 ext/kites/scripts
 ext/kites/scripts/linux
