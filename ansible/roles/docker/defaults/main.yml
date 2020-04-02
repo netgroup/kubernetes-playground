@@ -4,9 +4,6 @@ docker_apt_repository_section_name: stable
 
 docker_yum_repo_url: https://download.docker.com/linux/centos/docker-ce.repo
 
-# docker-compose version to install
-docker_compose_version: 1.25.4
-
 # Docker package to install with APT. Can be used to install a specific version,
 # that must be present in the docker APT repository.
 # Example: docker-ce=version.to.install
