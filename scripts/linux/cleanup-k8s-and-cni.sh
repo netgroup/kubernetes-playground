@@ -12,16 +12,32 @@
 
 #clean up kubernetes control information and cni settings in all nodes
 
+KUBE_CONFIG_PATH="$HOME/.kube"
+
+# If we're on a master, let's drain and remove all the workers first.
+# Note that if there are multiple masters, we should provide a mechanism to
+# avoid stepping on another master's toes when draining and removing nodes.
+if [ -d "$KUBE_CONFIG_PATH" ] && kubectl get nodes -l node-role.kubernetes.io/master= -o name | grep -qs "$(hostname)"; then
+    echo "Draining and deleting nodes from the cluster"
+    nodes="$(kubectl get no -o name)"
+    echo "$(kubectl get no -o name)" | while IFS= read -r line; do
+        echo "Draining $line"
+        kubectl drain "$line" --delete-local-data --force --ignore-daemonsets
+
+        echo "Deleting $line from the cluster"
+        kubectl delete "$line"
+    done
+fi
+
 kubeadm reset -f
 
-KUBE_CONFIG_PATH="$HOME/.kube"
 [ -d "$KUBE_CONFIG_PATH" ] && rm -rf "$KUBE_CONFIG_PATH"
-echo "Manually cleaned up $KUBE_CONFIG_PATH"
+echo "Deleted $KUBE_CONFIG_PATH"
 unset KUBE_CONFIG_PATH
 
 KUBE_CONFIG_VAGRANT_PATH="/home/vagrant/.kube"
 [ -d "$KUBE_CONFIG_VAGRANT_PATH" ] && rm -rf "$KUBE_CONFIG_VAGRANT_PATH"
-echo "Manually cleaned up $KUBE_CONFIG_PATH"
+echo "Deleted $KUBE_CONFIG_PATH"
 unset KUBE_CONFIG_VAGRANT_PATH
 rm -rf /etc/cni/net.d
 
