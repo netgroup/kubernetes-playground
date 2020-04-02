@@ -11,4 +11,3 @@ directory structure:
 | `ext/kites` | Use a separated directory for your project |
 | `ext/kites/scripts` | Use sub directory for different script types |
 | `ext/kites/scripts/linux` | Linux scripts |
-
