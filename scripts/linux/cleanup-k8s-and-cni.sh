@@ -19,8 +19,7 @@ KUBE_CONFIG_PATH="$HOME/.kube"
 # avoid stepping on another master's toes when draining and removing nodes.
 if [ -d "$KUBE_CONFIG_PATH" ] && kubectl get nodes -l node-role.kubernetes.io/master= -o name | grep -qs "$(hostname)"; then
     echo "Draining and deleting nodes from the cluster"
-    nodes="$(kubectl get no -o name)"
-    echo "$(kubectl get no -o name)" | while IFS= read -r line; do
+    kubectl get no -o name | while IFS= read -r line; do
         echo "Draining $line"
         kubectl drain "$line" --delete-local-data --force --ignore-daemonsets
 
