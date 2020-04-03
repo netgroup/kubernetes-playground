@@ -49,7 +49,7 @@
         owner: root
         group: root
         mode: 0644
-      when: assigned_hostname is defined
+      when: assigned_hostname is defined and base_box|default(false)|bool == false
     - name: Configure registry name resolution in hosts file
       become: true
       lineinfile:
