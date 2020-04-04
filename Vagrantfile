@@ -101,7 +101,6 @@ end
 allowed_cni_plugins=["weavenet","calico","flannel","no-cni-plugin"]
 if not allowed_cni_plugins.include? settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"]
   @ui.error 'kubernetes_network_plugin is not valid in defaults.yaml or env.yaml, allowed values are:'
-  #puts "kubernetes_network_plugin is not valid in defaults.yaml or env.yaml, allowed values are:"
   allowed_cni_plugins.each {|valid| @ui.error valid }
   exit(1)
 end
