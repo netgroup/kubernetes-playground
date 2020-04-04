@@ -67,6 +67,12 @@ if travis_global_environment_variables.kind_of?(Array)
     travis_global_environment_variables = travis_global_environment_variables_hash
 end
 
+# Require the minimum Vagrant version we currently support
+required_vagrant_version = travis_global_environment_variables['VAGRANT_VERSION']
+vagrant_version_constraint = ">= #{required_vagrant_version}"
+Vagrant.require_version vagrant_version_constraint
+@ui.info "The current Vagrant version satisfies the constraints: #{vagrant_version_constraint}"
+
 # Proc settings merger
 settings_merger = proc {
     |key, v_default, v_env|
