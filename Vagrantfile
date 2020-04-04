@@ -3,6 +3,70 @@ require 'ipaddr'
 
 @ui = Vagrant::UI::Colored.new
 
+# Load the required Vagrant version from the CI configuration.
+# This forces us to be consistent with the CI environment.
+
+# Load Travis CI configuration
+travis_configuration_file_path = ".travis.yml"
+travis_configuration = YAML::load_file(travis_configuration_file_path)
+
+travis_global_environment_variables = travis_configuration["env"]["global"]
+
+# If we used the array form, let's parse it and put the results in a hash for
+# easy access. If we used the key-value format, no other processing is needed
+if travis_global_environment_variables.kind_of?(Array)
+    travis_global_environment_variables_hash = Hash.new
+    travis_global_environment_variables.each{
+        # x is the variable used to access the array item we're currently
+        # iterating on.
+        |x|
+
+        # Split multiple variables, if any. The format is: VAR_1=VAL_1 VAR_2=VAL_2
+        env_vars_item = x.strip.split(" ")
+        env_vars_item.each{
+            |y|
+            # Split key from value
+            env_variable = y.strip.split("=")
+
+            # Note that if the same variable appears with different values, the last
+            # value takes precedence.
+            env_variable_key = env_variable[0]
+
+            # Check if the variable is initialized, or just defined.
+            # If the variable isn't initialized, set the value to nil, but include
+            # the key in the hash, so at least you know the variable was defined.
+            env_variable_value = (env_variable.length == 1 ? nil : env_variable[1])
+
+            # Remove double quotes for easier parsing
+            env_variable_key.gsub!('"', '')
+            unless env_variable_key.nil?
+                env_variable_value.gsub!('"', '')
+            end
+
+            # Shoot out a warning if we overwrite a variable value, so at least
+            # the user knows what's happening. We might need a better way to handle this,
+            # but then we also need to deal with multple values (define multiple VMs? multiple provisioners?).
+            # Let's not complicate this now.
+            if travis_global_environment_variables_hash.key?(env_variable_key)
+                # Get the current value before we overwrite it
+                current_environment_variable_value = travis_global_environment_variables_hash[env_variable_key]
+
+                # Warn the user if the values is going to be overwritten
+                if current_environment_variable_value != env_variable_value
+                    @ui.warn "The #{env_variable_key} environment variable value is going to change from\n#{current_environment_variable_value} to #{env_variable_value} because you defined it\nmultiple times in #{travis_configuration_file_path}."
+                end
+            end
+
+            # Finally, add the key-value pair to the hash
+            travis_global_environment_variables_hash[env_variable_key] = env_variable_value
+        }
+    }
+
+    # Let's not complicate things below. Reuse the same variable, so we don't have
+    # to check which hash we're using every time.
+    travis_global_environment_variables = travis_global_environment_variables_hash
+end
+
 # Proc settings merger
 settings_merger = proc {
     |key, v_default, v_env|
