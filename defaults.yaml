@@ -1,46 +1,103 @@
 ---
+# General configuration parameters.
 conf:
+  # The values you specify here will be added as additional arguments when
+  # Ansible is invoked during the provisioning phase. For example, you might
+  # enable Ansible verbose output by setting this to "-vv".
   additional_ansible_arguments: ""
+  # RAM memory assigned to the base box.
   base_box_builder_mem: 2048
+  # RAM memory assigned to master nodes.
   master_mem: 2048
+  # RAM memory assigned to worker nodes.
   minion_mem: 1024
+  # DNS domain name of the playground.
   playground_name: k8s-play
+  # Base box VM name.
   base_box_builder_name: base-box-builder
+  # Master node name.
   master_name: k8s-master-1
+  # Worker 1 node name.
   minion_1_name: k8s-minion-1
+  # Worker 2 node name.
   minion_2_name: k8s-minion-2
+  # Worker 3 node name.
   minion_3_name: k8s-minion-3
+  # The default Vagrant provider. Allowed values are: virtualbox, libvirt.
+  # After setting this, you need to also follow the instructions in the official
+  # Vagrant documentation to choose the default provider, if you've more than
+  # one provider installed:
+  # https://www.vagrantup.com/docs/providers/basic_usage.html
   vagrant_provider: virtualbox
+  # Vagrant boxes IDs.
   kubernetes_nodes_base_box_id:
+    # ID of the Vagrant box for the Virtualbox provider.
     virtualbox: "bento/centos-7.4"
+    # ID of the Vagrant box for the libvirt provider.
     libvirt: "centos/7"
+# Network configuration parameters.
 net:
+  # IPv4 network prefix.
   network_prefix: "192.168.0."
+  # IPv6 network prefix.
   network_prefix_ipv6: "fde4:8dba:82e1:"
+  # IPv4 subnet mask.
   subnet_mask: "255.255.255.0"
+  # IPv6 subnet mask.
   subnet_mask_ipv6: "56"
+  # IPv6 address suffix for the master node.
   master_ipv6_part: "c40A::"
+  # IPv6 address suffix for the worker 1 node.
   minion_1_ipv6_part: "c41e::"
+  # IPv6 address suffix for the worker 2 node.
   minion_2_ipv6_part: "c41f::"
+  # IPv6 address suffix for the worker 3 node.
   minion_3_ipv6_part: "c420::"
   if_name_for_flannel: enp0s8
+  # libvirt management network subnet.
   libvirt_management_network_address: "192.168.121.0/24"
+# Kubernetes network configuration parameters.
 pod_network:
+  # Cluster IP CIDR.
   cluster_ip_cidr: "10.244.0.0/16"
+  # Service IP CIDR.
   service_ip_cidr: "10.96.0.0/12"
+# Ansible variables.
 ansible:
+  # Ansible group variables.
   group_vars:
+    # Variables for the "all" group. Variables defined here will be available
+    # to all nodes.
     all:
+      # The default Kubernetes networking plugin.
+      # Allowed values are: weavenet, calico, flannel, and no-cni-plugin.
+      # If you choose no-cni-plugin, provisioners will prepare the environment
+      # but will NOT bootstrap the Kubernetes cluster.
       kubernetes_network_plugin: calico
+      # Mirror where to download helm. Configurable to allow for an eventual
+      # air gapped environment.
       kubernetes_helm_mirror: https://get.helm.sh
+      # Helm version to install.
       kubernetes_helm_ver: v2.16.3
+      # Helm OS build to install.
       kubernetes_helm_os: linux
+      # Helm architecture to install.
       kubernetes_helm_arch: amd64
+      # Helm archive extension.
       kubernetes_helm_archive_type: tar.gz
+      # Helm binary destination directory.
       kubernetes_helm_bin_dir: "/usr/local/bin"
+      # Checksums for Helm packages.
       kubernetes_helm_checksums:
         v2.16.3:
           # https://get.helm.sh/helm-v2.16.3-linux-amd64.tar.gz.sha256
           linux-amd64: sha256:9678eb726d6870e8eded204190357a0f494ed9d1803781b4bb80dde6427b086e
+        v3.1.2:
+          # https://get.helm.sh/helm-v3.1.2-linux-amd64.tar.gz.sha256
+          linux-amd64: sha256:e6be589df85076108c33e12e60cfb85dcd82c5d756a6f6ebc8de0ee505c9fd4c
+    # Variables for the "kubernetes-masters" group. Variables defined here will
+    # be available to the nodes in the "kubernetes-masters" group.
     kubernetes-masters:
+    # Variables for the "kubernetes-minions" group. Variables defined here will
+    # be available to the nodes in the "kubernetes-minions" group.
     kubernetes-minions:

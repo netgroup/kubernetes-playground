@@ -105,11 +105,20 @@ if not allowed_cni_plugins.include? settings["ansible"]["group_vars"]["all"]["ku
   exit(1)
 end
 
+# Check that the provider is supported
+allowed_vagrant_providers=[ "virtualbox", "libvirt"]
+vagrant_provider = settings["conf"]["vagrant_provider"]
+if not allowed_vagrant_providers.include? vagrant_provider
+  @ui.error 'vagrant_provider is not valid in defaults.yaml or env.yaml, allowed values are:'
+  allowed_vagrant_providers.each {|valid| @ui.error valid }
+  exit(2)
+end
+
 libvirt_management_network_address = settings["net"]["libvirt_management_network_address"]
 netmask=libvirt_management_network_address.split('/')
 if netmask[1].to_i > 24
   @ui.error 'only netmasks <= 24 in libvirt_management_network_address are safely supported'
-  exit(1)
+  exit(3)
 end
 ip_split=libvirt_management_network_address.split('.')
 libvirt_management_host_address = ip_split[0]+'.'+ip_split[1]+'.'+ip_split[2]+'.1'
@@ -145,8 +154,6 @@ broadcast_address = n | (~n.instance_variable_get(:@mask_addr) & IPAddr::IN4MASK
 # Cluster network
 cluster_ip_cidr = settings["pod_network"]["cluster_ip_cidr"]
 service_ip_cidr = settings["pod_network"]["service_ip_cidr"]
-
-vagrant_provider = settings["conf"]["vagrant_provider"]
 
 # Vagrant boxes
 vagrant_x64_kubernetes_nodes_base_box_id = settings["conf"]["kubernetes_nodes_base_box_id"][vagrant_provider]
@@ -480,16 +487,10 @@ Vagrant.configure("2") do |config|
 
         config.ssh.insert_key = false
 
-        if(vagrant_provider == 'libvirt')
-          $enableSshPasswordAuthentication = <<-'SCRIPT'
-          grep -q "^PasswordAuthentication" /etc/ssh/sshd_config && \
-          sed -i "s/^PasswordAuthentication no/PasswordAuthentication yes/" /etc/ssh/sshd_config || \
-          sed -i -e "\$aPasswordAuthentication yes" /etc/ssh/sshd_config;
-          service sshd restart
-          SCRIPT
-
-          host.vm.provision "shell", inline: $enableSshPasswordAuthentication
-        end
+        # Ensure password authentication is enabled.
+        # We might have to resort to a more secure solution in the future, but
+        # for now it's enough.
+        host.vm.provision "shell", path: "scripts/linux/enable-ssh-password-authentication.sh"
 
         host.vm.provision "shell", path: "scripts/linux/check-kubeadm-requirements.sh"
         host.vm.provision "shell" do |s|
