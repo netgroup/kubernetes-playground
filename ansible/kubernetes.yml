@@ -124,7 +124,7 @@
       tags:
         - quick_setup
     - name: Define if_name_for_flannel
-      set_fact: 
+      set_fact:
         if_name_for_flannel: "{{ node_ip_address.stdout }}"
       when: inventory_hostname == kubernetes_master_1_ip
       tags:
