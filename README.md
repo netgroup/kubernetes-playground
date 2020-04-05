@@ -27,7 +27,7 @@ This project is a playground to play with Kubernetes.
     1. Virtualbox >= 5.2.8
 1. libvirt provider:
     1. libvirt >= 4.0.0
-    1. QUEMU >= 2.22.1
+    1. QEMU >= 2.22.1
 
 #### Vagrant plugins
 
