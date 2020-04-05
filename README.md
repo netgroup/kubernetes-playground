@@ -23,13 +23,21 @@ This project is a playground to play with Kubernetes.
 ### Runtime
 
 1. Vagrant >= 2.1.1
-1. [vagrant-hostsupdater](https://github.com/cogitatio/vagrant-hostsupdater)
 1. Virtualbox provider:
     1. Virtualbox >= 5.2.8
 1. libvirt provider:
     1. libvirt >= 4.0.0
     1. QUEMU >= 2.22.1
-    1. [vagrant-libvirt](https://github.com/vagrant-libvirt/vagrant-libvirt)
+
+#### Vagrant plugins
+
+When you first bring this environment up, the provisioning process will also
+install the needed Vagrant plugins:
+
+1. [vagrant-hostsupdater](https://github.com/cogitatio/vagrant-hostsupdater)
+    >= 1.1.1
+1. [vagrant-libvirt](https://github.com/vagrant-libvirt/vagrant-libvirt)
+    >= 0.0.45
 
 ## How to Run
 
