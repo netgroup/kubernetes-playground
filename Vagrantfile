@@ -473,16 +473,10 @@ Vagrant.configure("2") do |config|
 
         config.ssh.insert_key = false
 
-        if(vagrant_provider == 'libvirt')
-          $enableSshPasswordAuthentication = <<-'SCRIPT'
-          grep -q "^PasswordAuthentication" /etc/ssh/sshd_config && \
-          sed -i "s/^PasswordAuthentication no/PasswordAuthentication yes/" /etc/ssh/sshd_config || \
-          sed -i -e "\$aPasswordAuthentication yes" /etc/ssh/sshd_config;
-          service sshd restart
-          SCRIPT
-
-          host.vm.provision "shell", inline: $enableSshPasswordAuthentication
-        end
+        # Ensure password authentication is enabled.
+        # We might have to resort to a more secure solution in the future, but
+        # for now it's enough.
+        host.vm.provision "shell", path: "scripts/linux/enable-ssh-password-authentication.sh"
 
         host.vm.provision "shell", path: "scripts/linux/check-kubeadm-requirements.sh"
         host.vm.provision "shell" do |s|
