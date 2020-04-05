@@ -1,6 +1,7 @@
 ---
 conf:
   additional_ansible_arguments: ""
+  additional_disk_size: 10240
   base_box_builder_mem: 2048
   master_mem: 2048
   minion_mem: 1024
