@@ -115,6 +115,20 @@
       when: inventory_hostname == kubernetes_master_1_ip
       tags:
         - quick_setup
+    - name: Get interface name for data interface
+      shell: |
+        NODE_IP_V4={{ hostvars[inventory_hostname]['ansible_env'].SSH_CONNECTION.split(' ')[2] }} ; \
+        /usr/sbin/ip -o addr show scope global | grep $NODE_IP_V4 | awk '{print $2}'
+      register: node_ip_address
+      when: inventory_hostname == kubernetes_master_1_ip
+      tags:
+        - quick_setup
+    - name: Define if_name_for_flannel
+      set_fact: 
+        if_name_for_flannel: "{{ node_ip_address.stdout }}"
+      when: inventory_hostname == kubernetes_master_1_ip
+      tags:
+        - quick_setup
     - name: Generate Flannel configuration file
       become: true
       template:

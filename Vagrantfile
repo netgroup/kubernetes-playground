@@ -59,8 +59,6 @@ kubernetes_minion_1_ipv6 = network_prefix_ipv6 + settings["net"]["minion_1_ipv6_
 kubernetes_minion_2_ipv6 = network_prefix_ipv6 + settings["net"]["minion_2_ipv6_part"]
 kubernetes_minion_3_ipv6 = network_prefix_ipv6 + settings["net"]["minion_3_ipv6_part"]
 
-if_name_for_flannel = settings["net"]["if_name_for_flannel"]
-
 playground_name = settings["conf"]["playground_name"]
 domain = "." + playground_name + ".local"
 
@@ -257,7 +255,6 @@ default_group_vars = {
   "playground_name" => "#{playground_name}",
   "cluster_ip_cidr"  => "#{cluster_ip_cidr}",
   "service_ip_cidr"  => "#{service_ip_cidr}",
-  "if_name_for_flannel"  => "#{if_name_for_flannel}",
 }
 custom_all_group_vars = settings["ansible"]["group_vars"]["all"]
 if !custom_all_group_vars.nil?
