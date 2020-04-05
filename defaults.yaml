@@ -1,5 +1,8 @@
 ---
 conf:
+  # The values you specify here will be added as additional arguments when
+  # Ansible is invoked during the provisioning phase. For example, you might
+  # enable Ansible verbose output by setting this to "-vv".
   additional_ansible_arguments: ""
   base_box_builder_mem: 2048
   master_mem: 2048
@@ -10,6 +13,10 @@ conf:
   minion_1_name: k8s-minion-1
   minion_2_name: k8s-minion-2
   minion_3_name: k8s-minion-3
+  # The default Vagrant provider. Allowed values are: virtualbox, libvirt.
+  # You can also follow the instructions in the official Vagrant documentation
+  # to choose the default provider, if you've more than one provider installed:
+  # https://www.vagrantup.com/docs/providers/basic_usage.html
   vagrant_provider: virtualbox
   kubernetes_nodes_base_box_id:
     virtualbox: "bento/centos-7.4"
@@ -31,6 +38,10 @@ pod_network:
 ansible:
   group_vars:
     all:
+      # The default Kubernetes networking plugin.
+      # Allowed values are: weavenet, calico, flannel, and no-cni-plugin.
+      # If you choose no-cni-plugin, provisioners will prepare the environment
+      # but will NOT bootstrap the Kubernetes cluster.
       kubernetes_network_plugin: calico
       kubernetes_helm_mirror: https://get.helm.sh
       kubernetes_helm_ver: v2.16.3
