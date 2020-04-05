@@ -22,35 +22,58 @@ This project is a playground to play with Kubernetes.
 
 ### Runtime
 
-1. Vagrant >= 2.1.1
+1. Vagrant >= 2.2.7
 1. [vagrant-hostsupdater](https://github.com/cogitatio/vagrant-hostsupdater)
-1. Virtualbox provider:
-    1. Virtualbox >= 5.2.8
-1. libvirt provider:
+
+#### Vagrant providers
+
+This project currently supports the following Vagrant providers:
+
+1. [Virtualbox](https://www.virtualbox.org/). Dependencies:
+    1. Virtualbox >= 6.1.4
+1. [libvirt](https://libvirt.org/). Dependencies:
     1. libvirt >= 4.0.0
     1. QUEMU >= 2.22.1
     1. [vagrant-libvirt](https://github.com/vagrant-libvirt/vagrant-libvirt)
 
 ## How to Run
 
-The provisioning and configuration process has two phases:
-
-1. Prepare a base Vagrant box.
-   1. Provision and configure the `base-box-builder.k8s-play.local` VM.
-   1. Export a Vagrant box based on the
-      `vagrant base-box-builder.k8s-play.local` VM.
-1. Provision and configure the rest of the environment using the base box.
-
 To provision and configure the environment as described, run the following
 commands from the root of the repository:
 
-1. Provision and configure the base VM: `vagrant up base-box-builder.k8s-play.local`
-1. Export the base Vagrant box:
-   `vagrant package base-box-builder.k8s-play.local --output kubernetes-playground-base.box`
-1. Destroy the base VM: `vagrant destroy --force base-box-builder.k8s-play.local`
-1. Register the base Vagrant box to make it avaliable to Vagrant:
-   `vagrant box add --force kubernetes-playground-base.box --name ferrarimarco/kubernetes-playground-node`
-1. Provision and configure the rest of the environment: `vagrant up`
+1. Prepare a Vagrant box (`base-box-builder.k8s-play.local`) that will be used
+    as a base for other VMs:
+    1. Provision and configure `base-box-builder.k8s-play.local`:
+
+        ```shell
+        vagrant up base-box-builder.k8s-play.local
+        ```
+
+    1. Export a Vagrant box based on `vagrant base-box-builder.k8s-play.local`:
+
+        ```shell
+        vagrant package base-box-builder.k8s-play.local \
+            --output kubernetes-playground-base.box
+        ```
+
+    1. Destroy `base-box-builder.k8s-play.local` to spare resources:
+
+        ```shell
+        vagrant destroy --force base-box-builder.k8s-play.local
+        ```
+
+    1. Register the base Vagrant box to make it avaliable to Vagrant:
+
+        ```shell
+        vagrant box add --force kubernetes-playground-base.box \
+            --name ferrarimarco/kubernetes-playground-node
+        ```
+
+1. Provision and configure the rest of the environment:
+
+    ```shell
+    vagrant up
+    ```
 
 ### Running in Windows Subsystem for Linux (WSL)
 
@@ -60,44 +83,28 @@ If you want to run this project in WSL, follow the instructions in the
 ### Environment-specific configuration
 
 You can find the default configuration in [`defaults.yaml`](defaults.yaml). If
-you want to override any default setting, create `env.yaml` and save it in the
-same directory as the `defaults.yaml`. The [`Vagrantfile`](Vagrantfile) will
-instruct Vagrant to load it.
+you want to override any default setting, create a file named `env.yaml` and
+save it in the same directory as the `defaults.yaml`. The
+[`Vagrantfile`](Vagrantfile) will instruct Vagrant to load it.
 
-#### Use Libvirt as provider
+You can configure aspects of the runtime environment, such as:
 
-In order to use libvirt as provider you need to set
-the value of `conf.vagrant_provider` variable to `libvirt` inside `env.yaml`.
-Vagrant needs to know that you want to use libvirt and not default VirtualBox,
-then you can use the option `--provider=libvirt`.
-
-#### Select a kubernetes networking plugin (CNI)
-
-The networking plugin is configured by setting
-`ansible.group_vars.all.kubernetes_network_plugin`
-inside `env.yaml`. The currenlty allowed plugins are `weavenet`, `calico`
-and `flannel`. It is also possible to use `no-cni-plugin`. In this case,
-the provisioner will only prepare the environment, but will not start any
-Kubernetes cluster and will not run `kubeadm join` in the minions.
-
-#### Show verbose output of Ansible operations
-
-Set `conf.additional_ansible_arguments` to `"-vv"` inside `env.yaml` to configure
-verbose output in Ansible. Note that Ansible output is always saved on the
-`ansible_output.txt` file in the `/vagrant` folder.
+- Default Vagrant provider.
+- Default Kubernetes networking plugin.
+- Enable or disable verbose output during provisioning and configuration.
 
 ### Cleaning up and re-provisioning
 
 If you want to re-test the initializion of the Kubernetes cluster, you can run
-two Vagrant provisioners (_cleanup_ and _mount-shared_ ) that do not run during the
-normal provisioning phase, and then execute the normal provisioning again:
+two Vagrant provisioners (_cleanup_ and _mount-shared_ ) that do not run during
+the normal provisioning phase, and then execute the normal provisioning again:
 
 1. `vagrant provision --provision-with cleanup`
 1. `vagrant provision --provision-with mount-shared`
 1. `vagrant provision`
 
-The _cleanup_ provisioner also reboots the VMs, then the _mount-shared_ provisioner
-is needed to restore the shared folders between host and VMs.
+The _cleanup_ provisioner also reboots the VMs, then the _mount-shared_
+provisioner is needed to restore the shared folders between host and VMs.
 
 ### Quick CNI provisioning
 
@@ -105,11 +112,12 @@ If you want to test a different CNI plugin, run:
 
 1. `vagrant provision --provision-with cleanup`
 1. `vagrant provision --provision-with mount-shared`
-
-edit the [`defaults.yaml`](defaults.yaml) or better the `env.yaml` to
-change the network plugin, then run
-
+1. edit the [`env.yaml`](env.yaml) to change the network plugin.
 1. `vagrant provision --provision-with quick-setup`
+
+## Add-ons
+
+You can install the following, optional, workloads and services in the cluster.
 
 ### Cloud Native Storage
 
@@ -126,7 +134,13 @@ script:
 1. `vagrant ssh kubernetes-master-1.kubernetes-playground.local`
 1. `sudo /vagrant/scripts/linux/bootstrap-ingress-controller.sh`
 
-The Traefik monitoring UI is accessible at `http://kubernetes-master-1.kubernetes-playground.local/monitoring/ingress`
+The Traefik monitoring UI is accessible at
+`http://kubernetes-master-1.kubernetes-playground.local/monitoring/ingress`
+
+#### Secure Communication
+
+We generate a self-signed wildcard certificate to use for all the ingress
+controllers.
 
 ### Helm
 
@@ -145,7 +159,8 @@ script:
 1. Initialize the Ingress Controller as described
 1. `sudo /vagrant/scripts/linux/bootstrap-monitoring.sh`
 
-The monitoring dashboard is accessible at `http://kubernetes-master-1.kubernetes-playground.local/monitoring/cluster`
+The monitoring dashboard is accessible at
+`http://kubernetes-master-1.kubernetes-playground.local/monitoring/cluster`
 
 ### Kites experiments
 
@@ -176,23 +191,6 @@ configuration script:
 
 The registry is accessible at `https://registry.kubernetes-playground.local`
 
-### Additional Components
-
-1. Multiple load balanced nginx server instances
-1. A busybox instance, useful for debugging and troubleshooting (run commands
-with `kubectl exec`. Example: `kubectl exec -ti busybox -- nslookup hostname`)
-
-### Automatic Ansible Inventory Creation
-
-When you run any vagrant command, an Ansible inventory (and related group_vars)
-will be generated in the ansible directory.
-Note that the contents of those file will be overidden on each run.
-
-### Secure Communication
-
-We generate a self-signed wildcard certificate to use for all the ingress
-controllers.
-
 ## Development and testing
 
 The test suite is executed automatically by Travis CI on each commit, according
@@ -201,6 +199,16 @@ to the configuration (see [.travis.yml](.travis.yml)).
 You can also run the same test suite locally. To bootstrap a development
 environment, you need to install the runtime dependencies listed above, plus the
 development environment dependencies.
+
+### Debug output
+
+Ansible output is saved in the `/vagrant/ansible_output.txt`.
+
+### Automatic Ansible Inventory Creation
+
+When you run any vagrant command, an Ansible inventory (and related group_vars)
+will be generated in the ansible directory.
+Note that the contents of those file will be overidden on each run.
 
 ### Running the tests
 
@@ -253,6 +261,14 @@ manage the lifecycle of the test instances.
     1. Install bundler: `gem install bundler`
     1. Install required gems: `bundle install`
 1. Run the tests with Test-Kitchen: `kitchen test`
+
+### Debugging and troubleshooting utilities
+
+1. Multiple load balanced nginx server instances: `kubernetes/nginx-stateless`
+1. A busybox instance, useful for debugging and troubleshooting (run commands
+    with `kubectl exec`.
+    Example: `kubectl exec -ti busybox -- nslookup hostname`):
+    `kubernetes/busybox`
 
 ## Contributing
 
