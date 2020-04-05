@@ -24,8 +24,9 @@ conf:
   # Worker 3 node name.
   minion_3_name: k8s-minion-3
   # The default Vagrant provider. Allowed values are: virtualbox, libvirt.
-  # You can also follow the instructions in the official Vagrant documentation
-  # to choose the default provider, if you've more than one provider installed:
+  # After setting this, you need to also follow the instructions in the official
+  # Vagrant documentation to choose the default provider, if you've more than
+  # one provider installed:
   # https://www.vagrantup.com/docs/providers/basic_usage.html
   vagrant_provider: virtualbox
   # Vagrant boxes IDs.
