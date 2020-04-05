@@ -160,7 +160,7 @@ vagrant_x64_kubernetes_nodes_base_box_id = settings["conf"]["kubernetes_nodes_ba
 vagrant_x64_kubernetes_nodes_box_id = "ferrarimarco/kubernetes-playground-node"
 
 # VM Names
-base_box_builder_vm_name = settings["conf"]["base_box_builder_name"]
+$base_box_builder_vm_name = settings["conf"]["base_box_builder_name"]
 kubernetes_master_1_vm_name = settings["conf"]["master_name"]
 kubernetes_minion_1_vm_name = settings["conf"]["minion_1_name"]
 kubernetes_minion_2_vm_name = settings["conf"]["minion_2_name"]
@@ -172,7 +172,7 @@ kubernetes_minion_3_vm_name = settings["conf"]["minion_3_name"]
 ansible_controller_vm_name = kubernetes_minion_3_vm_name
 
 # VM IDs
-base_box_builder_vm_id = base_box_builder_vm_name + domain
+base_box_builder_vm_id = $base_box_builder_vm_name + domain
 kubernetes_master_1_vm_id = kubernetes_master_1_vm_name + domain
 kubernetes_minion_1_vm_id = kubernetes_minion_1_vm_name + domain
 kubernetes_minion_2_vm_id = kubernetes_minion_2_vm_name + domain
@@ -182,6 +182,8 @@ kubernetes_minion_3_vm_id = kubernetes_minion_3_vm_name + domain
 base_box_builder_mem = settings["conf"]["base_box_builder_mem"]
 master_mem = settings["conf"]["master_mem"]
 minion_mem = settings["conf"]["minion_mem"]
+
+$additional_disk_size = settings["conf"]["additional_disk_size"]
 
 # path to the shared folder with the VMs
 vagrant_root = File.dirname(__FILE__)
@@ -376,30 +378,38 @@ class VagrantPlugins::ProviderVirtualBox::Action::SetName
     uuid = driver.instance_eval { @uuid }
     ui = env[:ui]
 
-    # Find out folder of VM
-    vm_folder = ""
-    vm_info = driver.execute("showvminfo", uuid, "--machinereadable")
-    lines = vm_info.split("\n")
-    lines.each do |line|
-      if line.start_with?("CfgFile")
-        vm_folder = line.split("=")[1].gsub('"','')
-        vm_folder = File.expand_path("..", vm_folder)
-        ui.info "VM Folder is: #{vm_folder}"
-      end
-    end
+    vm_name = env[:machine].provider_config.name
 
-    size = 10240
-    name = env[:machine].provider_config.name
-    disk_file = vm_folder + "/#{name}-disk-2.vmdk"
+    unless(vm_name.include? $base_box_builder_vm_name)
+        ui.info "Finding out in which directory the #{vm_name} VM was created on the host."
+        vm_folder = ""
+        vm_info = driver.execute("showvminfo", uuid, "--machinereadable")
+        lines = vm_info.split("\n")
+        lines.each do |line|
+            if line.start_with?("CfgFile")
+                vm_folder = line.split("=")[1].gsub('"','')
+                vm_folder = File.expand_path("..", vm_folder)
+                ui.info "The #{vm_name} VM is in the #{vm_folder} directory on the host."
+            end
+        end
 
-    ui.info "Adding disk to VM"
-    if File.exist?(disk_file)
-      ui.info "Disk already exists"
-    else
-      ui.info "Creating new disk"
-      driver.execute("createmedium", "disk", "--filename", disk_file, "--size", "#{size}", "--format", "VMDK")
-      ui.info "Attaching disk to VM"
-      driver.execute('storageattach', uuid, '--storagectl', "SATA Controller", '--port', "1", '--type', 'hdd', '--medium', disk_file)
+        size = $additional_disk_size
+
+        if size > 0
+            disk_file = vm_folder + "/#{vm_name}-disk-2.vmdk"
+
+            ui.info "Adding a disk of #{size} MB to the #{vm_name} VM. Disk file path: #{disk_file}."
+            if File.exist?(disk_file)
+            ui.info "A disk file already exists in #{disk_file}."
+            else
+            ui.info "Creating a new disk file in #{disk_file}."
+            driver.execute("createmedium", "disk", "--filename", disk_file, "--size", "#{size}", "--format", "VMDK")
+            ui.info "Attaching the #{disk_file} disk to the #{vm_name} VM."
+            driver.execute('storageattach', uuid, '--storagectl', "SATA Controller", '--port', "1", '--type', 'hdd', '--medium', disk_file)
+            end
+        else
+            ui.info "Not attaching any disk, because the disk size is set to #{size}"
+        end
     end
 
     original_call(env)
@@ -416,19 +426,19 @@ class VagrantPlugins::ProviderVirtualBox::Action::Destroy
     uuid = driver.instance_eval { @uuid }
     ui = env[:ui]
 
-    # Find out folder of VM
+    vm_name = env[:machine].provider_config.name
+
+    ui.info "Finding out in which directory the #{vm_name} VM was created on the host."
     vm_folder = ""
     vm_info = driver.execute("showvminfo", uuid, "--machinereadable")
     lines = vm_info.split("\n")
     lines.each do |line|
-      if line.start_with?("CfgFile")
-        vm_folder = line.split("=")[1].gsub('"','')
-        vm_folder = File.expand_path("..", vm_folder)
-        ui.info "VM Folder is: #{vm_folder}"
-      end
+        if line.start_with?("CfgFile")
+            vm_folder = line.split("=")[1].gsub('"','')
+            vm_folder = File.expand_path("..", vm_folder)
+            ui.info "The #{vm_name} VM is in the #{vm_folder} directory on the host."
+        end
     end
-
-    name = env[:machine].provider_config.name
 
     ui.info "Deleting all VMDK files in #{vm_folder}"
     Dir.glob("#{vm_folder}/*").select{ |file| /.vmdk/.match file }.each { |file| File.delete(file)}
@@ -479,7 +489,7 @@ Vagrant.configure("2") do |config|
         end
       end
       host.vm.hostname = hostname
-      if(hostname.include? base_box_builder_vm_name)
+      if(hostname.include? $base_box_builder_vm_name)
         host.vm.provision "shell" do |s|
           s.path = "scripts/linux/install-docker.sh"
           s.args = ["--user", "vagrant"]
