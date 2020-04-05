@@ -448,6 +448,13 @@ class VagrantPlugins::ProviderVirtualBox::Action::Destroy
 end
 
 Vagrant.configure("2") do |config|
+
+  # Install the required Vagrant plugins.
+  # Populate this hash with the plugins that don't depend on specific provisioners or providers.
+  config.vagrant.plugins = {
+    "vagrant-hostsupdater" => {"version" => "1.1.1"}
+  }
+
   playground.each do |(hostname, info)|
     config.vm.define hostname, autostart: info[:autostart] do |host|
       host.vm.box = "#{info[:box]}"
@@ -518,17 +525,22 @@ Vagrant.configure("2") do |config|
         $mountNfsShare = ''
         if(vagrant_provider == 'virtualbox')
             $mountNfsShare = <<-'SCRIPT'
+            # From now on, we want the script to fail if we have problems mounting the shares
             set -e
             if ! mount | grep -qs /vagrant ; then
-                # From now on, we want the script to fail if we have problems mounting the shares
                 mount -t vboxsf vagrant /vagrant/
             fi
             SCRIPT
         elsif(vagrant_provider == 'libvirt')
+            # Vagrant plugins for the libvirt provider
+            config.vagrant.plugins.merge!({
+                "vagrant-libvirt" => {"version" => "0.0.45"}
+            })
+
             $mountNfsShare = <<-'SCRIPT'
+            # From now on, we want the script to fail if we have problems mounting the shares
             set -e
             if ! mount | grep -qs /vagrant ; then
-                # From now on, we want the script to fail if we have problems mounting the shares
                 mount -t nfs -o 'vers=3' $libvirt_management_host_address:$vagrant_root /vagrant
             fi
             SCRIPT
