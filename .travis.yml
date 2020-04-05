@@ -8,6 +8,7 @@ jobs:
     - name: "Whitespace error check"
       language: shell
       script: git diff-tree --check $(git hash-object -t tree /dev/null) HEAD
+      stage: linting
     - name: "Missing EOF newlines check"
       language: shell
       script: |
@@ -35,7 +36,6 @@ jobs:
     - before_install: gem install travis --no-document
       install: echo "Overriding the default install, to avoid installing gems from the Gemfile"
       name: "Travis lint"
-      stage: linting
       script: echo "n" | travis lint -x
     - name: "Shellcheck"
       language: shell
