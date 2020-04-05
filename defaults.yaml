@@ -1,6 +1,9 @@
 ---
 conf:
   additional_ansible_arguments: ""
+  # Size of the additional disk to attach to each VM of the cluster.
+  # Useful to evaluate/test storage solutions. Set it to 0 to avoid attaching
+  # a disk.
   additional_disk_size: 10240
   base_box_builder_mem: 2048
   master_mem: 2048
