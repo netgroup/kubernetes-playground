@@ -5,6 +5,33 @@ env:
 jobs:
   fast_finish: true
   include:
+    - name: "Whitespace error check"
+      language: shell
+      script: git diff-tree --check $(git hash-object -t tree /dev/null) HEAD
+    - name: "Missing EOF newlines check"
+      language: shell
+      script: |
+        find "$(pwd)" -type f -not -path "*/\.git/*" >tmp; \
+        while IFS= read -r file; do \
+          case "$(git diff --no-index --numstat /dev/null "$file")" in \
+            "$(printf '%s\t-\t' -)"*) echo "skipping newline check for $file because it's a binary"; continue ;; \
+            *) echo "Checking $file"; [ -z "$(tail -c1 "$file")" ] || exit 1 ;; \
+          esac; \
+        done <tmp; \
+        rm tmp;
+    - name: "hadolint"
+      language: shell
+      script: |
+        find . -name "Dockerfile" -type f -print0 \
+        | xargs -0 -I file sh -c 'docker run --rm -i hadolint/hadolint:v1.17.5-8-gc8bf307-alpine < "file"' \
+        || exit 1
+    - name: kubeval
+      language: shell
+      script: |
+        docker run -t \
+          -v "$(pwd)":/kubernetes-playground:ro \
+          garethr/kubeval:0.14.0 \
+          --strict  -d /kubernetes-playground/kubernetes
     - before_install: gem install travis --no-document
       install: echo "Overriding the default install, to avoid installing gems from the Gemfile"
       name: "Travis lint"
@@ -45,31 +72,10 @@ jobs:
         - vagrant plugin install vagrant-hostsupdater
       language: shell
       script: vagrant validate --ignore-provider
-    - name: "Whitespace error check"
-      language: shell
-      script: git diff-tree --check $(git hash-object -t tree /dev/null) HEAD
-    - name: "Missing EOF newlines check"
-      language: shell
-      script: |
-        find "$(pwd)" -type f -not -path "*/\.git/*" >tmp; \
-        while IFS= read -r file; do \
-          case "$(git diff --no-index --numstat /dev/null "$file")" in \
-            "$(printf '%s\t-\t' -)"*) echo "skipping newline check for $file because it's a binary"; continue ;; \
-            *) echo "Checking $file"; [ -z "$(tail -c1 "$file")" ] || exit 1 ;; \
-          esac; \
-        done <tmp; \
-        rm tmp;
     - name: "shfmt"
       language: go
       before_install: GO111MODULE=on go get mvdan.cc/sh/v3/cmd/shfmt
       script: shfmt -d . || exit 1;
-    - name: kubeval
-      language: shell
-      script: |
-        docker run -t \
-          -v "$(pwd)":/kubernetes-playground:ro \
-          garethr/kubeval:0.14.0 \
-          --strict  -d /kubernetes-playground/kubernetes
     - name: "ansible-lint"
       before_script: cd ansible || exit 1
       install: sudo pip install -r requirements.txt
@@ -78,12 +84,6 @@ jobs:
         ansible-lint -v \
           kubernetes.yml \
           openssl-self-signed-certificate.yml \
-        || exit 1
-    - name: "hadolint"
-      language: shell
-      script: |
-        find . -name "Dockerfile" -type f -print0 \
-        | xargs -0 -I file sh -c 'docker run --rm -i hadolint/hadolint:v1.17.5-8-gc8bf307-alpine < "file"' \
         || exit 1
     - name: "Build kitesproject/net-tests container image (final)"
       stage: build_container_images
