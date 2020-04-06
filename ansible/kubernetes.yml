@@ -9,9 +9,10 @@
       listen:
         - systemd_read_configs
   post_tasks:
-    - name: ansible_debug
-        This task is executed by vagrant provision --provision-with ansible-debug
-        this task is only an example, it can be replace by your own debug task
+    - name: ansible_debug_example_1
+        To execute this task, call 
+        vagrant provision --provision-with ansible-debug
+        This task is only an example, it can be replaced by your own debug task
         or other tasks with ansible_debug tag can be created
       become: true
       changed_when: false
@@ -21,6 +22,14 @@
         whoami ; \
         echo $PATH
       register: ansible_debug_output
+      tags:
+        - ansible_debug
+    - name: ansible_debug_example_2
+        This task is only an example (see ansible_debug_example_1)
+      become: true
+      changed_when: false
+      debug:
+        var: ansible_debug_output
       tags:
         - ansible_debug
     - name: >-
