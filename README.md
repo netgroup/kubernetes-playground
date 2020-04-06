@@ -215,15 +215,15 @@ Ansible output is saved in the `/vagrant/ansible_output.txt`.
 For debbugging and development purpose, you can run a Vagrant provisioner called
 `ansible-debug` as follows:
 
-        ```shell
-        vagrant provision --provision-with ansible-debug
-        ```
+```shell
+vagrant provision --provision-with ansible-debug
+```
 With this provisioner, ansible will execute only the tasks tagged as follows:
-        
-        ```yaml
-          tags:
-            - ansible_debug
-        ```
+
+```yaml
+  tags:
+    - ansible_debug
+```
 An example task tagged with `ansible_debug` is included in [`ansible\kubernetes.yml`](ansible\kubernetes.yml)
 
 ### Automatic Ansible Inventory Creation
