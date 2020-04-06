@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if ! TEMP="$(getopt -o a:i:q:m --long additional-ansible-arguments:,inventory:,quick-setup,ansible-debug \
+if ! TEMP="$(getopt -o a:i:qm --long additional-ansible-arguments:,inventory:,quick-setup,ansible-debug \
     -n 'install-kubernetes' -- "$@")"; then
     echo "Terminating..." >&2
     exit 1
@@ -48,17 +48,25 @@ if [ "$ansible_debug" = "enabled" ]; then
 fi
 
 echo "Ensure the Docker service is enabled and running"
-
 systemctl enable docker
-systemctl restart docker
+if ! systemctl is-active --quiet docker; then
+    echo "Starting the docker service..."
+    systemctl start docker
+fi
 
 inventory="/etc/$inventory"
+
+# Playbooks paths
+kubernetes_playbook_path=/etc/ansible/kubernetes.yml
+open_ssl_self_signed_certificate_playbook_path=/etc/ansible/openssl-self-signed-certificate.yml
+playbooks="$kubernetes_playbook_path $open_ssl_self_signed_certificate_playbook_path"
+
 echo ""
-echo "Running Ansible playbooks against $inventory inventory, with additional arguments: $additional_ansible_arguments"
+echo "Running Ansible $playbooks playbooks against $inventory inventory, with additional arguments: $additional_ansible_arguments"
 docker run --rm \
     -v /vagrant/ansible:/etc/ansible \
     -v /vagrant/ansible/files/tls:/opt/tls/self_signed \
     --net=host \
     ferrarimarco/open-development-environment-ansible:2.7.12-alpine \
-    /bin/sh -c "ansible-playbook -i $inventory $additional_ansible_arguments /etc/ansible/kubernetes.yml && ansible-playbook -i $inventory $additional_ansible_arguments /etc/ansible/openssl-self-signed-certificate.yml" \
+    /bin/sh -c "ansible-playbook -i $inventory $additional_ansible_arguments $playbooks" \
     2>&1 | tee /vagrant/ansible_output.txt
