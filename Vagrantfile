@@ -98,7 +98,7 @@ if File.exist?(env_specific_config_path)
 end
 
 # Display the main current configuration parameters
-@ui.info "Welcome to Kubernetes playground !"
+@ui.info "Welcome to Kubernetes playground!"
 @ui.info "Vagrant provider : " + settings["conf"]["vagrant_provider"]
 @ui.info "Networking plugin : " + settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"]
 
