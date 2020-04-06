@@ -3,6 +3,8 @@ require 'ipaddr'
 
 @ui = Vagrant::UI::Colored.new
 
+K8S_PLAYGROUND_VERSION="2.0.1"
+
 # Load the required Vagrant version from the CI configuration.
 # This forces us to be consistent with the CI environment.
 
@@ -71,7 +73,9 @@ end
 required_vagrant_version = travis_global_environment_variables['VAGRANT_VERSION']
 vagrant_version_constraint = ">= #{required_vagrant_version}"
 Vagrant.require_version vagrant_version_constraint
-@ui.info "The current Vagrant version satisfies the constraints: #{vagrant_version_constraint}"
+if ENV['VAGRANT_LOG']=='debug' or ENV['VAGRANT_LOG']=='info'
+  @ui.info "The current Vagrant version satisfies the constraints: #{vagrant_version_constraint}"
+end
 
 # Proc settings merger
 settings_merger = proc {
@@ -98,9 +102,15 @@ if File.exist?(env_specific_config_path)
 end
 
 # Display the main current configuration parameters
-@ui.info "Welcome to Kubernetes playground!"
+@ui.info "Welcome to Kubernetes playground, version " + K8S_PLAYGROUND_VERSION
 @ui.info "Vagrant provider : " + settings["conf"]["vagrant_provider"]
 @ui.info "Networking plugin : " + settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"]
+if ENV['VAGRANT_LOG']=='debug' or ENV['VAGRANT_LOG']=='info'
+  @ui.info "Active settings (from defaults.yaml and env.yaml):"
+  @ui.info settings
+end
+
+exit(1)
 
 # Check that an allowed networking plugin is provided
 allowed_cni_plugins=["weavenet","calico","flannel","no-cni-plugin"]
