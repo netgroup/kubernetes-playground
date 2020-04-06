@@ -208,9 +208,25 @@ You can also run the same test suite locally. To bootstrap a development
 environment, you need to install the runtime dependencies listed above, plus the
 development environment dependencies.
 
-### Debug output
+### Debugging ansible operations
 
 Ansible output is saved in the `/vagrant/ansible_output.txt`.
+
+For debbugging and development purposes, you can run a Vagrant provisioner called
+`ansible-debug` as follows:
+
+```shell
+vagrant provision --provision-with ansible-debug
+```
+
+With this provisioner, ansible will execute only the tasks tagged as follows:
+
+```yaml
+  tags:
+    - ansible_debug
+```
+
+An example task tagged with `ansible_debug` is included in [`ansible\kubernetes.yml`](ansible\kubernetes.yml)
 
 ### Automatic Ansible Inventory Creation
 

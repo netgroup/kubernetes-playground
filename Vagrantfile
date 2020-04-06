@@ -97,6 +97,11 @@ if File.exist?(env_specific_config_path)
   end
 end
 
+# Display the main current configuration parameters
+@ui.info "Welcome to Kubernetes playground!"
+@ui.info "Vagrant provider : " + settings["conf"]["vagrant_provider"]
+@ui.info "Networking plugin : " + settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"]
+
 # Check that an allowed networking plugin is provided
 allowed_cni_plugins=["weavenet","calico","flannel","no-cni-plugin"]
 if not allowed_cni_plugins.include? settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"]
@@ -136,8 +141,6 @@ kubernetes_master_1_ipv6 = network_prefix_ipv6 + settings["net"]["master_ipv6_pa
 kubernetes_minion_1_ipv6 = network_prefix_ipv6 + settings["net"]["minion_1_ipv6_part"]
 kubernetes_minion_2_ipv6 = network_prefix_ipv6 + settings["net"]["minion_2_ipv6_part"]
 kubernetes_minion_3_ipv6 = network_prefix_ipv6 + settings["net"]["minion_3_ipv6_part"]
-
-if_name_for_flannel = settings["net"]["if_name_for_flannel"]
 
 playground_name = settings["conf"]["playground_name"]
 domain = "." + playground_name + ".local"
@@ -335,7 +338,6 @@ default_group_vars = {
   "playground_name" => "#{playground_name}",
   "cluster_ip_cidr"  => "#{cluster_ip_cidr}",
   "service_ip_cidr"  => "#{service_ip_cidr}",
-  "if_name_for_flannel"  => "#{if_name_for_flannel}",
 }
 custom_all_group_vars = settings["ansible"]["group_vars"]["all"]
 if !custom_all_group_vars.nil?
@@ -518,6 +520,12 @@ Vagrant.configure("2") do |config|
             s.path = "scripts/linux/install-kubernetes.sh"
             s.args = ["--inventory", ansible_inventory_path, "--additional-ansible-arguments", additional_ansible_arguments, "--quick-setup" ]
           end
+
+          host.vm.provision "ansible-debug", type: "shell", run: "never" do |s|
+            s.path = "scripts/linux/install-kubernetes.sh"
+            s.args = ["--inventory", ansible_inventory_path, "--additional-ansible-arguments", additional_ansible_arguments, "--ansible-debug" ]
+          end
+
         end
         host.vm.provision "cleanup", type: "shell", run: "never" do |s|
           s.path = "scripts/linux/cleanup-k8s-and-cni.sh"

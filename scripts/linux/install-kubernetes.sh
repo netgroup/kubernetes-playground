@@ -1,6 +1,7 @@
 #!/bin/sh
 
-if ! TEMP="$(getopt -o a:i:q --long additional-ansible-arguments:,inventory:,quick-setup -n 'install-kubernetes' -- "$@")"; then
+if ! TEMP="$(getopt -o a:i:q:m --long additional-ansible-arguments:,inventory:,quick-setup,ansible-debug \
+    -n 'install-kubernetes' -- "$@")"; then
     echo "Terminating..." >&2
     exit 1
 fi
@@ -25,6 +26,11 @@ while true; do
         shift
         break
         ;;
+    -m | --ansible-debug)
+        ansible_debug=enabled
+        shift
+        break
+        ;;
     --)
         shift
         break
@@ -35,6 +41,10 @@ done
 
 if [ "$quick_setup" = "enabled" ]; then
     additional_ansible_arguments="$additional_ansible_arguments --tags quick_setup"
+fi
+
+if [ "$ansible_debug" = "enabled" ]; then
+    additional_ansible_arguments="$additional_ansible_arguments --tags ansible_debug"
 fi
 
 echo "Ensure the Docker service is enabled and running"

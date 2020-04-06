@@ -57,7 +57,6 @@ net:
   minion_2_ipv6_part: "c41f::"
   # IPv6 address suffix for the worker 3 node.
   minion_3_ipv6_part: "c420::"
-  if_name_for_flannel: enp0s8
   # libvirt management network subnet.
   libvirt_management_network_address: "192.168.121.0/24"
 # Kubernetes network configuration parameters.

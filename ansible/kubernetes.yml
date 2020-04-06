@@ -9,12 +9,33 @@
       listen:
         - systemd_read_configs
   post_tasks:
+    - name: ansible_debug_example_1
+        This task is only an example, it can be replaced by your own debug task
+        or other tasks with ansible_debug tag can be created
+      become: true
+      changed_when: false
+      shell: |
+        set -e ; \
+        echo $0 ; \
+        whoami ; \
+        echo $PATH
+      register: ansible_debug_output
+      tags:
+        - ansible_debug
+    - name: ansible_debug_example_2
+        This task is only an example (see ansible_debug_example_1)
+      become: true
+      changed_when: false
+      debug:
+        var: ansible_debug_output
+      tags:
+        - ansible_debug
     - name: >-
         Get IP address corresponding to the interface with the specified
         broadcast address
       changed_when: false
       shell: |
-        set -o pipefail; \
+        set -e -o pipefail; \
         /usr/sbin/ip addr \
         | grep {{ broadcast_address }} \
         | awk -F'[ /]+' '{print $3}'
@@ -25,6 +46,7 @@
     - name: Initialize an IPv6 interface
       become: true
       shell: |
+        set -e ; \
         /vagrant/scripts/linux/configure-ipv6-interface.sh \
         {{ ipv6_address }} \
         {{ hostvars[inventory_hostname]['ansible_env'].SSH_CONNECTION.split(' ')[2] }} \
@@ -115,6 +137,22 @@
       when: inventory_hostname == kubernetes_master_1_ip
       tags:
         - quick_setup
+    - name: Get interface name for data interface
+      become: true
+      shell: |
+        set -e -o pipefail ; \
+        NODE_IP_V4={{ hostvars[inventory_hostname]['ansible_env'].SSH_CONNECTION.split(' ')[2] }} ; \
+        ip -o addr show scope global | grep $NODE_IP_V4 | awk '{print $2}'
+      register: node_ip_address
+      when: inventory_hostname == kubernetes_master_1_ip
+      tags:
+        - quick_setup
+    - name: Define if_name_for_flannel
+      set_fact:
+        if_name_for_flannel: "{{ node_ip_address.stdout }}"
+      when: inventory_hostname == kubernetes_master_1_ip
+      tags:
+        - quick_setup
     - name: Generate Flannel configuration file
       become: true
       template:
@@ -131,6 +169,7 @@
     - name: Initialize Kubernetes cluster (master)
       become: true
       shell: |
+        set -e ; \
         /vagrant/scripts/linux/bootstrap-kubernetes-{{ kubernetes_classifier }}.sh \
         /tmp/kubeadm-config.yaml \
         {{ kubernetes_network_plugin }}
