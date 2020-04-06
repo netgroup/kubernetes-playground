@@ -212,7 +212,7 @@ development environment dependencies.
 
 Ansible output is saved in the `/vagrant/ansible_output.txt`.
 
-For debbugging and development purpose, you can run a Vagrant provisioner called
+For debbugging and development purposes, you can run a Vagrant provisioner called
 `ansible-debug` as follows:
 
 ```shell
