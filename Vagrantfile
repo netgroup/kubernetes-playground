@@ -97,6 +97,11 @@ if File.exist?(env_specific_config_path)
   end
 end
 
+# Display the main current configuration parameters
+@ui.info "Welcome to Kubernetes playground !"
+@ui.info "Vagrant provider : " + settings["conf"]["vagrant_provider"]
+@ui.info "Networking plugin : " + settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"]
+
 # Check that an allowed networking plugin is provided
 allowed_cni_plugins=["weavenet","calico","flannel","no-cni-plugin"]
 if not allowed_cni_plugins.include? settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"]
@@ -515,6 +520,12 @@ Vagrant.configure("2") do |config|
             s.path = "scripts/linux/install-kubernetes.sh"
             s.args = ["--inventory", ansible_inventory_path, "--additional-ansible-arguments", additional_ansible_arguments, "--quick-setup" ]
           end
+
+          host.vm.provision "ansible-debug", type: "shell", run: "never" do |s|
+            s.path = "scripts/linux/install-kubernetes.sh"
+            s.args = ["--inventory", ansible_inventory_path, "--additional-ansible-arguments", additional_ansible_arguments, "--ansible-debug" ]
+          end
+
         end
         host.vm.provision "cleanup", type: "shell", run: "never" do |s|
           s.path = "scripts/linux/cleanup-k8s-and-cni.sh"
