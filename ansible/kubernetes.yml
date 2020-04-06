@@ -10,8 +10,6 @@
         - systemd_read_configs
   post_tasks:
     - name: ansible_debug_example_1
-        To execute this task, call
-        vagrant provision --provision-with ansible-debug
         This task is only an example, it can be replaced by your own debug task
         or other tasks with ansible_debug tag can be created
       become: true
