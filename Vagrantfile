@@ -110,8 +110,6 @@ if ENV['VAGRANT_LOG']=='debug' or ENV['VAGRANT_LOG']=='info'
   @ui.info settings
 end
 
-exit(1)
-
 # Check that an allowed networking plugin is provided
 allowed_cni_plugins=["weavenet","calico","flannel","no-cni-plugin"]
 if not allowed_cni_plugins.include? settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"]
