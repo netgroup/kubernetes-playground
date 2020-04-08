@@ -107,7 +107,7 @@ end
 @ui.info "Networking plugin : " + settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"]
 if ENV['VAGRANT_LOG']=='debug' or ENV['VAGRANT_LOG']=='info'
   @ui.info "Active settings (from defaults.yaml and env.yaml):"
-  @ui.info settings
+  @ui.info settings.to_yaml
 end
 
 # Check that an allowed networking plugin is provided
