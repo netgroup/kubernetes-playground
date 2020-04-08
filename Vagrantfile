@@ -71,7 +71,9 @@ end
 required_vagrant_version = travis_global_environment_variables['VAGRANT_VERSION']
 vagrant_version_constraint = ">= #{required_vagrant_version}"
 Vagrant.require_version vagrant_version_constraint
-@ui.info "The current Vagrant version satisfies the constraints: #{vagrant_version_constraint}"
+if ENV['VAGRANT_LOG']=='debug' or ENV['VAGRANT_LOG']=='info'
+  @ui.info "The current Vagrant version satisfies the constraints: #{vagrant_version_constraint}"
+end
 
 # Proc settings merger
 settings_merger = proc {
@@ -101,6 +103,10 @@ end
 @ui.info "Welcome to Kubernetes playground!"
 @ui.info "Vagrant provider : " + settings["conf"]["vagrant_provider"]
 @ui.info "Networking plugin : " + settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"]
+if ENV['VAGRANT_LOG']=='debug' or ENV['VAGRANT_LOG']=='info'
+  @ui.info "Active settings (from defaults.yaml and env.yaml):"
+  @ui.info settings.to_yaml
+end
 
 # Check that an allowed networking plugin is provided
 allowed_cni_plugins=["weavenet","calico","flannel","no-cni-plugin"]
