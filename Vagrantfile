@@ -100,7 +100,7 @@ if File.exist?(env_specific_config_path)
 end
 
 # Display the main current configuration parameters
-@ui.info "Welcome to Kubernetes playground, version " + K8S_PLAYGROUND_VERSION
+@ui.info "Welcome to Kubernetes playground!"
 @ui.info "Vagrant provider : " + settings["conf"]["vagrant_provider"]
 @ui.info "Networking plugin : " + settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"]
 if ENV['VAGRANT_LOG']=='debug' or ENV['VAGRANT_LOG']=='info'
