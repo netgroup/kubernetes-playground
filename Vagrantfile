@@ -3,8 +3,6 @@ require 'ipaddr'
 
 @ui = Vagrant::UI::Colored.new
 
-K8S_PLAYGROUND_VERSION="2.0.1"
-
 # Load the required Vagrant version from the CI configuration.
 # This forces us to be consistent with the CI environment.
 
