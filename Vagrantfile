@@ -306,6 +306,13 @@ playground.each do |(hostname, info)|
     end
   end
 end
+
+# Add the docker registry host alias
+ip_to_host_mappings.push(
+    "ip_v4_address" => "#{kubernetes_master_1_ip}",
+    "hostname" => "#{docker_registry_alias}"
+)
+
 ansible_master_group_name = "kubernetes-masters"
 ansible_minion_group_name = "kubernetes-minions"
 ansible_inventory_path = "ansible/hosts"
