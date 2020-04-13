@@ -74,12 +74,12 @@
       become: true
       lineinfile:
         path: /etc/hosts
-        regexp: "^{{ inventory_hostname }} {{ assigned_hostname }}"
-        line: "{{ inventory_hostname }} {{ assigned_hostname }}"
+        regexp: "^{{ item.ip_v4_address }} {{ item.hostname }}"
+        line: "{{ item.ip_v4_address }} {{ item.hostname }}"
         owner: root
         group: root
         mode: 0644
-      when: assigned_hostname is defined and not base_box|default(false)|bool
+      loop: "{{ ip_to_host_mappings }}"
     - name: Configure registry name resolution in hosts file
       become: true
       lineinfile:

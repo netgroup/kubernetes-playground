@@ -281,6 +281,7 @@ playground = {
 
 masters = {}
 minions = {}
+ip_to_host_mappings = []
 playground.each do |(hostname, info)|
   if(hostname.include? "master")
     masters[info[:ip]] = nil
@@ -289,6 +290,10 @@ playground.each do |(hostname, info)|
   end
   if info.key?(:ip)
     host_var_filename = "#{info[:ip]}"
+    ip_to_host_mappings.push(
+        "ip_v4_address" => "#{info[:ip]}",
+        "hostname" => "#{hostname}"
+    )
   else
     host_var_filename = "#{hostname}"
   end
@@ -344,6 +349,7 @@ default_group_vars = {
   "playground_name" => "#{playground_name}",
   "cluster_ip_cidr"  => "#{cluster_ip_cidr}",
   "service_ip_cidr"  => "#{service_ip_cidr}",
+  "ip_to_host_mappings" => ip_to_host_mappings
 }
 custom_all_group_vars = settings["ansible"]["group_vars"]["all"]
 if !custom_all_group_vars.nil?
