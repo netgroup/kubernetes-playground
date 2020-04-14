@@ -13,6 +13,8 @@
       set_fact:
         ansible_ssh_connection_ip_v4_address: >-
           "{{ hostvars[inventory_hostname]['ansible_env'].SSH_CONNECTION.split(' ')[2] }}"
+      tags:
+        - quick_setup
     - name: Get the interface name for Ansible SSH connection interface
       become: true
       changed_when: false
