@@ -9,47 +9,53 @@
       listen:
         - systemd_read_configs
   post_tasks:
-    - name: ansible_debug_example_1
-        This task is only an example, it can be replaced by your own debug task
-        or other tasks with ansible_debug tag can be created
+    - name: Set ansible_ssh_connection_ip_v4_address fact
+      set_fact:
+        ansible_ssh_connection_ip_v4_address: >-
+          "{{ hostvars[inventory_hostname]['ansible_env'].SSH_CONNECTION.split(' ')[2] }}"
+    - name: Get the interface name for Ansible SSH connection interface
       become: true
       changed_when: false
       shell: |
-        set -e ; \
-        echo $0 ; \
-        whoami ; \
-        echo $PATH
-      register: ansible_debug_output
-      tags:
-        - ansible_debug
-    - name: ansible_debug_example_2
-        This task is only an example (see ansible_debug_example_1)
-      become: true
-      changed_when: false
-      debug:
-        var: ansible_debug_output
-      tags:
-        - ansible_debug
-    - name: >-
-        Get IP address corresponding to the interface with the specified
-        broadcast address
-      changed_when: false
-      shell: |
-        set -e -o pipefail; \
-        /usr/sbin/ip addr \
-        | grep {{ broadcast_address }} \
-        | awk -F'[ /]+' '{print $3}'
-      register: ip_addr_broadcast
+        set -e -o pipefail ; \
+        NODE_IP_V4={{ ansible_ssh_connection_ip_v4_address }} ; \
+        ip -o addr show | grep $NODE_IP_V4 | awk '{print $2}'
+      register: ansible_ssh_connection_interface_name_result
       tags:
         - quick_setup
-      when: "'kubernetes-masters' in group_names or 'kubernetes-minions' in group_names"
+    - name: Set facts
+      set_fact:
+        ansible_ssh_connection_interface_name: "{{ ansible_ssh_connection_interface_name_result.stdout }}"
+      tags:
+        - quick_setup
+    - name: Display all variables/facts known for {{ inventory_hostname }}
+      debug:
+        var: hostvars[inventory_hostname]
+        verbosity: 2
+    - name: Print debug information
+      changed_when: false
+      vars:
+        msg: |
+            Ansible distribution: {{ ansible_distribution }}
+            Ansible distribution version: {{ ansible_distribution_version }}
+            Ansible domain: {{ ansible_domain }}
+            Ansible FQDN: {{ ansible_fqdn }}
+            ansible hostname: {{ ansible_hostname }}
+            Ansible kernel: {{ ansible_kernel }}
+            Ansible user: {{ ansible_user }}
+            Ansible SSH connection IPv4 address: {{ ansible_ssh_connection_ip_v4_address }}
+            Ansible SSH connection interface name: {{ ansible_ssh_connection_interface_name }}
+            Inventory hostname: {{ inventory_hostname }}
+            PATH: {{ hostvars[inventory_hostname]['ansible_env']['PATH'] }}
+      debug:
+        msg: "{{ msg.split('\n') }}"
     - name: Initialize an IPv6 interface
       become: true
       shell: |
         set -e ; \
         /vagrant/scripts/linux/configure-ipv6-interface.sh \
         {{ ipv6_address }} \
-        {{ hostvars[inventory_hostname]['ansible_env'].SSH_CONNECTION.split(' ')[2] }} \
+        {{ ansible_ssh_connection_ip_v4_address }} \
         {{ subnet_mask_ipv6 }}
       when: ipv6_address is defined
     - name: Remove FQDN from 127.0.0.1
@@ -137,19 +143,9 @@
       when: inventory_hostname == kubernetes_master_1_ip
       tags:
         - quick_setup
-    - name: Get interface name for data interface
-      become: true
-      shell: |
-        set -e -o pipefail ; \
-        NODE_IP_V4={{ hostvars[inventory_hostname]['ansible_env'].SSH_CONNECTION.split(' ')[2] }} ; \
-        ip -o addr show scope global | grep $NODE_IP_V4 | awk '{print $2}'
-      register: node_ip_address
-      when: inventory_hostname == kubernetes_master_1_ip
-      tags:
-        - quick_setup
     - name: Define if_name_for_flannel
       set_fact:
-        if_name_for_flannel: "{{ node_ip_address.stdout }}"
+        if_name_for_flannel: "{{ ansible_ssh_connection_interface_name }}"
       when: inventory_hostname == kubernetes_master_1_ip
       tags:
         - quick_setup

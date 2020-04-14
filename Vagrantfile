@@ -534,12 +534,6 @@ Vagrant.configure("2") do |config|
             s.path = "scripts/linux/install-kubernetes.sh"
             s.args = ["--inventory", ansible_inventory_path, "--additional-ansible-arguments", additional_ansible_arguments, "--quick-setup" ]
           end
-
-          host.vm.provision "ansible-debug", type: "shell", run: "never" do |s|
-            s.path = "scripts/linux/install-kubernetes.sh"
-            s.args = ["--inventory", ansible_inventory_path, "--additional-ansible-arguments", additional_ansible_arguments, "--ansible-debug" ]
-          end
-
         end
         host.vm.provision "cleanup", type: "shell", run: "never" do |s|
           s.path = "scripts/linux/cleanup-k8s-and-cni.sh"
