@@ -1,4 +1,14 @@
 ---
+- name: Disable swap
+  command: swapoff -a
+  when: ansible_swaptotal_mb != 0
+
+- name: Disable automounting swap partitions
+  replace:
+    path: /etc/fstab
+    regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
+    replace: '# \1'
+
 - include_tasks: preflight-checks.yml
 
 - name: Load OS specific variables
@@ -34,11 +44,15 @@
     - kubeadm
     - kubectl
 
-- name: Enable the passing of bridged IPv4 traffic to iptables’ chains
+- name: Configure forwarding and bridging for IPv6 and IPv4
   sysctl:
-    name: net.bridge.bridge-nf-call-iptables
+    name: "{{ item }}"
     value: 1
     state: present
+  with_items:
+    - net.bridge.bridge-nf-call-iptables
+    - net.bridge.bridge-nf-call-ip6tables
+    - net.ipv4.ip_forward
 
 - name: Enable kubelet service
   service:

@@ -518,7 +518,6 @@ Vagrant.configure("2") do |config|
         # for now it's enough.
         host.vm.provision "shell", path: "scripts/linux/enable-ssh-password-authentication.sh"
 
-        host.vm.provision "shell", path: "scripts/linux/check-kubeadm-requirements.sh"
         host.vm.provision "shell" do |s|
           s.path = "scripts/linux/install-kubernetes.sh"
           s.args = ["--inventory", ansible_base_inventory_path, "--additional-ansible-arguments", additional_ansible_arguments]
