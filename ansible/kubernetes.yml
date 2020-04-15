@@ -58,6 +58,7 @@
             Inventory hostname: {{ inventory_hostname }}
             IPv6 address: {{ ipv6_address }}
             Kubeadm token: {{ kubeadm_token }}
+            Kubernetes master 1 hostname: {{ kubernetes_master_1_hostname }}
             Kubernetes master 1 IP: {{ kubernetes_master_1_ip }}
             Kubernetes network plugin: {{ kubernetes_network_plugin }}
             PATH: {{ hostvars[inventory_hostname]['ansible_env']['PATH'] }}
