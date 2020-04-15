@@ -34,15 +34,11 @@
     - kubeadm
     - kubectl
 
-- name: Configure forwarding and bridging for IPv6 and IPv4
+- name: Enable the passing of bridged IPv4 traffic to iptables’ chains
   sysctl:
-    name: "{{ item }}"
+    name: net.bridge.bridge-nf-call-iptables
     value: 1
     state: present
-  with_items:
-    - net.bridge.bridge-nf-call-iptables
-    - net.bridge.bridge-nf-call-ip6tables
-    - net.ipv4.ip_forward
 
 - name: Enable kubelet service
   service:
