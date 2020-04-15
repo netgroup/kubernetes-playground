@@ -99,6 +99,8 @@ jobs:
         docker build --target dev -t kitesproject/net-test:latest-dev .
     - name: "Test Kitchen"
       stage: test_kitchen
+      before_install:
+        -
       before_script: kitchen diagnose
       install:
         - gem install bundler

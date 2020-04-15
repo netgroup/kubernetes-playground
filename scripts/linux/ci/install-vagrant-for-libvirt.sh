@@ -3,9 +3,9 @@
 # to be run as root
 # tested on debian 10
 
-wget https://releases.hashicorp.com/vagrant/2.2.7/vagrant_2.2.7_x86_64.deb
-dpkg -i vagrant_2.2.7_x86_64.deb
-rm vagrant_2.2.7_x86_64.deb
+wget https://releases.hashicorp.com/vagrant/"${VAGRANT_VERSION}"/vagrant_"${VAGRANT_VERSION}"_x86_64.deb
+dpkg -i vagrant_"${VAGRANT_VERSION}"_x86_64.deb
+rm vagrant_"${VAGRANT_VERSION}"_x86_64.deb
 apt-get install -y qemu=1:3.1+dfsg-8+deb10u4 \
     ebtables=2.0.10.4+snapshot20181205-3 \
     dnsmasq-base=2.80-1 \
@@ -17,6 +17,5 @@ apt-get install -y qemu=1:3.1+dfsg-8+deb10u4 \
     ruby-dev=1:2.5.1 \
     qemu-utils=1:3.1+dfsg-8+deb10u4 \
     rsync=3.1.3-6
-vagrant plugin install vagrant-libvirt
-vagrant plugin install vagrant-hostsupdater
+
 usermod -a -G libvirt vagrant
