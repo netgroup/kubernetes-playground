@@ -395,11 +395,17 @@ class VagrantPlugins::ProviderVirtualBox::Action::SetName
         lines = vm_info.split("\n")
         lines.each do |line|
             if line.start_with?("CfgFile")
-                vm_folder = line.split("=")[1].gsub('"','')
-                ui.info "vm_folder before expansion: #{vm_folder}"
+              vm_folder = line.split("=")[1].gsub('"','')
+              if ENV.has_key?('WSL_DISTRO_NAME')
+                vm_folder_wsl = `wslpath -a -u "#{vm_folder}"`.gsub("\n","")
+                vm_folder_dirname = File.dirname(vm_folder_wsl)
+                vm_folder_wsl_m = `wslpath -a -m "#{vm_folder_dirname}"`.gsub("\n","")
+                vm_folder = vm_folder_wsl_m
+              else
                 vm_folder = File.expand_path("..", vm_folder)
-                ui.info "vm_folder: #{vm_folder}"
-                ui.info "The #{vm_name} VM is in the #{vm_folder} directory on the host."
+              end
+
+              ui.info "The #{vm_name} VM (UUID: #{uuid}) is in the #{vm_folder} directory on the host."
             end
         end
 
@@ -438,15 +444,22 @@ class VagrantPlugins::ProviderVirtualBox::Action::Destroy
 
     vm_name = env[:machine].provider_config.name
 
-    ui.info "Finding out in which directory the #{vm_name} VM was created on the host."
+    ui.info "Finding out in which directory the #{vm_name} VM (UUID: #{uuid}) was created on the host."
     vm_folder = ""
     vm_info = driver.execute("showvminfo", uuid, "--machinereadable")
     lines = vm_info.split("\n")
     lines.each do |line|
         if line.start_with?("CfgFile")
             vm_folder = line.split("=")[1].gsub('"','')
-            vm_folder = File.expand_path("..", vm_folder)
-            ui.info "The #{vm_name} VM is in the #{vm_folder} directory on the host."
+            if ENV.has_key?('WSL_DISTRO_NAME')
+                vm_folder_wsl = `wslpath -a -u "#{vm_folder}"`.gsub("\n","")
+                vm_folder_dirname = File.dirname(vm_folder_wsl)
+                vm_folder_wsl_m = `wslpath -a -m "#{vm_folder_dirname}"`.gsub("\n","")
+                vm_folder = vm_folder_wsl_m
+            else
+                vm_folder = File.expand_path("..", vm_folder)
+            end
+            ui.info "The #{vm_name} VM (UUID: #{uuid}) is in the #{vm_folder} directory on the host."
         end
     end
 
