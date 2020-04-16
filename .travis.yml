@@ -37,9 +37,7 @@ jobs:
     - before_install: gem install travis --no-document
       install: echo "Overriding the default install, to avoid installing gems from the Gemfile"
       name: "Travis lint"
-      before_script:
-        - . $HOME/.travis/travis.sh
-      script: travis lint -x
+      script: travis lint --skip-completion-check -x
     - name: "Shellcheck"
       language: shell
       script: |
