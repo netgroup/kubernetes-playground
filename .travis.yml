@@ -100,17 +100,11 @@ jobs:
     - name: "Test Kitchen"
       stage: test_kitchen
       before_install:
-        -
+        - scripts/linux/ci/install-libvirt.sh
       before_script: kitchen diagnose
       install:
         - gem install bundler
         - bundle install || exit 1
-        - |
-          TEMP_DEB="$(mktemp)" \
-          && wget -O "$TEMP_DEB" \
-            "https://releases.hashicorp.com/vagrant/${VAGRANT_VERSION}/vagrant_${VAGRANT_VERSION}_x86_64.deb" \
-          && sudo dpkg -i "$TEMP_DEB"
-        - vagrant plugin install vagrant-hostsupdater
       language: ruby
       script: |
         kitchen list \
