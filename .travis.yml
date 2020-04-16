@@ -98,6 +98,7 @@ jobs:
       before_install:
         - sudo scripts/linux/ci/install-libvirt.sh
         - sudo scripts/linux/ci/install-vagrant.sh
+        # - usermod -a -G libvirt vagrant
       before_script: kitchen diagnose
       install:
         - gem install bundler
