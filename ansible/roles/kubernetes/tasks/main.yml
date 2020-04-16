@@ -49,6 +49,7 @@
     name: "{{ item }}"
     value: 1
     state: present
+    sysctl_set: true
   with_items:
     - net.bridge.bridge-nf-call-iptables
     - net.bridge.bridge-nf-call-ip6tables
