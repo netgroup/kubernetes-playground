@@ -389,14 +389,16 @@ class VagrantPlugins::ProviderVirtualBox::Action::SetName
     vm_name = env[:machine].provider_config.name
 
     unless(vm_name.include? $base_box_builder_vm_name)
-        ui.info "Finding out in which directory the #{vm_name} VM was created on the host."
+        ui.info "Finding out in which directory the #{vm_name} VM (UUID: #{uuid}) was created on the host."
         vm_folder = ""
         vm_info = driver.execute("showvminfo", uuid, "--machinereadable")
         lines = vm_info.split("\n")
         lines.each do |line|
             if line.start_with?("CfgFile")
                 vm_folder = line.split("=")[1].gsub('"','')
+                ui.info "vm_folder before expansion: #{vm_folder}"
                 vm_folder = File.expand_path("..", vm_folder)
+                ui.info "vm_folder: #{vm_folder}"
                 ui.info "The #{vm_name} VM is in the #{vm_folder} directory on the host."
             end
         end
