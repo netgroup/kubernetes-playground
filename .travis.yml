@@ -65,7 +65,9 @@ jobs:
         | xargs markdownlint || exit 1
     - name: "Vagrant validate"
       before_install:
+        - sudo scripts/linux/ci/install-libvirt.sh
         - sudo scripts/linux/ci/install-vagrant.sh
+        - sudo scripts/linux/ci/install-vagrant-plugins.sh
       language: shell
       script: vagrant validate --ignore-provider
     - name: "shfmt"
