@@ -121,8 +121,6 @@ jobs:
         - kvm-ok
         - sudo ls -la /var/run/libvirt/libvirt-sock
         - sudo ls -la /dev/kvm
-        - virsh list --all
-        - which kitchen
         - kitchen diagnose
         - kitchen list
       install:
@@ -130,7 +128,7 @@ jobs:
         - bundle install || exit 1
       language: ruby
       script: |
-        sudo kitchen test default-centos-7
+        sudo env "PATH=$PATH" kitchen test default-centos-7
 language: shell
 os: linux
 services:
