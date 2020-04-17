@@ -97,6 +97,8 @@ jobs:
       script: |
         docker build --target dev -t kitesproject/net-test:latest-dev .
     - name: "Test Kitchen"
+      env:
+        - VAGRANT_DEFAULT_PROVIDER=libvirt
       stage: test_kitchen
       before_install:
         - sudo scripts/linux/ci/install-libvirt.sh
@@ -106,13 +108,13 @@ jobs:
         # - usermod -a -G libvirt vagrant
       before_script:
         - kitchen diagnose
+        - kitchen list
       install:
         - gem install bundler
         - bundle install || exit 1
       language: ruby
       script: |
-        kitchen list \
-        || exit 1
+        kitchen test default-centos-7
 language: shell
 os: linux
 services:
