@@ -66,6 +66,10 @@ jobs:
     - name: "Vagrant validate"
       before_install:
         - sudo scripts/linux/ci/install-vagrant.sh
+      before_script:
+        - vagrant list-commands
+        - vagrant -h
+        - vagrant help up
       language: shell
       script: vagrant validate --ignore-provider
     - name: "shfmt"
