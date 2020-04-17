@@ -3,11 +3,14 @@
 # to be run as root
 # tested on debian 10
 
+apt-get update -y
+
 apt-get install -y --no-install-recommends \
     dnsmasq-base \
     ebtables \
     libguestfs-tools \
     libvirt-clients \
+    libvirt-daemon-system \
     libvirt-bin \
     libvirt-dev \
     libxml2-dev \
@@ -16,4 +19,5 @@ apt-get install -y --no-install-recommends \
     qemu-utils \
     qemu \
     rsync \
+    ruby-dev \
     zlib1g-dev
