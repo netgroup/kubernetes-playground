@@ -1,5 +1,5 @@
 ---
-dist: xenial
+dist: bionic
 env:
   global:
     - VAGRANT_VERSION="2.2.7"
