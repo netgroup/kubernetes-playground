@@ -110,6 +110,10 @@ jobs:
         - echo "groups:" ; for i in $(id -Gn);do echo "  - $i" ;done
         - sudo lsmod | sort
         - sudo modprobe -a kvm
+        - echo "Path $PATH"
+        - sudo echo "(sudo) Path $PATH"
+        - which gem
+        - which bundler
       before_script:
         - egrep -c '(vmx|svm)' /proc/cpuinfo
         - egrep -c ' lm ' /proc/cpuinfo
@@ -118,11 +122,11 @@ jobs:
         - sudo ls -la /var/run/libvirt/libvirt-sock
         - sudo ls -la /dev/kvm
         - virsh list --all
-        - sudo kitchen diagnose
-        - sudo kitchen list
+        - kitchen diagnose
+        - kitchen list
       install:
-        - sudo gem install bundler
-        - sudo bundle install || exit 1
+        - gem install bundler
+        - bundle install || exit 1
       language: ruby
       script: |
         sudo kitchen test default-centos-7
