@@ -132,6 +132,6 @@ os: linux
 services:
   - docker
 stages:
-  - test_kitchen
   - linting
   - build_container_images
+  - test_kitchen
