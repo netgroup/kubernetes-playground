@@ -107,6 +107,7 @@ jobs:
         - sudo chown -R travis:travis $HOME/.vagrant.d
         - sudo adduser "$(id -un)" libvirt
         - sudo adduser "$(id -un)" kvm
+        - echo "groups:" ; for i in $(id -Gn);do echo "  - $i" ;done
         - sudo lsmod | sort
         - sudo modprobe -a kvm
       before_script:
