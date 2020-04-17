@@ -104,29 +104,27 @@ jobs:
         - sudo scripts/linux/ci/install-libvirt.sh
         - sudo scripts/linux/ci/install-vagrant.sh
         - sudo scripts/linux/ci/install-vagrant-plugins.sh
+        # Fix premissions after installing vagrant plugins with sudo
         - sudo chown -R travis:travis $HOME/.vagrant.d
+        # This doesn't have effect if you don't open a new shell
         - sudo adduser "$(id -un)" libvirt
         - sudo adduser "$(id -un)" kvm
-        - echo "groups:" ; for i in $(id -Gn);do echo "  - $i" ;done
         - sudo lsmod | sort
         - sudo modprobe -a kvm
-        - echo "Path $PATH"
-        - sudo echo "(sudo) Path $PATH"
-        - which gem
-        - which bundler
       before_script:
-        - egrep -c '(vmx|svm)' /proc/cpuinfo
-        - egrep -c ' lm ' /proc/cpuinfo
-        - uname -m
         - kvm-ok
-        - sudo ls -la /var/run/libvirt/libvirt-sock
-        - sudo ls -la /dev/kvm
         - kitchen diagnose
         - kitchen list
+        # Trigger the generation of variable and inventory files
+        - vagrant status
       install:
         - gem install bundler
         - bundle install || exit 1
       language: ruby
+      # Run with sudo because the libvirt socket is owned by the libvirt group,
+      # and the current user was added to the group in the current session,
+      # so the membership to that group is not yet in effect.
+      # Set the PATH to make the installed gems accessible.
       script: |
         sudo env "PATH=$PATH" kitchen test default-centos-7
 language: shell
