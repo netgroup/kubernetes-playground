@@ -107,7 +107,6 @@ jobs:
         - sudo chown -R travis:travis $HOME/.vagrant.d
         - sudo adduser "$(id -un)" libvirt
         - sudo adduser "$(id -un)" kvm
-        - exec sudo su -l "$(id -un)"
         - echo "groups:" ; for i in $(id -Gn);do echo "  - $i" ;done
         - sudo lsmod | sort
         - sudo modprobe -a kvm
@@ -126,7 +125,7 @@ jobs:
         - bundle install || exit 1
       language: ruby
       script: |
-        kitchen test default-centos-7
+        sudo kitchen test default-centos-7
 language: shell
 os: linux
 services:
