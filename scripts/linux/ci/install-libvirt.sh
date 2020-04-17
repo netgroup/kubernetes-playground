@@ -7,6 +7,7 @@ apt-get update -y
 
 apt-get install -y --no-install-recommends \
     bridge-utils \
+    cpu-checker \
     dnsmasq-base \
     ebtables \
     libguestfs-tools \

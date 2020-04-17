@@ -105,8 +105,18 @@ jobs:
         - sudo scripts/linux/ci/install-vagrant.sh
         - sudo scripts/linux/ci/install-vagrant-plugins.sh
         - sudo chown -R travis:travis $HOME/.vagrant.d
-        # - usermod -a -G libvirt vagrant
+        - sudo adduser "$(id -un)" libvirt
+        - sudo adduser "$(id -un)" kvm
+        - sudo modprobe -r libvirt kvm
+        - modprobe -a libvirt kvm
       before_script:
+        - egrep -c '(vmx|svm)' /proc/cpuinfo
+        - egrep -c ' lm ' /proc/cpuinfo
+        - uname -m
+        - kvm-ok
+        - sudo ls -la /var/run/libvirt/libvirt-sock
+        - sudo ls -la /dev/kvm
+        - virsh list --all
         - kitchen diagnose
         - kitchen list
       install:
