@@ -66,9 +66,6 @@ jobs:
     - name: "Vagrant validate"
       before_install:
         - sudo scripts/linux/ci/install-vagrant.sh
-      before_script:
-        # Workaround for https://github.com/hashicorp/vagrant/issues/11524
-        - vagrant plugin install vagrant-hostsupdater
       language: shell
       script: vagrant validate --ignore-provider
     - name: "shfmt"
@@ -101,8 +98,6 @@ jobs:
       before_install:
         - sudo scripts/linux/ci/install-libvirt.sh
         - sudo scripts/linux/ci/install-vagrant.sh
-        # Workaround for https://github.com/hashicorp/vagrant/issues/11524
-        - vagrant plugin install vagrant-hostsupdater
         # - usermod -a -G libvirt vagrant
       before_script: kitchen diagnose
       install:
