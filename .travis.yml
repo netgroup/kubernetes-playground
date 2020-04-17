@@ -107,9 +107,9 @@ jobs:
         - sudo chown -R travis:travis $HOME/.vagrant.d
         - sudo adduser "$(id -un)" libvirt
         - sudo adduser "$(id -un)" kvm
-        - sudo lsmod
-        - sudo modprobe -r libvirt kvm
-        - sudo modprobe -a libvirt kvm
+        - sudo lsmod | sort
+        - sudo modprobe -r kvm
+        - sudo modprobe -a kvm
       before_script:
         - egrep -c '(vmx|svm)' /proc/cpuinfo
         - egrep -c ' lm ' /proc/cpuinfo
