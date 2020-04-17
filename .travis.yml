@@ -66,8 +66,6 @@ jobs:
     - name: "Vagrant validate"
       before_install:
         - sudo scripts/linux/ci/install-vagrant.sh
-        - ls -al $HOME
-        - sudo chown -R travis:travis $HOME/.vagrant.d
       language: shell
       script: vagrant validate --ignore-provider
     - name: "shfmt"
@@ -100,9 +98,11 @@ jobs:
       before_install:
         - sudo scripts/linux/ci/install-libvirt.sh
         - sudo scripts/linux/ci/install-vagrant.sh
+        - sudo scripts/linux/ci/install-vagrant-plugins.sh
         - sudo chown -R travis:travis $HOME/.vagrant.d
         # - usermod -a -G libvirt vagrant
-      before_script: kitchen diagnose
+      before_script:
+        - kitchen diagnose
       install:
         - gem install bundler
         - bundle install || exit 1
