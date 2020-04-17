@@ -118,11 +118,11 @@ jobs:
         - sudo ls -la /var/run/libvirt/libvirt-sock
         - sudo ls -la /dev/kvm
         - virsh list --all
-        - kitchen diagnose
-        - kitchen list
+        - sudo kitchen diagnose
+        - sudo kitchen list
       install:
-        - gem install bundler
-        - bundle install || exit 1
+        - sudo gem install bundler
+        - sudo bundle install || exit 1
       language: ruby
       script: |
         sudo kitchen test default-centos-7
