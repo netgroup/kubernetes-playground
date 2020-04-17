@@ -68,6 +68,7 @@ jobs:
         - sudo scripts/linux/ci/install-libvirt.sh
         - sudo scripts/linux/ci/install-vagrant.sh
         - sudo scripts/linux/ci/install-vagrant-plugins.sh
+        - sudo chown -R travis:travis $HOME/.vagrant.d
       language: shell
       script: vagrant validate --ignore-provider
     - name: "shfmt"
