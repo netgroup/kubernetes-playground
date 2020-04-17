@@ -114,7 +114,6 @@ jobs:
         - sudo echo "(sudo) Path $PATH"
         - which gem
         - which bundler
-        - which kitchen
       before_script:
         - egrep -c '(vmx|svm)' /proc/cpuinfo
         - egrep -c ' lm ' /proc/cpuinfo
@@ -123,6 +122,7 @@ jobs:
         - sudo ls -la /var/run/libvirt/libvirt-sock
         - sudo ls -la /dev/kvm
         - virsh list --all
+        - which kitchen
         - kitchen diagnose
         - kitchen list
       install:
