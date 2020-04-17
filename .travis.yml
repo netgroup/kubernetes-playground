@@ -114,6 +114,7 @@ jobs:
         - sudo echo "(sudo) Path $PATH"
         - which gem
         - which bundler
+        - which kitchen
       before_script:
         - egrep -c '(vmx|svm)' /proc/cpuinfo
         - egrep -c ' lm ' /proc/cpuinfo
