@@ -108,7 +108,7 @@ jobs:
         - sudo adduser "$(id -un)" libvirt
         - sudo adduser "$(id -un)" kvm
         - sudo modprobe -r libvirt kvm
-        - modprobe -a libvirt kvm
+        - sudo modprobe -a libvirt kvm
       before_script:
         - egrep -c '(vmx|svm)' /proc/cpuinfo
         - egrep -c ' lm ' /proc/cpuinfo
