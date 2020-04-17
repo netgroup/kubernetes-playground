@@ -107,6 +107,7 @@ jobs:
         - sudo chown -R travis:travis $HOME/.vagrant.d
         - sudo adduser "$(id -un)" libvirt
         - sudo adduser "$(id -un)" kvm
+        - sudo lsmod
         - sudo modprobe -r libvirt kvm
         - sudo modprobe -a libvirt kvm
       before_script:
