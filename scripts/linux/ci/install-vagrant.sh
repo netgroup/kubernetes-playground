@@ -9,3 +9,4 @@ rm vagrant_"${VAGRANT_VERSION}"_x86_64.deb
 
 # Workaround for https://github.com/hashicorp/vagrant/issues/11524
 vagrant plugin install vagrant-hostsupdater
+vagrant plugin install vagrant-libvirt
