@@ -101,8 +101,8 @@ end
 
 # Display the main current configuration parameters
 @ui.info "Welcome to Kubernetes playground!"
-@ui.info "Vagrant provider : " + settings["conf"]["vagrant_provider"]
-@ui.info "Networking plugin : " + settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"]
+@ui.info "Vagrant provider: " + settings["conf"]["vagrant_provider"]
+@ui.info "Networking plugin: " + settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"]
 if ENV['VAGRANT_LOG']=='debug' or ENV['VAGRANT_LOG']=='info'
   @ui.info "Active settings (from defaults.yaml and env.yaml):"
   @ui.info settings.to_yaml
@@ -155,6 +155,7 @@ docker_registry_alias = "registry" + domain
 network_type_dhcp = "dhcp"
 network_type_static_ip = "static_ip"
 wildcard_domain = "*" + domain
+assigned_hostname_key = "assigned_hostname"
 
 ip_v4_cidr = IPAddr.new(subnet_mask).to_i.to_s(2).count("1")
 n = IPAddr.new("#{kubernetes_master_1_ip}/#{ip_v4_cidr}")
@@ -207,7 +208,7 @@ playground = {
     :show_gui => false,
     :host_vars => {
       "base_box" => true,
-      "assigned_hostname" => base_box_builder_vm_id
+      assigned_hostname_key => base_box_builder_vm_id
     }
   },
   kubernetes_master_1_vm_id => {
@@ -224,7 +225,7 @@ playground = {
     :show_gui => false,
     :host_vars => {
       "ipv6_address" => kubernetes_master_1_ipv6,
-      "assigned_hostname" => kubernetes_master_1_vm_id
+      assigned_hostname_key => kubernetes_master_1_vm_id
     }
   },
   kubernetes_minion_1_vm_id => {
@@ -240,7 +241,7 @@ playground = {
     :show_gui => false,
     :host_vars => {
       "ipv6_address" => kubernetes_minion_1_ipv6,
-      "assigned_hostname" => kubernetes_minion_1_vm_id
+      assigned_hostname_key => kubernetes_minion_1_vm_id
     }
   },
   kubernetes_minion_2_vm_id => {
@@ -256,7 +257,7 @@ playground = {
     :show_gui => false,
     :host_vars => {
       "ipv6_address" => kubernetes_minion_2_ipv6,
-      "assigned_hostname" => kubernetes_minion_2_vm_id
+      assigned_hostname_key => kubernetes_minion_2_vm_id
     }
   },
   kubernetes_minion_3_vm_id => {
@@ -272,7 +273,7 @@ playground = {
     :show_gui => false,
     :host_vars => {
       "ipv6_address" => kubernetes_minion_3_ipv6,
-      "assigned_hostname" => kubernetes_minion_3_vm_id
+      assigned_hostname_key => kubernetes_minion_3_vm_id
     }
   }
 }
@@ -283,15 +284,11 @@ masters = {}
 minions = {}
 playground.each do |(hostname, info)|
   if(hostname.include? "master")
-    masters[info[:ip]] = nil
+    masters[hostname] = nil
   elsif(hostname.include? "minion")
-    minions[info[:ip]] = nil
+    minions[hostname] = nil
   end
-  if info.key?(:ip)
-    host_var_filename = "#{info[:ip]}"
-  else
-    host_var_filename = "#{hostname}"
-  end
+  host_var_filename = "#{hostname}"
   host_var_path = "ansible/host_vars/#{host_var_filename}.yaml"
   if info.key?(:host_vars)
     IO.write(host_var_path, info[:host_vars].to_yaml)
@@ -337,6 +334,7 @@ default_group_vars = {
   "ansible_user" => "vagrant",
   "broadcast_address" => "#{broadcast_address}",
   "docker_registry_host" => "#{docker_registry_alias}",
+  "kubernetes_master_1_hostname" => "#{kubernetes_master_1_vm_id}",
   "kubernetes_master_1_ip" => "#{kubernetes_master_1_ip}",
   "kubeadm_token" => "#{kubeadm_token}",
   "subnet_mask_ipv6" => "#{subnet_mask_ipv6}",
