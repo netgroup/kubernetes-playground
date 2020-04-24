@@ -3,5 +3,23 @@
 # to be run as root
 # tested on debian 10
 
-apt-get install -y --no-install-recommends qemu-kvm=1:3.1+dfsg-8+deb10u4 \
-    libvirt-clients=5.0.0-4+deb10u1 libvirt-daemon-system=5.0.0-4+deb10u1
+apt-get update -y
+
+apt-get install -y --no-install-recommends \
+    bridge-utils \
+    cpu-checker \
+    dnsmasq-base \
+    ebtables \
+    libguestfs-tools \
+    libvirt-clients \
+    libvirt-daemon-system \
+    libvirt-bin \
+    libvirt-dev \
+    libxml2-dev \
+    libxslt1-dev \
+    qemu-kvm \
+    qemu-utils \
+    qemu \
+    rsync \
+    ruby-dev \
+    zlib1g-dev
