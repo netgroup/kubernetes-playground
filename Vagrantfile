@@ -378,96 +378,116 @@ end
 
 # Let's extend the SetName class
 # to attach a second disk
-class VagrantPlugins::ProviderVirtualBox::Action::SetName
-  alias_method :original_call, :call
-  def call(env)
-    machine = env[:machine]
-    driver = machine.provider.driver
-    uuid = driver.instance_eval { @uuid }
-    ui = env[:ui]
+# class VagrantPlugins::ProviderVirtualBox::Action::SetName
+#   alias_method :original_call, :call
+#   def call(env)
+#     machine = env[:machine]
+#     driver = machine.provider.driver
+#     uuid = driver.instance_eval { @uuid }
+#     ui = env[:ui]
 
-    vm_name = env[:machine].provider_config.name
+#     vm_name = env[:machine].provider_config.name
 
-    unless(vm_name.include? $base_box_builder_vm_name)
-        ui.info "Finding out in which directory the #{vm_name} VM (UUID: #{uuid}) was created on the host."
-        vm_folder = ""
-        vm_info = driver.execute("showvminfo", uuid, "--machinereadable")
-        lines = vm_info.split("\n")
-        lines.each do |line|
-            if line.start_with?("CfgFile")
-              vm_folder = line.split("=")[1].gsub('"','')
-              if ENV.has_key?('WSL_DISTRO_NAME')
-                vm_folder_wsl = `wslpath -a -u "#{vm_folder}"`.gsub("\n","")
-                vm_folder_dirname = File.dirname(vm_folder_wsl)
-                vm_folder_wsl_m = `wslpath -a -m "#{vm_folder_dirname}"`.gsub("\n","")
-                vm_folder = vm_folder_wsl_m
-              else
-                vm_folder = File.expand_path("..", vm_folder)
-              end
+#     unless(vm_name.include? $base_box_builder_vm_name)
+#         ui.info "Finding out in which directory the #{vm_name} VM (UUID: #{uuid}) was created on the host."
+#         vm_folder = ""
+#         vm_info = driver.execute("showvminfo", uuid, "--machinereadable")
+#         lines = vm_info.split("\n")
+#         lines.each do |line|
+#             if line.start_with?("CfgFile")
+#               vm_folder = line.split("=")[1].gsub('"','')
+#               if ENV.has_key?('WSL_DISTRO_NAME')
+#                 vm_folder_wsl = `wslpath -a -u "#{vm_folder}"`.gsub("\n","")
+#                 vm_folder_dirname = File.dirname(vm_folder_wsl)
+#                 vm_folder_wsl_m = `wslpath -a -m "#{vm_folder_dirname}"`.gsub("\n","")
+#                 vm_folder = vm_folder_wsl_m
+#               else
+#                 vm_folder = File.expand_path("..", vm_folder)
+#               end
 
-              ui.info "The #{vm_name} VM (UUID: #{uuid}) is in the #{vm_folder} directory on the host."
-            end
-        end
+#               ui.info "The #{vm_name} VM (UUID: #{uuid}) is in the #{vm_folder} directory on the host."
+#             end
+#         end
 
-        size = $additional_disk_size
+#         size = $additional_disk_size
 
-        if size > 0
-            disk_file = vm_folder + "/#{vm_name}-disk-2.vmdk"
+#         if size > 0
+#             disk_file = vm_folder + "/#{vm_name}-disk-2.vmdk"
 
-            ui.info "Adding a disk of #{size} MB to the #{vm_name} VM. Disk file path: #{disk_file}."
-            if File.exist?(disk_file)
-            ui.info "A disk file already exists in #{disk_file}."
-            else
-            ui.info "Creating a new disk file in #{disk_file}."
-            driver.execute("createmedium", "disk", "--filename", disk_file, "--size", "#{size}", "--format", "VMDK")
-            ui.info "Attaching the #{disk_file} disk to the #{vm_name} VM."
-            driver.execute('storageattach', uuid, '--storagectl', "SATA Controller", '--port', "1", '--type', 'hdd', '--medium', disk_file)
-            end
-        else
-            ui.info "Not attaching any disk, because the disk size is set to #{size}"
-        end
-    end
+#             ui.info "Adding a disk of #{size} MB to the #{vm_name} VM. Disk file path: #{disk_file}."
+#             if File.exist?(disk_file)
+#             ui.info "A disk file already exists in #{disk_file}."
+#             else
+#             ui.info "Creating a new disk file in #{disk_file}."
+#             driver.execute("createmedium", "disk", "--filename", disk_file, "--size", "#{size}", "--format", "VMDK")
+#             ui.info "Attaching the #{disk_file} disk to the #{vm_name} VM."
+#             driver.execute('storageattach', uuid, '--storagectl', "SATA Controller", '--port', "1", '--type', 'hdd', '--medium', disk_file)
+#             end
+#         else
+#             ui.info "Not attaching any disk, because the disk size is set to #{size}"
+#         end
+#     end
 
-    original_call(env)
-  end
-end
+#     original_call(env)
+#   end
+# end
 
 # Let's extend the Destroy class
 # to delete the second disk
-class VagrantPlugins::ProviderVirtualBox::Action::Destroy
-  alias_method :original_call, :call
-  def call(env)
-    machine = env[:machine]
-    driver = machine.provider.driver
-    uuid = driver.instance_eval { @uuid }
-    ui = env[:ui]
+# class VagrantPlugins::ProviderVirtualBox::Action::Destroy
+#   alias_method :original_call, :call
+#   def call(env)
+#     machine = env[:machine]
+#     driver = machine.provider.driver
+#     uuid = driver.instance_eval { @uuid }
+#     ui = env[:ui]
 
-    vm_name = env[:machine].provider_config.name
+#     vm_name = env[:machine].provider_config.name
 
-    ui.info "Finding out in which directory the #{vm_name} VM (UUID: #{uuid}) was created on the host."
-    vm_folder = ""
-    vm_info = driver.execute("showvminfo", uuid, "--machinereadable")
+#     ui.info "Finding out in which directory the #{vm_name} VM (UUID: #{uuid}) was created on the host."
+#     vm_folder = ""
+#     vm_info = driver.execute("showvminfo", uuid, "--machinereadable")
+#     lines = vm_info.split("\n")
+#     lines.each do |line|
+#         if line.start_with?("CfgFile")
+#             vm_folder = line.split("=")[1].gsub('"','')
+#             if ENV.has_key?('WSL_DISTRO_NAME')
+#                 vm_folder_wsl = `wslpath -a -u "#{vm_folder}"`.gsub("\n","")
+#                 vm_folder_dirname = File.dirname(vm_folder_wsl)
+#                 vm_folder_wsl_m = `wslpath -a -m "#{vm_folder_dirname}"`.gsub("\n","")
+#                 vm_folder = vm_folder_wsl_m
+#             else
+#                 vm_folder = File.expand_path("..", vm_folder)
+#             end
+#             ui.info "The #{vm_name} VM (UUID: #{uuid}) is in the #{vm_folder} directory on the host."
+#         end
+#     end
+
+#     ui.info "Deleting all VMDK files in #{vm_folder}"
+#     Dir.glob("#{vm_folder}/*").select{ |file| /.vmdk/.match file }.each { |file| File.delete(file)}
+
+#     original_call(env)
+#   end
+# end
+
+def get_virtualbox_vm_cfg_directory(vm_uuid)
+    vm_info = `VBoxManage.exe showvminfo "#{vm_uuid}" --machinereadable`.chomp
     lines = vm_info.split("\n")
     lines.each do |line|
         if line.start_with?("CfgFile")
-            vm_folder = line.split("=")[1].gsub('"','')
+            puts line
+            vm_cfg_directory = line.split("=")[1].gsub('"','')
             if ENV.has_key?('WSL_DISTRO_NAME')
-                vm_folder_wsl = `wslpath -a -u "#{vm_folder}"`.gsub("\n","")
-                vm_folder_dirname = File.dirname(vm_folder_wsl)
-                vm_folder_wsl_m = `wslpath -a -m "#{vm_folder_dirname}"`.gsub("\n","")
-                vm_folder = vm_folder_wsl_m
+                vm_cfg_directory_wsl = `wslpath -a -u "#{vm_cfg_directory}"`.gsub("\n","")
+                vm_cfg_directory_dirname = File.dirname(vm_cfg_directory_wsl)
+                vm_cfg_directory_wsl_m = `wslpath -a -m "#{vm_cfg_directory_dirname}"`.gsub("\n","")
+                vm_cfg_directory = vm_cfg_directory_wsl_m
             else
-                vm_folder = File.expand_path("..", vm_folder)
+                vm_cfg_directory = File.expand_path("..", vm_cfg_directory)
             end
-            ui.info "The #{vm_name} VM (UUID: #{uuid}) is in the #{vm_folder} directory on the host."
+            return vm_cfg_directory
         end
     end
-
-    ui.info "Deleting all VMDK files in #{vm_folder}"
-    Dir.glob("#{vm_folder}/*").select{ |file| /.vmdk/.match file }.each { |file| File.delete(file)}
-
-    original_call(env)
-  end
 end
 
 Vagrant.configure("2") do |config|
@@ -499,6 +519,22 @@ Vagrant.configure("2") do |config|
           vb.customize ["modifyvm", :id, "--name", hostname]
           vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
           vb.customize ["modifyvm", :id, "--natdnshostresolver2", "on"]
+
+            # Run only on worker nodes
+            puts minions
+            if(minions.include? hostname)
+                host.trigger.after :provision do |trigger|
+                trigger.info = "Adding a new disk!"
+                trigger.ruby do |env,machine|
+                    vm_directory = get_virtualbox_vm_cfg_directory(machine.id)
+                    @ui.info "The #{hostname} VM (UUID: #{machine.id}) is in the #{vm_directory} directory on the host."
+                end
+            end
+            end
+
+
+
+
           vb.gui = info[:show_gui]
           vb.name = hostname
         end
