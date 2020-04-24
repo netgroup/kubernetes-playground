@@ -1,4 +1,5 @@
 ---
+dist: bionic
 env:
   global:
     - VAGRANT_VERSION="2.2.7"
@@ -36,7 +37,7 @@ jobs:
     - before_install: gem install travis --no-document
       install: echo "Overriding the default install, to avoid installing gems from the Gemfile"
       name: "Travis lint"
-      script: echo "n" | travis lint -x
+      script: travis lint --skip-completion-check -x
     - name: "Shellcheck"
       language: shell
       script: |
@@ -63,13 +64,11 @@ jobs:
         find -name "*.md" -not -path "*/node_modules/*" \
         | xargs markdownlint || exit 1
     - name: "Vagrant validate"
-      install:
-        - |
-          TEMP_DEB="$(mktemp)" \
-          && wget -O "$TEMP_DEB" \
-            "https://releases.hashicorp.com/vagrant/${VAGRANT_VERSION}/vagrant_${VAGRANT_VERSION}_x86_64.deb" \
-          && sudo dpkg -i "$TEMP_DEB"
-        - vagrant plugin install vagrant-hostsupdater
+      before_install:
+        - sudo scripts/linux/ci/install-libvirt.sh
+        - sudo scripts/linux/ci/install-vagrant.sh
+        - sudo scripts/linux/ci/install-vagrant-plugins.sh
+        - sudo chown -R travis:travis $HOME/.vagrant.d
       language: shell
       script: vagrant validate --ignore-provider
     - name: "shfmt"
@@ -98,21 +97,37 @@ jobs:
       script: |
         docker build --target dev -t kitesproject/net-test:latest-dev .
     - name: "Test Kitchen"
+      env:
+        - VAGRANT_DEFAULT_PROVIDER=libvirt
       stage: test_kitchen
-      before_script: kitchen diagnose
+      before_install:
+        - sudo scripts/linux/ci/install-libvirt.sh
+        - sudo scripts/linux/ci/install-vagrant.sh
+        - sudo scripts/linux/ci/install-vagrant-plugins.sh
+        # Fix premissions after installing vagrant plugins with sudo
+        - sudo chown -R travis:travis $HOME/.vagrant.d
+        # This doesn't have effect if you don't open a new shell
+        - sudo adduser "$(id -un)" libvirt
+        - sudo adduser "$(id -un)" kvm
+        - sudo lsmod | sort
+        - sudo modprobe -a kvm
+      before_script:
+        - kvm-ok
+        - kitchen diagnose
+        - kitchen list
+        # Trigger the generation of variable and inventory files
+        - vagrant status
       install:
         - gem install bundler
         - bundle install || exit 1
-        - |
-          TEMP_DEB="$(mktemp)" \
-          && wget -O "$TEMP_DEB" \
-            "https://releases.hashicorp.com/vagrant/${VAGRANT_VERSION}/vagrant_${VAGRANT_VERSION}_x86_64.deb" \
-          && sudo dpkg -i "$TEMP_DEB"
-        - vagrant plugin install vagrant-hostsupdater
       language: ruby
+      # Run with sudo because the libvirt socket is owned by the libvirt group,
+      # and the current user was added to the group in the current session,
+      # so the membership to that group is not yet in effect.
+      # Set the PATH to make the installed gems accessible.
       script: |
-        kitchen list \
-        || exit 1
+        sudo env "PATH=$PATH" kitchen test default-centos-7
+language: shell
 os: linux
 services:
   - docker
