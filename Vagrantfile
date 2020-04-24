@@ -102,7 +102,10 @@ end
 # Display the main current configuration parameters
 @ui.info "Welcome to Kubernetes playground!"
 @ui.info "Vagrant provider : " + settings["conf"]["vagrant_provider"]
+
+# XXX
 @ui.info "Networking plugin : " + settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"]
+
 if ENV['VAGRANT_LOG']=='debug' or ENV['VAGRANT_LOG']=='info'
   @ui.info "Active settings (from defaults.yaml and env.yaml):"
   @ui.info settings.to_yaml
@@ -115,6 +118,11 @@ if not allowed_cni_plugins.include? settings["ansible"]["group_vars"]["all"]["ku
   allowed_cni_plugins.each {|valid| @ui.error valid }
   exit(1)
 end
+
+# XXX Check that at least one and only one plugin is selected
+
+
+
 
 # Check that the provider is supported
 allowed_vagrant_providers=[ "virtualbox", "libvirt"]
