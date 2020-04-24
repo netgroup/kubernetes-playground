@@ -56,7 +56,7 @@
             Cluster IP CIDR: {{ cluster_ip_cidr }}
             Docker cgroup driver: {{ docker_cgroup_driver }}
             Inventory hostname: {{ inventory_hostname }}
-            IPv6 address: {{ ipv6_address }}
+            IPv6 address: {{ ipv6_address | default('NOT DEFINED') }}
             Kubeadm token: {{ kubeadm_token }}
             Kubernetes master 1 hostname: {{ kubernetes_master_1_hostname }}
             Kubernetes master 1 IP: {{ kubernetes_master_1_ip }}
