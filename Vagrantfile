@@ -112,17 +112,26 @@ if ENV['VAGRANT_LOG']=='debug' or ENV['VAGRANT_LOG']=='info'
 end
 
 # Check that an allowed networking plugin is provided
-allowed_cni_plugins=["weavenet","calico","flannel","no-cni-plugin"]
-if not allowed_cni_plugins.include? settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"]
-  @ui.error 'kubernetes_network_plugin is not valid in defaults.yaml or env.yaml, allowed values are:'
-  allowed_cni_plugins.each {|valid| @ui.error valid }
-  exit(1)
+# XXX Check that at least one and only one plugin is selected
+allowed_cni_plugins=["no-cni-plugin",
+                     "weavenet",
+                     "calico_vxlan_always",
+                     "calico_ipip_always",
+                     "flannel",
+                    ]
+plugin_counter = 0
+allowed_cni_plugins.each do |plugin| 
+  if settings["ansible"]["group_vars"]["all"]["kubernetes_net_plugin"][plugin]
+    plugin_counter = plugin_counter + 1
+    settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"] = plugin
+  end
+end
+if plugin_counter != 1
+  @ui.error 'only one kubernetes_net_plugin must be selected in defaults.yaml or env.yaml, current selecion is:'
+  @ui.error settings["ansible"]["group_vars"]["all"]["kubernetes_net_plugin"]
 end
 
-# XXX Check that at least one and only one plugin is selected
-
-
-
+@ui.info "Networking plugin : " + settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"]
 
 # Check that the provider is supported
 allowed_vagrant_providers=[ "virtualbox", "libvirt"]
