@@ -193,7 +193,7 @@ base_box_builder_mem = settings["conf"]["base_box_builder_mem"]
 master_mem = settings["conf"]["master_mem"]
 minion_mem = settings["conf"]["minion_mem"]
 
-$additional_disk_size = settings["conf"]["additional_disk_size"]
+additional_disk_size = settings["conf"]["additional_disk_size"]
 
 # path to the shared folder with the VMs
 vagrant_root = File.dirname(__FILE__)
@@ -473,7 +473,6 @@ def get_virtualbox_vm_cfg_directory(vm_uuid)
     lines = vm_info.split("\n")
     lines.each do |line|
         if line.start_with?("CfgFile")
-            puts line
             vm_cfg_directory = line.split("=")[1].gsub('"','')
             if ENV.has_key?('WSL_DISTRO_NAME')
                 vm_cfg_directory_wsl = `wslpath -a -u "#{vm_cfg_directory}"`.gsub("\n","")
@@ -519,19 +518,53 @@ Vagrant.configure("2") do |config|
           vb.customize ["modifyvm", :id, "--natdnshostresolver2", "on"]
 
             # Run only on worker nodes
-            puts minions
-            if(minions.include? hostname)
-                host.trigger.after :provision do |trigger|
-                trigger.info = "Adding a new disk!"
-                trigger.ruby do |env,machine|
-                    vm_directory = get_virtualbox_vm_cfg_directory(machine.id)
-                    @ui.info "The #{hostname} VM (UUID: #{machine.id}) is in the #{vm_directory} directory on the host."
+            if(minions.has_key? hostname)
+                host.trigger.before :up do |trigger|
+                    trigger.info = "Adding a new disk..."
+                    trigger.ruby do |env,machine|
+                        vm_directory = get_virtualbox_vm_cfg_directory(machine.id)
+                        @ui.info "The #{hostname} VM (UUID: #{machine.id}) is in the #{vm_directory} directory on the host."
+
+                        if additional_disk_size > 0
+                            disk_file = vm_directory + "/#{hostname}-disk-2.vmdk"
+                            @ui.info "Adding a disk of #{additional_disk_size} MB to the #{hostname} VM. Disk file path: #{disk_file}."
+                            if File.exist?(disk_file)
+                                @ui.info "A disk file already exists in #{disk_file}."
+                            else
+                                @ui.info "Creating a new disk file in #{disk_file}."
+                                `VBoxManage.exe createmedium disk --filename "#{disk_file}" --size "#{additional_disk_size}" --format VMDK"`.chomp
+                                @ui.info "Attaching the #{disk_file} disk to the #{hostname} VM."
+                                `VBoxManage.exe storageattach #{machine.id} --storagectl "SATA Controller" --port 1 --type hdd --medium "#{disk_file}"`.chomp
+                            end
+                        else
+                            ui.info "Not attaching any disk, because the disk size is set to #{additional_disk_size}"
+                        end
+                    end
                 end
+
+                # host.trigger.after :destroy do |trigger|
+                #     trigger.info = "Deleting all the disk files..."
+                #     trigger.ruby do |env,machine|
+                #         vm_directory = get_virtualbox_vm_cfg_directory(machine.id)
+                #         @ui.info "The #{hostname} VM (UUID: #{machine.id}) is in the #{vm_directory} directory on the host."
+
+                #         if additional_disk_size > 0
+                #             disk_file = vm_folder + "/#{vm_name}-disk-2.vmdk"
+                #             @ui.info "Adding a disk of #{additional_disk_size} MB to the #{vm_name} VM. Disk file path: #{disk_file}."
+                #             if File.exist?(disk_file)
+                #                 @ui.info "A disk file already exists in #{disk_file}."
+                #             else
+                #                 @ui.info "Creating a new disk file in #{disk_file}."
+                #                 `VBoxManage.exe createmedium disk --filename "#{disk_file}" --size "#{additional_disk_size}" --format VMDK"`.chomp
+                #                 @ui.info "Attaching the #{disk_file} disk to the #{vm_name} VM."
+                #                 `VBoxManage.exe storageattach #{machine.id} --storagectl SATA Controller --port 1 --type hdd --medium "#{disk_file}"`.chomp
+                #             end
+                #         else
+                #             ui.info "Not attaching any disk, because the disk size is set to #{additional_disk_size}"
+                #         end
+                #     end
+                # end
             end
-            end
-
-
-
 
           vb.gui = info[:show_gui]
           vb.name = hostname
