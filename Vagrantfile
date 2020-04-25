@@ -2,8 +2,6 @@ require 'yaml'
 require 'ipaddr'
 
 @ui = Vagrant::UI::Colored.new
-$is_windows = Vagrant::Util::Platform.windows?
-$is_wsl = Vagrant::Util::Platform.wsl?
 
 def log_info_or_debug(message)
   if ENV['VAGRANT_LOG']=='debug' or ENV['VAGRANT_LOG']=='info'
@@ -379,27 +377,22 @@ class VagrantPlugins::ProviderVirtualBox::Action::Network
 end
 
 def get_virtualbox_default_machine_directory()
-    if ($is_wsl || $is_windows)
-        vboxmanage_executable = "VBoxManage.exe"
-    else
-        vboxmanage_executable = "VBoxManage"
+    log_info_or_debug "Getting the default Virtualbox machine directory..."
+
+    # Create an instance of the Virtualbox driver, so we can reuse Vagrant's logic
+    virtualbox_driver = VagrantPlugins::ProviderVirtualBox::Driver::Version_6_1.new("")
+    virtualbox_default_machine_directory = virtualbox_driver.read_machine_folder
+
+    # If we're in WSL, the path must me adapted to be something meaningful in WSL,
+    # because VBoxManage returns a Windows path (it runs in Windows, so it's right!).
+    # Then we convert it to a path in "ruby format" (which is always with /, regardless of the platform)
+    if Vagrant::Util::Platform.wsl?
+        virtualbox_default_machine_directory_wsl = `wslpath -a -u "#{virtualbox_default_machine_directory}"`.gsub("\n","")
+        virtualbox_default_machine_directory_wsl_m = `wslpath -a -m "#{virtualbox_default_machine_directory_wsl}"`.gsub("\n","")
+        virtualbox_default_machine_directory = virtualbox_default_machine_directory_wsl_m
     end
-    vm_info = `#{vboxmanage_executable} list systemproperties`.chomp
-    lines = vm_info.split("\n")
-    lines.each do |line|
-        if line.start_with?("Default machine folder")
-            virtualbox_default_machine_directory = line.partition(':').last.gsub('"','').chomp.strip
-            if ENV.has_key?('WSL_DISTRO_NAME')
-                virtualbox_default_machine_directory_wsl = `wslpath -a -u "#{virtualbox_default_machine_directory}"`.gsub("\n","")
-                virtualbox_default_machine_directory_dirname = File.dirname(virtualbox_default_machine_directory_wsl)
-                virtualbox_default_machine_directory_wsl_m = `wslpath -a -m "#{virtualbox_default_machine_directory_wsl}"`.gsub("\n","")
-                virtualbox_default_machine_directory = virtualbox_default_machine_directory_wsl_m
-            end
-            log_info_or_debug "virtualbox_default_machine_directory: #{virtualbox_default_machine_directory}"
-            return virtualbox_default_machine_directory
-        end
-    end
-    return nil
+    log_info_or_debug "The default Virtualbox machine directory is #{virtualbox_default_machine_directory}"
+    return virtualbox_default_machine_directory
 end
 
 Vagrant.configure("2") do |config|
@@ -425,14 +418,11 @@ Vagrant.configure("2") do |config|
 
       if(vagrant_provider == 'virtualbox')
         host.vm.provider :virtualbox do |vb|
-          log_info_or_debug "Getting the default Virtualbox machine directory..."
           virtualbox_default_machine_directory = get_virtualbox_default_machine_directory()
-          log_info_or_debug "The default Virtualbox machine directory is #{virtualbox_default_machine_directory}"
 
           log_info_or_debug "Getting the directory where the #{hostname} VM files are..."
           vm_directory = File.join(virtualbox_default_machine_directory, hostname)
           log_info_or_debug "The #{hostname} VM is in the #{vm_directory} directory on the host."
-          disk_file = vm_directory + "/#{hostname}-disk-2.vmdk"
 
           vb.customize ["modifyvm", :id, "--cpus", info[:cpus]]
           vb.customize ["modifyvm", :id, "--hwvirtex", "on"]
@@ -441,6 +431,7 @@ Vagrant.configure("2") do |config|
           vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
           vb.customize ["modifyvm", :id, "--natdnshostresolver2", "on"]
           if (additional_disk_size > 0 && (minions.has_key? hostname))
+            disk_file = vm_directory + "/#{hostname}-disk-2.vmdk"
             log_info_or_debug "Adding a disk of #{additional_disk_size} MB to the #{hostname} VM. Disk file path: #{disk_file}."
             if File.exist?(disk_file)
               log_info_or_debug "A disk file already exists in #{disk_file}."
