@@ -2,6 +2,8 @@ require 'yaml'
 require 'ipaddr'
 
 @ui = Vagrant::UI::Colored.new
+$is_windows = Vagrant::Util::Platform.windows?
+$is_wsl = Vagrant::Util::Platform.wsl?
 
 def log_info_or_debug(message)
   if ENV['VAGRANT_LOG']=='debug' or ENV['VAGRANT_LOG']=='info'
@@ -377,7 +379,12 @@ class VagrantPlugins::ProviderVirtualBox::Action::Network
 end
 
 def get_virtualbox_default_machine_directory()
-    vm_info = `VBoxManage.exe list systemproperties`.chomp
+    if ($is_wsl || $is_windows)
+        vboxmanage_executable = "VBoxManage.exe"
+    else
+        vboxmanage_executable = "vboxVBoxManagemanage"
+    end
+    vm_info = `#{vboxmanage_executable} list systemproperties`.chomp
     lines = vm_info.split("\n")
     lines.each do |line|
         if line.start_with?("Default machine folder")
