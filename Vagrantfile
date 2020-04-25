@@ -382,7 +382,7 @@ def get_virtualbox_default_machine_directory()
     if ($is_wsl || $is_windows)
         vboxmanage_executable = "VBoxManage.exe"
     else
-        vboxmanage_executable = "vboxVBoxManagemanage"
+        vboxmanage_executable = "VBoxManage"
     end
     vm_info = `#{vboxmanage_executable} list systemproperties`.chomp
     lines = vm_info.split("\n")
