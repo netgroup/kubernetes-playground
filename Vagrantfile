@@ -387,8 +387,6 @@ def get_virtualbox_default_machine_directory()
                 virtualbox_default_machine_directory_dirname = File.dirname(virtualbox_default_machine_directory_wsl)
                 virtualbox_default_machine_directory_wsl_m = `wslpath -a -m "#{virtualbox_default_machine_directory_wsl}"`.gsub("\n","")
                 virtualbox_default_machine_directory = virtualbox_default_machine_directory_wsl_m
-            else
-                virtualbox_default_machine_directory = File.expand_path("..", virtualbox_default_machine_directory)
             end
             log_info_or_debug "virtualbox_default_machine_directory: #{virtualbox_default_machine_directory}"
             return virtualbox_default_machine_directory
