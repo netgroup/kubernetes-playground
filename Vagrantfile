@@ -464,9 +464,9 @@ Vagrant.configure("2") do |config|
           libvirt.default_prefix = ''
           libvirt.management_network_address = libvirt_management_network_address
 
-          if($additional_disk_size > 0 && (!hostname.include? $base_box_builder_vm_name))
+          if(additional_disk_size > 0 && (!hostname.include? $base_box_builder_vm_name))
               libvirt.storage :file,
-                :size => $additional_disk_size,
+                :size => additional_disk_size,
                 :path => hostname + '_sdb.img',
                 :device => 'sdb'
           end
