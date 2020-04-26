@@ -33,3 +33,9 @@ echo "Restarting NetworkManager"
 systemctl restart network
 
 echo "Getting all the IP addresses: $(ip -o addr show scope global)"
+
+modprobe -- ip_vs
+modprobe -- ip_vs_rr
+modprobe -- ip_vs_wrr
+modprobe -- ip_vs_sh
+

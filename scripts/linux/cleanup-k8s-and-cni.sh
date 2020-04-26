@@ -54,5 +54,7 @@ iptables -t mangle -F
 iptables -F
 iptables -X
 
+ipvsadm --clear
+
 echo "Rebooting the node"
 reboot

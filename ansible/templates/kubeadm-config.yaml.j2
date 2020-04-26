@@ -14,16 +14,16 @@ kind: ClusterConfiguration
 apiServer:
   extraArgs:
     service-node-port-range: "80-32767"
-networking:
-  podSubnet: "{{cluster_ip_cidr}}"
-  serviceSubnet: "{{service_ip_cidr}}"
+#networking:
+  #podSubnet: "{{cluster_ip_cidr}}"
+  #serviceSubnet: "{{service_ip_cidr}}"
 controllerManager:
-  feature-gates:
-    IPv6DualStack: true
-  cluster-cidr: "{{cluster_ip_cidr}}"
-  #ClusterCIDR: "{{cluster_ip_cidr}}"
-  service-cluster-ip-range: "{{service_ip_cidr}}"
-  #ServiceCIDR: "{{service_ip_cidr}}"
+  extraArgs:
+    feature-gates: "IPv6DualStack=true"
+    #cluster-cidr: "{{cluster_ip_cidr}}"
+    cluster-cidr: "10.244.0.0/16,fc00::/32"
+    #service-cluster-ip-range: "{{service_ip_cidr}}"
+    service-cluster-ip-range: "10.96.0.0/12,fc00:aa::/32"
 ---
 apiVersion: kubelet.config.k8s.io/v1beta1
 kind: KubeletConfiguration
@@ -34,5 +34,5 @@ apiVersion: kubeproxy.config.k8s.io/v1alpha1
 kind: KubeProxyConfiguration
 FeatureGates:
   IPv6DualStack: true
-ClusterCIDR: "{{cluster_ip_cidr}}"
+ClusterCIDR: "10.244.0.0/16,fc00::/32"
 Mode: ipvs

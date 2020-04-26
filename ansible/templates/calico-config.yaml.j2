@@ -622,15 +622,18 @@ spec:
             # 192.168.0.0/16
             - name: CALICO_IPV4POOL_CIDR
               value: "{{cluster_ip_cidr}}"
+            - name: IP6
+              value: "autodetect"
+            - name: CALICO_IPV6POOL_CIDR
+              value: "fc00::/32"
+            - name: FELIX_IPV6SUPPORT
+              value: "true"
             # Disable file logging so `kubectl logs` works.
             - name: CALICO_DISABLE_FILE_LOGGING
               value: "true"
             # Set Felix endpoint to host default action to ACCEPT.
             - name: FELIX_DEFAULTENDPOINTTOHOSTACTION
               value: "ACCEPT"
-            # Disable IPv6 on Kubernetes.
-            - name: FELIX_IPV6SUPPORT
-              value: "false"
             # Set Felix logging to "info"
             - name: FELIX_LOGSEVERITYSCREEN
               value: "info"
