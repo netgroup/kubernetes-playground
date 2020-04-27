@@ -208,6 +208,11 @@ You can also run the same test suite locally. To bootstrap a development
 environment, you need to install the runtime dependencies listed above, plus the
 development environment dependencies.
 
+### Travis CI environment customization
+
+The `scripts/linux/ci/generate-env-for-travis.sh` script creates and populates
+an `env.yaml` file for Travis CI builds.
+
 ### Debugging ansible operations
 
 Ansible output is saved in the `/vagrant/ansible_output.txt`.
