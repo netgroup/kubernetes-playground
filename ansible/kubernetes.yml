@@ -78,7 +78,7 @@
         {{ ansible_ssh_connection_ip_v4_address }} \
         {{ subnet_mask_ipv6 }}
       tags:
-        - quick_setup        
+        - quick_setup
       when: ipv6_address is defined
     - name: Remove FQDN from 127.0.0.1
       become: true
@@ -196,10 +196,6 @@
         line: "source <(kubectl completion bash)"
         owner: vagrant
       when: ansible_ssh_connection_ip_v4_address == kubernetes_master_1_ip
-    - name: Exit
-      any_errors_fatal: true
-      fail: 
-        msg: Exit, goodby!
     - name: Initialize Kubernetes cluster (workers)
       become: true
       shell: |
