@@ -19,20 +19,21 @@ apiServer:
   #serviceSubnet: "{{service_ip_cidr}}"
 controllerManager:
   extraArgs:
-    feature-gates: "IPv6DualStack=true"
-    #cluster-cidr: "{{cluster_ip_cidr}}"
-    cluster-cidr: "10.244.0.0/16,fc00::/32"
-    #service-cluster-ip-range: "{{service_ip_cidr}}"
-    service-cluster-ip-range: "10.96.0.0/12,fc00:aa::/32"
+    feature-gates: "IPv6DualStack=false"
+    cluster-cidr: "{{cluster_ip_cidr}}"
+    #cluster-cidr: "10.244.0.0/16,fc00::/32"
+    service-cluster-ip-range: "{{service_ip_cidr}}"
+    #service-cluster-ip-range: "10.96.0.0/12,fc00:aa::/32"
 ---
 apiVersion: kubelet.config.k8s.io/v1beta1
 kind: KubeletConfiguration
 featureGates:
-  IPv6DualStack: true
+  IPv6DualStack: false
 ---
 apiVersion: kubeproxy.config.k8s.io/v1alpha1
 kind: KubeProxyConfiguration
 featureGates:
-  IPv6DualStack: true
-clusterCIDR: "10.244.0.0/16,fc00::/32"
+  IPv6DualStack: false
+#clusterCIDR: "10.244.0.0/16,fc00::/32"
+clusterCIDR: "{{cluster_ip_cidr}}"
 mode: ipvs

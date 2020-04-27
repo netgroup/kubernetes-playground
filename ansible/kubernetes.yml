@@ -16,6 +16,7 @@
           {{ hostvars[inventory_hostname]['ansible_env'].SSH_CONNECTION.split(' ')[2] }}
       tags:
         - quick_setup
+        - before-config-master
     - name: Get the interface name for Ansible SSH connection interface
       become: true
       changed_when: false
@@ -25,22 +26,28 @@
       register: ansible_ssh_connection_interface_name_result
       tags:
         - quick_setup
+        - before-config-master
     - name: Look up docker cgroup driver
       shell: "set -o pipefail && docker info | grep 'Cgroup Driver' | awk -F': ' '{ print $2; }'"
       register: docker_cgroup_driver_result
       changed_when: false
       tags:
         - quick_setup
+        - before-config-master
     - name: Set facts
       set_fact:
         ansible_ssh_connection_interface_name: "{{ ansible_ssh_connection_interface_name_result.stdout }}"
         docker_cgroup_driver: "{{ docker_cgroup_driver_result.stdout }}"
       tags:
         - quick_setup
+        - before-config-master
     - name: Display all variables/facts known for {{ inventory_hostname }}
       debug:
         var: hostvars[inventory_hostname]
         verbosity: 2
+      tags:
+        - quick_setup
+        - before-config-master
     - name: Print debug information
       changed_when: false
       vars:
@@ -69,6 +76,7 @@
         msg: "{{ msg.split('\n') }}"
       tags:
         - quick_setup
+        - before-config-master
     - name: Initialize an IPv6 interface
       become: true
       shell: |
@@ -79,6 +87,7 @@
         {{ subnet_mask_ipv6 }}
       tags:
         - quick_setup
+        - before-config-master
       when: ipv6_address is defined
     - name: Remove FQDN from 127.0.0.1
       become: true
@@ -134,6 +143,7 @@
       when: ansible_ssh_connection_ip_v4_address == kubernetes_master_1_ip
       tags:
         - quick_setup
+        - before-config-master
     - name: Generate weavenet configuration file
       become: true
       template:
@@ -146,6 +156,7 @@
       when: ansible_ssh_connection_ip_v4_address == kubernetes_master_1_ip
       tags:
         - quick_setup
+        - before-config-master
     - name: Generate Calico configuration file
       become: true
       template:
@@ -158,12 +169,14 @@
       when: ansible_ssh_connection_ip_v4_address == kubernetes_master_1_ip
       tags:
         - quick_setup
+        - before-config-master
     - name: Define if_name_for_flannel
       set_fact:
         if_name_for_flannel: "{{ ansible_ssh_connection_interface_name }}"
       when: ansible_ssh_connection_ip_v4_address == kubernetes_master_1_ip
       tags:
         - quick_setup
+        - before-config-master
     - name: Generate Flannel configuration file
       become: true
       template:
@@ -177,6 +190,7 @@
       tags:
         - initialize_kubernetes_cluster
         - quick_setup
+        - before-config-master
     - name: Initialize Kubernetes cluster (master)
       become: true
       shell: |
