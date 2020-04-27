@@ -3,6 +3,12 @@ require 'ipaddr'
 
 @ui = Vagrant::UI::Colored.new
 
+ERR_NET_PLUGIN_CONF = 1
+ERR_PROVIDER_CONF = 2
+ERR_LIBVIRT_MGT_NET_CONF = 3
+ERR_CALICO_ENV_VAR_CONF = 4
+ERR_CALICO_ENV_VAR_VALUE_CONF = 5
+
 def log_info_or_debug(message)
   if ENV['VAGRANT_LOG']=='debug' or ENV['VAGRANT_LOG']=='info'
     @ui.info message
@@ -92,33 +98,60 @@ settings_merger = proc {
     end
 }
 
-class AllowedValues
-   def initialize(arr,error_message)
-      @arr = arr
-      @error_message = error_message
-   end
-   def printArray()
-      @arr.each do |value|
-        puts value
-      end
-   end
-   def read_config_values(dictionary)
-      counter = 0
-      return_value = ""
-      @arr.each do |item| 
-        if dictionary[item]
-          counter = counter + 1
-          return_value = item
-          return return_value
-        end
-      end
-      if counter != 1
-        @ui.error @error_message
-      end
-   end
-   def printError()
-      puts @error_message
-   end
+def check_config_choices_try1(choice_array,selected_dict)
+  counter=0
+  error = false
+  return_value = ""
+  choice_array.each do |choice|
+    if selected_dict[choice]
+      counter = counter + 1
+      return_value = choice
+    end
+  end
+  if counter != 1
+    error = true
+  end
+  return [error, return_value]
+end
+
+def check_config_choices_try2(choice_array,selected_dict, error)
+  counter=0
+  return_value = ""
+  choice_array.each do |choice|
+    if selected_dict[choice]
+      counter = counter + 1
+      return_value = choice
+    end
+  end
+  if counter == 1
+    return return_value
+  else
+    @ui.error 'select exactly one option in defaults.yaml/env.yaml, allowed options:'
+    choice_array.each {|valid| @ui.error valid }
+    @ui.error 'current selection: ' + selected_dict.to_s
+    exit(error)
+  end
+end
+
+def check_config_choices(selected_dict,target_key,option_array,error)
+  counter=0
+  return_value = ""
+  option_array.each do |choice|
+    if selected_dict[target_key+"_options"][choice]
+       @ui.info choice
+      counter = counter + 1
+      return_value = choice
+    end
+  end
+  if counter == 1
+    selected_dict[target_key]=return_value
+    return return_value
+  else
+    @ui.error 'select exactly one option in defaults.yaml/env.yaml, allowed options:'
+    option_array.each {|valid| @ui.error valid }
+    @ui.error 'current selection: ' + selected_dict.to_s
+    exit(error)
+  end
 end
 
 # Load default settings
@@ -136,25 +169,30 @@ end
 # Display the main current configuration parameters
 @ui.info "Welcome to Kubernetes playground!"
 @ui.info "Vagrant provider: " + settings["conf"]["vagrant_provider"]
-@ui.info "Networking plugin: " + settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"]
 log_info_or_debug "Active settings (from defaults.yaml and env.yaml): #{settings.to_yaml}"
 
-# Check that an allowed networking plugin is provided
 # Check that at least one and only one plugin is selected
-# If Calico, check that at least one and only one env_var and env_var_value is selected
-cni_plugins = AllowedValues.new(["no-cni-plugin", "weavenet", "calico", "flannel"],"First error")
-calico_env_var = AllowedValues.new(["calico_ipv4pool_ipip", "calico_ipv4pool_vxlan"], "Second error")
-calico_env_var_value = AllowedValues.new(["always","crosssubnet","never"], "Third error")
-plugin = cni_plugins.read_config_values(settings["ansible"]["group_vars"]["all"]["kubernetes_net_plugin"])
-settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"] = plugin
+#settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"] =
+check_and_select_conf_options(settings["ansible"]["group_vars"]["all"],
+                              "kubernetes_network_plugin",
+                              ["no-cni-plugin", "weavenet", "calico", "flannel"],
+                              ERR_NET_PLUGIN_CONF)
+
 @ui.info "Networking plugin : " + settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"]
-if plugin == "calico"
-  env_var = calico_env_var.read_config_values(settings["ansible"]["group_vars"]["all"]["calico_configuration"]["env_var"])
-  settings["ansible"]["group_vars"]["all"]["calico_configuration"]["kubernetes_calico_env_var"] = env_var.upcase
-  env_var_value = calico_env_var_value.read_config_values(settings["ansible"]["group_vars"]["all"]["calico_configuration"]["env_var_value"])
-  settings["ansible"]["group_vars"]["all"]["calico_configuration"]["kubernetes_calico_env_var_value"] = env_var_value
-  @ui.info "Environment variable for Calico : " + settings["ansible"]["group_vars"]["all"]["calico_configuration"]["kubernetes_calico_env_var"]
-  @ui.info "Value for Calico environment variable : " + settings["ansible"]["group_vars"]["all"]["calico_configuration"]["kubernetes_calico_env_var_value"]
+# if calico, check that at least one and only one env_var and env_var_value is selected
+if settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"] == "calico"
+  settings["ansible"]["group_vars"]["all"]["calico_configuration"]["calico_env_var"] =
+    check_config_choices_try2(["calico_ipv4pool_ipip", "calico_ipv4pool_vxlan"],
+                          settings["ansible"]["group_vars"]["all"]["calico_configuration"]["calico_env_var_options"],
+                          ERR_CALICO_ENV_VAR_CONF)
+
+  settings["ansible"]["group_vars"]["all"]["calico_configuration"]["calico_env_var_value"] =
+    check_config_choices_try2(["always","crosssubnet","never"],
+                          settings["ansible"]["group_vars"]["all"]["calico_configuration"]["calico_env_var_value_options"],
+                          ERR_CALICO_ENV_VAR_VALUE_CONF)
+ 
+#  @ui.info "Calico env variable: " + settings["ansible"]["group_vars"]["all"]["calico_configuration"]["calico_env_var"]
+#  @ui.info "Calico env variable value: " + settings["ansible"]["group_vars"]["all"]["calico_configuration"]["calico_env_var_value"]
 end
 
 # Check that the provider is supported
