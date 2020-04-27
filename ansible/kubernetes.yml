@@ -178,7 +178,6 @@
         - initialize_kubernetes_cluster
         - quick_setup
     - name: Initialize Kubernetes cluster (master)
-      any_errors_fatal: true
       become: true
       shell: |
         set -e ; \
