@@ -3,6 +3,12 @@ require 'ipaddr'
 
 @ui = Vagrant::UI::Colored.new
 
+def log_info_or_debug(message)
+  if ENV['VAGRANT_LOG']=='debug' or ENV['VAGRANT_LOG']=='info'
+    @ui.info message
+  end
+end
+
 # Load the required Vagrant version from the CI configuration.
 # This forces us to be consistent with the CI environment.
 
@@ -71,9 +77,8 @@ end
 required_vagrant_version = travis_global_environment_variables['VAGRANT_VERSION']
 vagrant_version_constraint = ">= #{required_vagrant_version}"
 Vagrant.require_version vagrant_version_constraint
-if ENV['VAGRANT_LOG']=='debug' or ENV['VAGRANT_LOG']=='info'
-  @ui.info "The current Vagrant version satisfies the constraints: #{vagrant_version_constraint}"
-end
+log_info_or_debug "The current Vagrant version satisfies the constraints: #{vagrant_version_constraint}"
+
 
 # Proc settings merger
 settings_merger = proc {
@@ -103,10 +108,7 @@ end
 @ui.info "Welcome to Kubernetes playground!"
 @ui.info "Vagrant provider: " + settings["conf"]["vagrant_provider"]
 @ui.info "Networking plugin: " + settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"]
-if ENV['VAGRANT_LOG']=='debug' or ENV['VAGRANT_LOG']=='info'
-  @ui.info "Active settings (from defaults.yaml and env.yaml):"
-  @ui.info settings.to_yaml
-end
+log_info_or_debug "Active settings (from defaults.yaml and env.yaml): #{settings.to_yaml}"
 
 # Check that an allowed networking plugin is provided
 allowed_cni_plugins=["weavenet","calico","flannel","no-cni-plugin"]
@@ -193,7 +195,7 @@ base_box_builder_mem = settings["conf"]["base_box_builder_mem"]
 master_mem = settings["conf"]["master_mem"]
 minion_mem = settings["conf"]["minion_mem"]
 
-$additional_disk_size = settings["conf"]["additional_disk_size"]
+additional_disk_size = settings["conf"]["additional_disk_size"]
 
 # path to the shared folder with the VMs
 vagrant_root = File.dirname(__FILE__)
@@ -374,83 +376,23 @@ class VagrantPlugins::ProviderVirtualBox::Action::Network
   end
 end
 
-# Let's extend the SetName class
-# to attach a second disk
-class VagrantPlugins::ProviderVirtualBox::Action::SetName
-  alias_method :original_call, :call
-  def call(env)
-    machine = env[:machine]
-    driver = machine.provider.driver
-    uuid = driver.instance_eval { @uuid }
-    ui = env[:ui]
+def get_virtualbox_default_machine_directory()
+    log_info_or_debug "Getting the default Virtualbox machine directory..."
 
-    vm_name = env[:machine].provider_config.name
+    # Create an instance of the Virtualbox driver, so we can reuse Vagrant's logic
+    virtualbox_driver = VagrantPlugins::ProviderVirtualBox::Driver::Version_6_1.new("")
+    virtualbox_default_machine_directory = virtualbox_driver.read_machine_folder
 
-    unless(vm_name.include? $base_box_builder_vm_name)
-        ui.info "Finding out in which directory the #{vm_name} VM was created on the host."
-        vm_folder = ""
-        vm_info = driver.execute("showvminfo", uuid, "--machinereadable")
-        lines = vm_info.split("\n")
-        lines.each do |line|
-            if line.start_with?("CfgFile")
-                vm_folder = line.split("=")[1].gsub('"','')
-                vm_folder = File.expand_path("..", vm_folder)
-                ui.info "The #{vm_name} VM is in the #{vm_folder} directory on the host."
-            end
-        end
-
-        size = $additional_disk_size
-
-        if size > 0
-            disk_file = vm_folder + "/#{vm_name}-disk-2.vmdk"
-
-            ui.info "Adding a disk of #{size} MB to the #{vm_name} VM. Disk file path: #{disk_file}."
-            if File.exist?(disk_file)
-            ui.info "A disk file already exists in #{disk_file}."
-            else
-            ui.info "Creating a new disk file in #{disk_file}."
-            driver.execute("createmedium", "disk", "--filename", disk_file, "--size", "#{size}", "--format", "VMDK")
-            ui.info "Attaching the #{disk_file} disk to the #{vm_name} VM."
-            driver.execute('storageattach', uuid, '--storagectl', "SATA Controller", '--port', "1", '--type', 'hdd', '--medium', disk_file)
-            end
-        else
-            ui.info "Not attaching any disk, because the disk size is set to #{size}"
-        end
+    # If we're in WSL, the path must me adapted to be something meaningful in WSL,
+    # because VBoxManage returns a Windows path (it runs in Windows, so it's right!).
+    # Then we convert it to a path in "ruby format" (which is always with /, regardless of the platform)
+    if Vagrant::Util::Platform.wsl?
+        virtualbox_default_machine_directory_wsl = `wslpath -a -u "#{virtualbox_default_machine_directory}"`.gsub("\n","")
+        virtualbox_default_machine_directory_wsl_m = `wslpath -a -m "#{virtualbox_default_machine_directory_wsl}"`.gsub("\n","")
+        virtualbox_default_machine_directory = virtualbox_default_machine_directory_wsl_m
     end
-
-    original_call(env)
-  end
-end
-
-# Let's extend the Destroy class
-# to delete the second disk
-class VagrantPlugins::ProviderVirtualBox::Action::Destroy
-  alias_method :original_call, :call
-  def call(env)
-    machine = env[:machine]
-    driver = machine.provider.driver
-    uuid = driver.instance_eval { @uuid }
-    ui = env[:ui]
-
-    vm_name = env[:machine].provider_config.name
-
-    ui.info "Finding out in which directory the #{vm_name} VM was created on the host."
-    vm_folder = ""
-    vm_info = driver.execute("showvminfo", uuid, "--machinereadable")
-    lines = vm_info.split("\n")
-    lines.each do |line|
-        if line.start_with?("CfgFile")
-            vm_folder = line.split("=")[1].gsub('"','')
-            vm_folder = File.expand_path("..", vm_folder)
-            ui.info "The #{vm_name} VM is in the #{vm_folder} directory on the host."
-        end
-    end
-
-    ui.info "Deleting all VMDK files in #{vm_folder}"
-    Dir.glob("#{vm_folder}/*").select{ |file| /.vmdk/.match file }.each { |file| File.delete(file)}
-
-    original_call(env)
-  end
+    log_info_or_debug "The default Virtualbox machine directory is #{virtualbox_default_machine_directory}"
+    return virtualbox_default_machine_directory
 end
 
 Vagrant.configure("2") do |config|
@@ -476,12 +418,41 @@ Vagrant.configure("2") do |config|
 
       if(vagrant_provider == 'virtualbox')
         host.vm.provider :virtualbox do |vb|
+          virtualbox_default_machine_directory = get_virtualbox_default_machine_directory()
+
+          log_info_or_debug "Getting the directory where the #{hostname} VM files are..."
+          vm_directory = File.join(virtualbox_default_machine_directory, hostname)
+          log_info_or_debug "The #{hostname} VM is in the #{vm_directory} directory on the host."
+
           vb.customize ["modifyvm", :id, "--cpus", info[:cpus]]
           vb.customize ["modifyvm", :id, "--hwvirtex", "on"]
           vb.customize ["modifyvm", :id, "--memory", info[:mem]]
           vb.customize ["modifyvm", :id, "--name", hostname]
           vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
           vb.customize ["modifyvm", :id, "--natdnshostresolver2", "on"]
+          if (additional_disk_size > 0 && (minions.has_key? hostname))
+            disk_file = vm_directory + "/#{hostname}-disk-2.vmdk"
+            log_info_or_debug "Adding a disk of #{additional_disk_size} MB to the #{hostname} VM. Disk file path: #{disk_file}."
+            if File.exist?(disk_file)
+              log_info_or_debug "A disk file already exists in #{disk_file}."
+            else
+              log_info_or_debug "Creating a new disk file in #{disk_file}."
+              vb.customize ["createmedium", "disk", "--filename", disk_file, "--size", additional_disk_size, "--format", "VMDK"]
+              log_info_or_debug "Attaching the #{disk_file} disk to the #{hostname} VM."
+              vb.customize ["storageattach", hostname, "--storagectl", "SATA Controller", "--port", "1", "--type", "hdd", "--medium", disk_file]
+            end
+          else
+            log_info_or_debug "Not attaching any disk, because the disk size is set to #{additional_disk_size}"
+          end
+
+          host.trigger.after :destroy do |trigger|
+            trigger.name = "Delete VMDK files in #{vm_directory}"
+            trigger.ruby do |env,machine|
+              log_info_or_debug "Deleting all VMDK files in #{vm_directory}"
+              Dir.glob("#{vm_directory}/*").select{ |file| /.vmdk/.match file }.each { |file| File.delete(file)}
+            end
+          end
+
           vb.gui = info[:show_gui]
           vb.name = hostname
         end
@@ -493,9 +464,9 @@ Vagrant.configure("2") do |config|
           libvirt.default_prefix = ''
           libvirt.management_network_address = libvirt_management_network_address
 
-          if($additional_disk_size > 0 && (!hostname.include? $base_box_builder_vm_name))
+          if(additional_disk_size > 0 && (!hostname.include? $base_box_builder_vm_name))
               libvirt.storage :file,
-                :size => $additional_disk_size,
+                :size => additional_disk_size,
                 :path => hostname + '_sdb.img',
                 :device => 'sdb'
           end
