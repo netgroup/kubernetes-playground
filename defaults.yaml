@@ -76,11 +76,9 @@ ansible:
       # Allowed values are: weavenet, calico, flannel, and no-cni-plugin.
       # If you choose no-cni-plugin, provisioners will prepare the environment
       # but will NOT bootstrap the Kubernetes cluster.
-      kubernetes_network_plugin: weavenet
       kubernetes_net_plugin:
         no-cni-plugin: false
-        calico_vxlan_always: true
-        calico_ipip_always: false
+        calico: true
         weavenet: false
         flannel_vxlan: false
       # Mirror where to download helm. Configurable to allow for an eventual

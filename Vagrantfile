@@ -87,6 +87,35 @@ settings_merger = proc {
     end
 }
 
+class AllowedValues
+   def initialize(arr,error_message)
+      @arr = arr
+      @error_message = error_message
+   end
+   def printArray()
+      @arr.each do |value|
+        puts value
+      end
+   end
+   def read_config_values(dictionary)
+      counter = 0
+      return_value = ""
+      @arr.each do |item| 
+        if dictionary[item]
+          counter = counter + 1
+          return_value = item
+          return return_value
+        end
+      end
+      if counter != 1
+        @ui.error @error_message
+      end
+   end
+   def printError()
+      puts @error_message
+   end
+end
+
 # Load default settings
 settings = YAML::load_file("defaults.yaml")
 
@@ -103,35 +132,28 @@ end
 @ui.info "Welcome to Kubernetes playground!"
 @ui.info "Vagrant provider : " + settings["conf"]["vagrant_provider"]
 
-# XXX
-@ui.info "Networking plugin : " + settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"]
-
 if ENV['VAGRANT_LOG']=='debug' or ENV['VAGRANT_LOG']=='info'
   @ui.info "Active settings (from defaults.yaml and env.yaml):"
   @ui.info settings.to_yaml
 end
 
 # Check that an allowed networking plugin is provided
-# XXX Check that at least one and only one plugin is selected
-allowed_cni_plugins=["no-cni-plugin",
-                     "weavenet",
-                     "calico_vxlan_always",
-                     "calico_ipip_always",
-                     "flannel",
-                    ]
-plugin_counter = 0
-allowed_cni_plugins.each do |plugin| 
-  if settings["ansible"]["group_vars"]["all"]["kubernetes_net_plugin"][plugin]
-    plugin_counter = plugin_counter + 1
-    settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"] = plugin
-  end
-end
-if plugin_counter != 1
-  @ui.error 'only one kubernetes_net_plugin must be selected in defaults.yaml or env.yaml, current selecion is:'
-  @ui.error settings["ansible"]["group_vars"]["all"]["kubernetes_net_plugin"]
-end
-
+# Check that at least one and only one plugin is selected
+# If Calico, check that at least one and only one env_var and env_var_value is selected
+cni_plugins = AllowedValues.new(["no-cni-plugin", "weavenet", "calico", "flannel"],"First error")
+calico_env_var = AllowedValues.new(["calico_ipv4pool_ipip", "calico_ipv4pool_vxlan"], "Second error")
+calico_env_var_value = AllowedValues.new(["always","crosssubnet","never"], "Third error")
+plugin = cni_plugins.read_config_values(settings["ansible"]["group_vars"]["all"]["kubernetes_net_plugin"])
+settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"] = plugin
 @ui.info "Networking plugin : " + settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"]
+if plugin == "calico"
+  env_var = calico_env_var.read_config_values(settings["ansible"]["group_vars"]["all"]["calico_configuration"]["env_var"])
+  settings["ansible"]["group_vars"]["all"]["calico_configuration"]["kubernetes_calico_env_var"] = env_var.upcase
+  env_var_value = calico_env_var_value.read_config_values(settings["ansible"]["group_vars"]["all"]["calico_configuration"]["env_var_value"])
+  settings["ansible"]["group_vars"]["all"]["calico_configuration"]["kubernetes_calico_env_var_value"] = env_var_value
+  @ui.info "Environment variable for Calico : " + settings["ansible"]["group_vars"]["all"]["calico_configuration"]["kubernetes_calico_env_var"]
+  @ui.info "Value for Calico environment variable : " + settings["ansible"]["group_vars"]["all"]["calico_configuration"]["kubernetes_calico_env_var_value"]
+end
 
 # Check that the provider is supported
 allowed_vagrant_providers=[ "virtualbox", "libvirt"]
