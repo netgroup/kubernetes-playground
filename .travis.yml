@@ -123,6 +123,7 @@ jobs:
         - kitchen list
         # Trigger the generation of variable and inventory files
         - vagrant status
+        - tree .
       install:
         - gem install bundler
         - bundle install || exit 1
