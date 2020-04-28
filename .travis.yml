@@ -107,7 +107,7 @@ jobs:
         - sudo scripts/linux/ci/install-vagrant.sh
         - sudo scripts/linux/ci/install-vagrant-plugins.sh
         - sudo scripts/linux/ci/generate-env-for-travis.sh
-        # Fix premissions after installing vagrant plugins with sudo
+        # Fix permissions after installing vagrant plugins with sudo
         - sudo chown -R travis:travis $HOME/.vagrant.d
         - sudo lsmod | sort
       before_script:
