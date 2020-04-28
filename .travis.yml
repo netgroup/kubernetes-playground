@@ -121,8 +121,8 @@ jobs:
         # Trigger the generation of variable and inventory files
         - vagrant status
       install:
-        - gem install bundler
-        - bundle install || exit 1
+        - sudo gem install bundler
+        - sudo bundle install || exit 1
       language: ruby
       # Run with sudo because the libvirt socket is owned by the libvirt group,
       # and the current user was added to the group in the current session,
