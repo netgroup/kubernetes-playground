@@ -98,6 +98,13 @@ settings_merger = proc {
     end
 }
 
+# set a 'target_key' in settings, parsing a dictionary of options 'selected_dict'
+# extracted from the .yaml
+# 'option_array' is the list of all the possible options 
+# if there is a problem in the .yaml the Vagrantfile exits
+# with 'error' as error code 
+# see for example 'kubernetes_network_plugin_options' dictionary in defaults.yaml,
+# used to set the key 'kubernetes_network_plugin' in settings
 def check_and_select_conf_options(selected_dict,target_key,option_array,error)
   counter=0
   return_value = ""
@@ -136,7 +143,6 @@ end
 log_info_or_debug "Active settings (from defaults.yaml and env.yaml): #{settings.to_yaml}"
 
 # Check that at least one and only one plugin is selected
-#settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"] =
 check_and_select_conf_options(settings["ansible"]["group_vars"]["all"],
                               "kubernetes_network_plugin",
                               ["no-cni-plugin", "weavenet", "calico", "flannel"],
@@ -206,7 +212,7 @@ cluster_ip_cidr = settings["pod_network"]["cluster_ip_cidr"]
 service_ip_cidr = settings["pod_network"]["service_ip_cidr"]
 
 calico_env_var = settings["ansible"]["group_vars"]["all"]["calico_config"]["calico_env_var"]
-calico_env_var_value = settings["ansible"]["group_vars"]["all"]["calico_config"]["calico_env_var_calue"]
+calico_env_var_value = settings["ansible"]["group_vars"]["all"]["calico_config"]["calico_env_var_value"]
 
 # Vagrant boxes
 vagrant_x64_kubernetes_nodes_base_box_id = settings["conf"]["kubernetes_nodes_base_box_id"][vagrant_provider]
