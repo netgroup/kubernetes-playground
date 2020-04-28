@@ -98,47 +98,11 @@ settings_merger = proc {
     end
 }
 
-def check_config_choices_try1(choice_array,selected_dict)
-  counter=0
-  error = false
-  return_value = ""
-  choice_array.each do |choice|
-    if selected_dict[choice]
-      counter = counter + 1
-      return_value = choice
-    end
-  end
-  if counter != 1
-    error = true
-  end
-  return [error, return_value]
-end
-
-def check_config_choices_try2(choice_array,selected_dict, error)
-  counter=0
-  return_value = ""
-  choice_array.each do |choice|
-    if selected_dict[choice]
-      counter = counter + 1
-      return_value = choice
-    end
-  end
-  if counter == 1
-    return return_value
-  else
-    @ui.error 'select exactly one option in defaults.yaml/env.yaml, allowed options:'
-    choice_array.each {|valid| @ui.error valid }
-    @ui.error 'current selection: ' + selected_dict.to_s
-    exit(error)
-  end
-end
-
-def check_config_choices(selected_dict,target_key,option_array,error)
+def check_and_select_conf_options(selected_dict,target_key,option_array,error)
   counter=0
   return_value = ""
   option_array.each do |choice|
     if selected_dict[target_key+"_options"][choice]
-       @ui.info choice
       counter = counter + 1
       return_value = choice
     end
@@ -177,22 +141,19 @@ check_and_select_conf_options(settings["ansible"]["group_vars"]["all"],
                               "kubernetes_network_plugin",
                               ["no-cni-plugin", "weavenet", "calico", "flannel"],
                               ERR_NET_PLUGIN_CONF)
-
 @ui.info "Networking plugin : " + settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"]
 # if calico, check that at least one and only one env_var and env_var_value is selected
 if settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"] == "calico"
-  settings["ansible"]["group_vars"]["all"]["calico_configuration"]["calico_env_var"] =
-    check_config_choices_try2(["calico_ipv4pool_ipip", "calico_ipv4pool_vxlan"],
-                          settings["ansible"]["group_vars"]["all"]["calico_configuration"]["calico_env_var_options"],
-                          ERR_CALICO_ENV_VAR_CONF)
-
-  settings["ansible"]["group_vars"]["all"]["calico_configuration"]["calico_env_var_value"] =
-    check_config_choices_try2(["always","crosssubnet","never"],
-                          settings["ansible"]["group_vars"]["all"]["calico_configuration"]["calico_env_var_value_options"],
-                          ERR_CALICO_ENV_VAR_VALUE_CONF)
- 
-#  @ui.info "Calico env variable: " + settings["ansible"]["group_vars"]["all"]["calico_configuration"]["calico_env_var"]
-#  @ui.info "Calico env variable value: " + settings["ansible"]["group_vars"]["all"]["calico_configuration"]["calico_env_var_value"]
+  check_and_select_conf_options(settings["ansible"]["group_vars"]["all"]["calico_config"],
+                              "calico_env_var",
+                              ["CALICO_IPV4POOL_IPIP", "CALICO_IPV4POOL_VXLAN"],
+                              ERR_CALICO_ENV_VAR_CONF)
+  check_and_select_conf_options(settings["ansible"]["group_vars"]["all"]["calico_config"],
+                              "calico_env_var_value",
+                              ["always","crosssubnet","never"],
+                              ERR_CALICO_ENV_VAR_VALUE_CONF)
+  @ui.info "Calico env variable: " + settings["ansible"]["group_vars"]["all"]["calico_config"]["calico_env_var"] +
+            "=" + settings["ansible"]["group_vars"]["all"]["calico_config"]["calico_env_var_value"]
 end
 
 # Check that the provider is supported
@@ -201,14 +162,14 @@ vagrant_provider = settings["conf"]["vagrant_provider"]
 if not allowed_vagrant_providers.include? vagrant_provider
   @ui.error 'vagrant_provider is not valid in defaults.yaml or env.yaml, allowed values are:'
   allowed_vagrant_providers.each {|valid| @ui.error valid }
-  exit(2)
+  exit(ERR_PROVIDER_CONF)
 end
 
 libvirt_management_network_address = settings["net"]["libvirt_management_network_address"]
 netmask=libvirt_management_network_address.split('/')
 if netmask[1].to_i > 24
   @ui.error 'only netmasks <= 24 in libvirt_management_network_address are safely supported'
-  exit(3)
+  exit(ERR_LIBVIRT_MGT_NET_CONF)
 end
 ip_split=libvirt_management_network_address.split('.')
 libvirt_management_host_address = ip_split[0]+'.'+ip_split[1]+'.'+ip_split[2]+'.1'

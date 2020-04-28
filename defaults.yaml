@@ -81,10 +81,10 @@ ansible:
         calico: true
         weavenet: false
         flannel: false
-      calico_configuration:
+      calico_config:
         calico_env_var_options:
-          calico_ipv4pool_ipip: true
-          calico_ipv4pool_vxlan: false
+          CALICO_IPV4POOL_IPIP: true
+          CALICO_IPV4POOL_VXLAN: false
         calico_env_var_value_options:
           always: true 
           crosssubnet: false
