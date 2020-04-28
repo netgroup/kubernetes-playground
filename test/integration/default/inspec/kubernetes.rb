@@ -60,7 +60,7 @@ control "kubernetes" do
     end
   end
 
-    all_group_vars = YAML.load_file('ansible/group_vars/all.yml')
+    all_group_vars = YAML.load_file('ansible/group_vars/all.yaml')
     ip_to_host_mappings = all_group_vars['ip_to_host_mappings']
 
     ip_to_host_mappings.each { |ip_to_host_mapping|
