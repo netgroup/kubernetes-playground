@@ -11,4 +11,5 @@ gem "kitchen-inspec", '1.3.2'
 gem "kitchen-vagrant", '1.6.1'
 gem "rake", '13.0.1'
 gem "test-kitchen", '2.4.0'
-gem "travis", '1.9.0'
+# Cannot fix travis version because some of its deps have conflicts with other deps
+gem "travis"
