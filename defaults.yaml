@@ -86,9 +86,9 @@ ansible:
           CALICO_IPV4POOL_IPIP: true
           CALICO_IPV4POOL_VXLAN: false
         calico_env_var_value_options:
-          always: true 
-          crosssubnet: false
-          never: false
+          Always: true 
+          CrossSubnet: false
+          Never: false
       # Mirror where to download helm. Configurable to allow for an eventual
       # air gapped environment.
       kubernetes_helm_mirror: https://get.helm.sh

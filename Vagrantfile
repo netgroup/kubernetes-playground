@@ -150,7 +150,7 @@ if settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"] == "cal
                               ERR_CALICO_ENV_VAR_CONF)
   check_and_select_conf_options(settings["ansible"]["group_vars"]["all"]["calico_config"],
                               "calico_env_var_value",
-                              ["always","crosssubnet","never"],
+                              ["Always","CrossSubnet","Never"],
                               ERR_CALICO_ENV_VAR_VALUE_CONF)
   @ui.info "Calico env variable: " + settings["ansible"]["group_vars"]["all"]["calico_config"]["calico_env_var"] +
             "=" + settings["ansible"]["group_vars"]["all"]["calico_config"]["calico_env_var_value"]
@@ -204,6 +204,9 @@ broadcast_address = n | (~n.instance_variable_get(:@mask_addr) & IPAddr::IN4MASK
 # Cluster network
 cluster_ip_cidr = settings["pod_network"]["cluster_ip_cidr"]
 service_ip_cidr = settings["pod_network"]["service_ip_cidr"]
+
+calico_env_var = settings["ansible"]["group_vars"]["all"]["calico_config"]["calico_env_var"]
+calico_env_var_value = settings["ansible"]["group_vars"]["all"]["calico_config"]["calico_env_var_calue"]
 
 # Vagrant boxes
 vagrant_x64_kubernetes_nodes_base_box_id = settings["conf"]["kubernetes_nodes_base_box_id"][vagrant_provider]
@@ -382,6 +385,8 @@ default_group_vars = {
   "playground_name" => "#{playground_name}",
   "cluster_ip_cidr"  => "#{cluster_ip_cidr}",
   "service_ip_cidr"  => "#{service_ip_cidr}",
+  "calico_env_var"  => "#{calico_env_var}",
+  "calico_env_var_value"  => "#{calico_env_var_value}",
 }
 custom_all_group_vars = settings["ansible"]["group_vars"]["all"]
 if !custom_all_group_vars.nil?
