@@ -86,7 +86,7 @@ ansible:
           CALICO_IPV4POOL_IPIP: true
           CALICO_IPV4POOL_VXLAN: false
         calico_env_var_value_options:
-          Always: true 
+          Always: true
           CrossSubnet: false
           Never: false
       # Mirror where to download helm. Configurable to allow for an eventual
