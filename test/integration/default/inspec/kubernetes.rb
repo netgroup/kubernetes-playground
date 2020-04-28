@@ -71,10 +71,6 @@ control "kubernetes" do
             it { should be_resolvable }
             its('ipaddress') { should include ip_v4_address }
         end
-
-        describe etc_hosts.where { ip_address == ip_v4_address } do
-            its('primary_name') { should cmp hostname }
-        end
     }
 
 end
