@@ -52,9 +52,9 @@ control "kubernetes" do
     it { should be_grouped_into 'root' }
     it { should be_readable.by_user('root') }
     its('mode') { should cmp '0644' }
-    its('content') { should match /^net\.bridge\.bridge\-nf\-call\-iptables\s*=\s*1/ )
-    its('content') { should match /^net\.bridge\.bridge\-nf\-call\-ip6tables\s*=\s*1/ )
-    its('content') { should match /^net\.ipv4\.ip_forward\s*=\s*1/ )
+    its('content') { should match /^net\.bridge\.bridge\-nf\-call\-iptables\s*=\s*1/ }
+    its('content') { should match /^net\.bridge\.bridge\-nf\-call\-ip6tables\s*=\s*1/ }
+    its('content') { should match /^net\.ipv4\.ip_forward\s*=\s*1/ }
   end
 
   describe file("/etc/fstab") do
