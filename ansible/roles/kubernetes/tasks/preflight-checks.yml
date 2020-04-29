@@ -1,4 +1,7 @@
 ---
+- name: Refresh facts to evaluate the fresh information
+  setup:
+
 - name: Stop if swap enabled
   assert:
     that: ansible_swaptotal_mb == 0
