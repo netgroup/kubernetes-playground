@@ -100,9 +100,9 @@ settings_merger = proc {
 
 # set a 'target_key' in settings, parsing a dictionary of options 'selected_dict'
 # extracted from the .yaml
-# 'option_array' is the list of all the possible options 
+# 'option_array' is the list of all the possible options
 # if there is a problem in the .yaml the Vagrantfile exits
-# with 'error' as error code 
+# with 'error' as error code
 # see for example 'kubernetes_network_plugin_options' dictionary in defaults.yaml,
 # used to set the key 'kubernetes_network_plugin' in settings
 def check_and_select_conf_options(selected_dict,target_key,option_array,error)
