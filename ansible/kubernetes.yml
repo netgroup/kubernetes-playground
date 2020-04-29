@@ -90,22 +90,12 @@
       become: true
       lineinfile:
         path: /etc/hosts
-        regexp: "^{{ inventory_hostname }} {{ assigned_hostname }}"
-        line: "{{ inventory_hostname }} {{ assigned_hostname }}"
+        regexp: "^{{ item.ip_v4_address }} {{ item.hostname }}"
+        line: "{{ item.ip_v4_address }} {{ item.hostname }}"
         owner: root
         group: root
         mode: 0644
-      when: assigned_hostname is defined and not base_box|default(false)|bool
-    - name: Configure registry name resolution in hosts file
-      become: true
-      lineinfile:
-        path: /etc/hosts
-        regexp: "^{{ kubernetes_master_1_ip }} {{ docker_registry_host }}"
-        line: "{{ kubernetes_master_1_ip }} {{ docker_registry_host }}"
-        owner: root
-        group: root
-        mode: 0644
-      when: docker_registry_host is defined
+      loop: "{{ ip_to_host_mappings }}"
     - name: Configure Kubelet
       become: true
       template:
