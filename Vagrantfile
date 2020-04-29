@@ -284,12 +284,21 @@ playground = {
 
 masters = {}
 minions = {}
+ip_to_host_mappings = []
 playground.each do |(hostname, info)|
   if(hostname.include? "master")
     masters[hostname] = nil
   elsif(hostname.include? "minion")
     minions[hostname] = nil
   end
+
+  if info.key?(:ip)
+    ip_to_host_mappings.push(
+        "ip_v4_address" => "#{info[:ip]}",
+        "hostname" => "#{hostname}"
+    )
+  end
+
   host_var_filename = "#{hostname}"
   host_var_path = "ansible/host_vars/#{host_var_filename}.yaml"
   if info.key?(:host_vars)
@@ -300,6 +309,13 @@ playground.each do |(hostname, info)|
     end
   end
 end
+
+# Add the docker registry host alias
+ip_to_host_mappings.push(
+    "ip_v4_address" => "#{kubernetes_master_1_ip}",
+    "hostname" => "#{docker_registry_alias}"
+)
+
 ansible_master_group_name = "kubernetes-masters"
 ansible_minion_group_name = "kubernetes-minions"
 ansible_inventory_path = "ansible/hosts"
@@ -344,6 +360,7 @@ default_group_vars = {
   "playground_name" => "#{playground_name}",
   "cluster_ip_cidr"  => "#{cluster_ip_cidr}",
   "service_ip_cidr"  => "#{service_ip_cidr}",
+  "ip_to_host_mappings" => ip_to_host_mappings
 }
 custom_all_group_vars = settings["ansible"]["group_vars"]["all"]
 if !custom_all_group_vars.nil?
