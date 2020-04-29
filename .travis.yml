@@ -34,10 +34,11 @@ jobs:
           -v "$(pwd)":/kubernetes-playground:ro \
           garethr/kubeval:0.14.0 \
           --strict  -d /kubernetes-playground/kubernetes
-    - before_install: gem install travis --no-document
-      install: echo "Overriding the default install, to avoid installing gems from the Gemfile"
-      name: "Travis lint"
-      script: travis lint --skip-completion-check -x
+    # Disabling travis lint for now, the client is too buggy (complains about missing tokens)
+    # - before_install: gem install travis --no-document
+    #   install: echo "Overriding the default install, to avoid installing gems from the Gemfile"
+    #   name: "Travis lint"
+    #   script: travis lint --skip-completion-check -x
     - name: "Shellcheck"
       language: shell
       script: |
@@ -49,6 +50,7 @@ jobs:
             f="${file#$(pwd)}"; \
             f="${f/\//}"; \
             echo "Linting $f"; \
+            if [ ! -x "$f" ]; then echo "Error: $f is not executable!"; exit 1; fi; \
             docker run -v "$(pwd)":/mnt:ro --rm -t koalaman/shellcheck:v0.7.0 \
               "$f" || exit 1; \
         done;
@@ -68,6 +70,7 @@ jobs:
         - sudo scripts/linux/ci/install-libvirt.sh
         - sudo scripts/linux/ci/install-vagrant.sh
         - sudo scripts/linux/ci/install-vagrant-plugins.sh
+        - sudo scripts/linux/ci/generate-env-for-travis.sh
         - sudo chown -R travis:travis $HOME/.vagrant.d
       language: shell
       script: vagrant validate --ignore-provider
@@ -104,6 +107,7 @@ jobs:
         - sudo scripts/linux/ci/install-libvirt.sh
         - sudo scripts/linux/ci/install-vagrant.sh
         - sudo scripts/linux/ci/install-vagrant-plugins.sh
+        - sudo scripts/linux/ci/generate-env-for-travis.sh
         # Fix premissions after installing vagrant plugins with sudo
         - sudo chown -R travis:travis $HOME/.vagrant.d
         # This doesn't have effect if you don't open a new shell
@@ -113,10 +117,13 @@ jobs:
         - sudo modprobe -a kvm
       before_script:
         - kvm-ok
+        # List all installed gems
+        - gem query --local
         - kitchen diagnose
         - kitchen list
         # Trigger the generation of variable and inventory files
         - vagrant status
+        - tree .
       install:
         - gem install bundler
         - bundle install || exit 1

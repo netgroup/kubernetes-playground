@@ -22,4 +22,5 @@ apt-get install -y --no-install-recommends \
     qemu \
     rsync \
     ruby-dev \
+    tree \
     zlib1g-dev
