@@ -68,7 +68,7 @@ control "kubernetes" do
   end
 
     describe etc_fstab.where { file_system_type.match(/swap/) } do
-        it { should not be_configured }
+        it { should_not be_configured }
     end
 
   default_vars = YAML.load_file('ansible/roles/kubernetes/vars/main.yml')
