@@ -64,7 +64,7 @@ control "kubernetes" do
     it { should be_grouped_into 'root' }
     it { should be_readable.by_user('root') }
     its('mode') { should cmp '0644' }
-    its('content') { should match /^# \1/ )
+    its('content') { should match /^# \1/ }
   end
 
   default_vars = YAML.load_file('ansible/roles/kubernetes/vars/main.yml')
