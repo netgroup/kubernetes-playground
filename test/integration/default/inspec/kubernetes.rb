@@ -33,18 +33,6 @@ control "kubernetes" do
     os_specific_vars_file_path = 'ansible/roles/kubernetes/vars/redhat.yml'
   end
 
-  describe kernel_parameter('net.bridge.bridge-nf-call-iptables') do
-    its('value') { should eq 1 }
-  end
-
-  describe kernel_parameter('net.bridge.bridge-nf-call-ip6tables') do
-    its('value') { should eq 1 }
-  end
-
-  describe kernel_parameter('net.ipv4.ip_forward') do
-    its('value') { should eq 1 }
-  end
-
     sysctl_parse_options = {
         assignment_regex: /^\s*([^=]*?)\s*=\s*(.*?)\s*$/
     }
@@ -76,7 +64,6 @@ control "kubernetes" do
         its('mode') { should cmp '0644' }
     end
 
-    puts etc_fstab.where { file_system_type.match(/swap/) }
     describe etc_fstab.where { file_system_type.match(/swap/) } do
         it { should_not be_configured }
     end
