@@ -17,7 +17,7 @@ provisioner:
   ansible_version: 2.7.12
   custom_pre_play_command: |
     [ -d /home/vagrant/.ansible ] && sudo chown -R vagrant:vagrant /home/vagrant/.ansible ;
-    echo "/etc/fstab contents: $(cat /etc/fscontents)"
+    echo "/etc/fstab contents: $(cat /etc/fstab)"
   group_vars_path: ansible/group_vars
   host_vars_path: ansible/host_vars
   name: ansible_playbook
