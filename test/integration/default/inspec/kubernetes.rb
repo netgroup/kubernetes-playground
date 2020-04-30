@@ -45,6 +45,16 @@ control "kubernetes" do
     its('value') { should eq 1 }
   end
 
+  sysctl_parse_options = {
+    assignment_regex: /^\s*([^=]*?)\s*=\s*(.*?)\s*$/
+  }
+
+  describe parse_config_file('/etc/sysctl.conf',  sysctl_parse_options) do
+    its('net.bridge.bridge-nf-call-iptables') { should eq 1 }
+    its('net.bridge.bridge-nf-call-ip6tables') { should eq 1 }
+    its('net.ipv4.ip_forward') { should eq 1 }
+  end
+
   describe file("/etc/sysctl.conf") do
     it { should exist }
     it { should be_file }
