@@ -75,7 +75,8 @@ jobs:
         - sudo scripts/linux/ci/install-vagrant-plugins.sh
         - sudo scripts/linux/ci/generate-env-for-travis.sh
         - sudo chown -R travis:travis $HOME/.vagrant.d
-      language: shell
+      cache: bundler
+      language: ruby
       script: vagrant validate --ignore-provider
     - name: "shfmt"
       language: go
@@ -86,6 +87,7 @@ jobs:
       before_script: cd ansible || exit 1
       cache: pip
       install: pip install -r requirements.txt
+      language: python
       python: "3.8"
       script: |
         ansible-lint -v \
