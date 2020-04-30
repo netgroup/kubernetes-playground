@@ -4,10 +4,10 @@
   when: ansible_swaptotal_mb != 0
 
 - name: Disable automounting swap partitions
-  replace:
-    path: /etc/fstab
-    regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
-    replace: '# \1'
+  mount:
+    fstype: swap
+    name: swap
+    state: absent
 
 - include_tasks: preflight-checks.yml
 
