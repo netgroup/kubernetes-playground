@@ -67,15 +67,9 @@ control "kubernetes" do
     its('content') { should match /^net\.ipv4\.ip_forward\s*=\s*1/ }
   end
 
-  describe file("/etc/fstab") do
-    it { should exist }
-    it { should be_file }
-    it { should be_owned_by 'root' }
-    it { should be_grouped_into 'root' }
-    it { should be_readable.by_user('root') }
-    its('mode') { should cmp '0644' }
-    its('content') { should match /^# \1/ }
-  end
+    describe etc_fstab.where { file_system_type.match(/swap/) } do
+        it { should not be_configured }
+    end
 
   default_vars = YAML.load_file('ansible/roles/kubernetes/vars/main.yml')
   glusterfs_kernel_modules = default_vars['__ferrarimarco_kubernetes_glusterfs_kernel_modules']
