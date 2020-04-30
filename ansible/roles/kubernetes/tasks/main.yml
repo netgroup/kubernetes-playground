@@ -6,7 +6,7 @@
 - name: Disable automounting swap partitions
   mount:
     fstype: swap
-    name: swap
+    name: none
     state: absent
 
 - include_tasks: preflight-checks.yml
