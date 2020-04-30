@@ -108,7 +108,6 @@ jobs:
     - name: "Test Kitchen"
       after_script:
         - tree .
-        - tree $HOME
       env:
         - VAGRANT_DEFAULT_PROVIDER=libvirt
       stage: test_kitchen
