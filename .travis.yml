@@ -55,10 +55,13 @@ jobs:
               "$f" || exit 1; \
         done;
     - name: "YAMLlint"
+      cache: pip
       language: shell
       install: sudo pip install -r requirements.txt
       script: yamllint --strict $(git ls-files '*.yaml' '*.yml') || exit 1
     - name: "Markdownlint"
+      cache:
+        npm: true
       install: npm install
       language: node_js
       node_js: node
@@ -81,6 +84,7 @@ jobs:
       script: shfmt -d . || exit 1;
     - name: "ansible-lint"
       before_script: cd ansible || exit 1
+      cache: pip
       install: sudo pip install -r requirements.txt
       language: shell
       script: |
@@ -124,6 +128,7 @@ jobs:
         # Trigger the generation of variable and inventory files
         - vagrant status
         - tree .
+      cache: bundler
       install:
         - gem install bundler
         - bundle install || exit 1
