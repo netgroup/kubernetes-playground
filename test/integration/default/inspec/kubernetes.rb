@@ -76,6 +76,7 @@ control "kubernetes" do
         its('mode') { should cmp '0644' }
     end
 
+    puts etc_fstab.where { file_system_type.match(/swap/) }.elements.to_yaml
     describe etc_fstab.where { file_system_type.match(/swap/) } do
         it { should_not be_configured }
     end
