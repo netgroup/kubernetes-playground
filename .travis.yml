@@ -56,12 +56,12 @@ jobs:
         done;
     - name: "YAMLlint"
       cache: pip
-      language: shell
-      install: sudo pip install -r requirements.txt
+      language: python
+      install: pip install -r requirements.txt
+      python: "3.8"
       script: yamllint --strict $(git ls-files '*.yaml' '*.yml') || exit 1
     - name: "Markdownlint"
-      cache:
-        npm: true
+      cache: npm
       install: npm install
       language: node_js
       node_js: node
@@ -85,8 +85,8 @@ jobs:
     - name: "ansible-lint"
       before_script: cd ansible || exit 1
       cache: pip
-      install: sudo pip install -r requirements.txt
-      language: shell
+      install: pip install -r requirements.txt
+      python: "3.8"
       script: |
         ansible-lint -v \
           kubernetes.yml \
