@@ -59,6 +59,3 @@
   service:
     name: kubelet
     enabled: true
-
-- include_tasks: setup-glusterfs.yml
-  when: ferrarimarco_kubernetes_filesystem == "glusterfs"
