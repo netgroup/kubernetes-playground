@@ -302,7 +302,7 @@ playground = {
 }
 
 playground.merge!(kubernetes_worker_nodes)
-puts playground.to_yaml
+
 # Generate an inventory file
 
 masters = {}
