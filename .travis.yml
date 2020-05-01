@@ -34,10 +34,11 @@ jobs:
           -v "$(pwd)":/kubernetes-playground:ro \
           garethr/kubeval:0.14.0 \
           --strict  -d /kubernetes-playground/kubernetes
-    - before_install: gem install travis --no-document
-      install: echo "Overriding the default install, to avoid installing gems from the Gemfile"
-      name: "Travis lint"
-      script: travis lint --skip-completion-check -x
+    # Disabling travis lint for now, the client is too buggy (complains about missing tokens)
+    # - before_install: gem install travis --no-document
+    #   install: echo "Overriding the default install, to avoid installing gems from the Gemfile"
+    #   name: "Travis lint"
+    #   script: travis lint --skip-completion-check -x
     - name: "Shellcheck"
       language: shell
       script: |
@@ -115,10 +116,13 @@ jobs:
         - sudo lsmod | sort
       before_script:
         - kvm-ok
+        # List all installed gems
+        - gem query --local
         - kitchen diagnose
         - kitchen list
         # Trigger the generation of variable and inventory files
         - vagrant status
+        - tree .
       install:
         - gem install bundler
         - bundle install || exit 1

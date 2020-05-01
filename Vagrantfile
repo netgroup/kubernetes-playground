@@ -3,6 +3,12 @@ require 'ipaddr'
 
 @ui = Vagrant::UI::Colored.new
 
+ERR_NET_PLUGIN_CONF = 1
+ERR_PROVIDER_CONF = 2
+ERR_LIBVIRT_MGT_NET_CONF = 3
+ERR_CALICO_ENV_VAR_CONF = 4
+ERR_CALICO_ENV_VAR_VALUE_CONF = 5
+
 def log_info_or_debug(message)
   if ENV['VAGRANT_LOG']=='debug' or ENV['VAGRANT_LOG']=='info'
     @ui.info message
@@ -92,6 +98,33 @@ settings_merger = proc {
     end
 }
 
+# set a 'target_key' in settings, parsing a dictionary of options 'selected_dict'
+# extracted from the .yaml
+# 'option_array' is the list of all the possible options
+# if there is a problem in the .yaml the Vagrantfile exits
+# with 'error' as error code
+# see for example 'kubernetes_network_plugin_options' dictionary in defaults.yaml,
+# used to set the key 'kubernetes_network_plugin' in settings
+def check_and_select_conf_options(selected_dict,target_key,option_array,error)
+  counter=0
+  return_value = ""
+  option_array.each do |choice|
+    if selected_dict[target_key+"_options"][choice]
+      counter = counter + 1
+      return_value = choice
+    end
+  end
+  if counter == 1
+    selected_dict[target_key]=return_value
+    return return_value
+  else
+    @ui.error 'select exactly one option in defaults.yaml/env.yaml, allowed options:'
+    option_array.each {|valid| @ui.error valid }
+    @ui.error 'current selection: ' + selected_dict.to_s
+    exit(error)
+  end
+end
+
 # Load default settings
 settings = YAML::load_file("defaults.yaml")
 
@@ -107,15 +140,26 @@ end
 # Display the main current configuration parameters
 @ui.info "Welcome to Kubernetes playground!"
 @ui.info "Vagrant provider: " + settings["conf"]["vagrant_provider"]
-@ui.info "Networking plugin: " + settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"]
 log_info_or_debug "Active settings (from defaults.yaml and env.yaml): #{settings.to_yaml}"
 
-# Check that an allowed networking plugin is provided
-allowed_cni_plugins=["weavenet","calico","flannel","no-cni-plugin"]
-if not allowed_cni_plugins.include? settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"]
-  @ui.error 'kubernetes_network_plugin is not valid in defaults.yaml or env.yaml, allowed values are:'
-  allowed_cni_plugins.each {|valid| @ui.error valid }
-  exit(1)
+# Check that at least one and only one plugin is selected
+check_and_select_conf_options(settings["ansible"]["group_vars"]["all"],
+                              "kubernetes_network_plugin",
+                              ["no-cni-plugin", "weavenet", "calico", "flannel"],
+                              ERR_NET_PLUGIN_CONF)
+@ui.info "Networking plugin : " + settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"]
+# if calico, check that at least one and only one env_var and env_var_value is selected
+if settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"] == "calico"
+  check_and_select_conf_options(settings["ansible"]["group_vars"]["all"]["calico_config"],
+                              "calico_env_var",
+                              ["CALICO_IPV4POOL_IPIP", "CALICO_IPV4POOL_VXLAN"],
+                              ERR_CALICO_ENV_VAR_CONF)
+  check_and_select_conf_options(settings["ansible"]["group_vars"]["all"]["calico_config"],
+                              "calico_env_var_value",
+                              ["Always","CrossSubnet","Never"],
+                              ERR_CALICO_ENV_VAR_VALUE_CONF)
+  @ui.info "Calico env variable: " + settings["ansible"]["group_vars"]["all"]["calico_config"]["calico_env_var"] +
+            "=" + settings["ansible"]["group_vars"]["all"]["calico_config"]["calico_env_var_value"]
 end
 
 # Check that the provider is supported
@@ -124,14 +168,14 @@ vagrant_provider = settings["conf"]["vagrant_provider"]
 if not allowed_vagrant_providers.include? vagrant_provider
   @ui.error 'vagrant_provider is not valid in defaults.yaml or env.yaml, allowed values are:'
   allowed_vagrant_providers.each {|valid| @ui.error valid }
-  exit(2)
+  exit(ERR_PROVIDER_CONF)
 end
 
 libvirt_management_network_address = settings["net"]["libvirt_management_network_address"]
 netmask=libvirt_management_network_address.split('/')
 if netmask[1].to_i > 24
   @ui.error 'only netmasks <= 24 in libvirt_management_network_address are safely supported'
-  exit(3)
+  exit(ERR_LIBVIRT_MGT_NET_CONF)
 end
 ip_split=libvirt_management_network_address.split('.')
 libvirt_management_host_address = ip_split[0]+'.'+ip_split[1]+'.'+ip_split[2]+'.1'
@@ -166,6 +210,9 @@ broadcast_address = n | (~n.instance_variable_get(:@mask_addr) & IPAddr::IN4MASK
 # Cluster network
 cluster_ip_cidr = settings["pod_network"]["cluster_ip_cidr"]
 service_ip_cidr = settings["pod_network"]["service_ip_cidr"]
+
+calico_env_var = settings["ansible"]["group_vars"]["all"]["calico_config"]["calico_env_var"]
+calico_env_var_value = settings["ansible"]["group_vars"]["all"]["calico_config"]["calico_env_var_value"]
 
 # Vagrant boxes
 vagrant_x64_kubernetes_nodes_base_box_id = settings["conf"]["kubernetes_nodes_base_box_id"][vagrant_provider]
@@ -284,12 +331,21 @@ playground = {
 
 masters = {}
 minions = {}
+ip_to_host_mappings = []
 playground.each do |(hostname, info)|
   if(hostname.include? "master")
     masters[hostname] = nil
   elsif(hostname.include? "minion")
     minions[hostname] = nil
   end
+
+  if info.key?(:ip)
+    ip_to_host_mappings.push(
+        "ip_v4_address" => "#{info[:ip]}",
+        "hostname" => "#{hostname}"
+    )
+  end
+
   host_var_filename = "#{hostname}"
   host_var_path = "ansible/host_vars/#{host_var_filename}.yaml"
   if info.key?(:host_vars)
@@ -300,6 +356,13 @@ playground.each do |(hostname, info)|
     end
   end
 end
+
+# Add the docker registry host alias
+ip_to_host_mappings.push(
+    "ip_v4_address" => "#{kubernetes_master_1_ip}",
+    "hostname" => "#{docker_registry_alias}"
+)
+
 ansible_master_group_name = "kubernetes-masters"
 ansible_minion_group_name = "kubernetes-minions"
 ansible_inventory_path = "ansible/hosts"
@@ -344,6 +407,9 @@ default_group_vars = {
   "playground_name" => "#{playground_name}",
   "cluster_ip_cidr"  => "#{cluster_ip_cidr}",
   "service_ip_cidr"  => "#{service_ip_cidr}",
+  "calico_env_var"  => "#{calico_env_var}",
+  "calico_env_var_value"  => "#{calico_env_var_value}",
+  "ip_to_host_mappings" => ip_to_host_mappings
 }
 custom_all_group_vars = settings["ansible"]["group_vars"]["all"]
 if !custom_all_group_vars.nil?
