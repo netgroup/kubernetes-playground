@@ -212,73 +212,11 @@
       when: "'kubernetes-minions' in group_names"
       tags:
         - quick_setup
-    - name: Download gluster-kubernetes
-      become: true
-      unarchive:
-        creates: /opt/gluster-kubernetes-master/deploy/gk-deploy
-        dest: /opt
-        remote_src: true
-        src: https://github.com/gluster/gluster-kubernetes/archive/master.zip
-      when: "'kubernetes-masters' in group_names"
-    - name: check for installation of helm
-      become: true
-      stat:
-        path: '{{ kubernetes_helm_install_dir }}'
-      changed_when: false
-      register: kubernetes_helm_binary_dir
-    - when: not kubernetes_helm_binary_dir.stat.exists
-      block:
-        - name: Install unarchive packages
-          become: true
-          package:
-            name: "{{ item }}"
-            state: present
-          with_items:
-            - bzip2
-            - gzip
-            - tar
-            - unzip
-            - xz
-        - name: Download helm
-          become: true
-          get_url:
-            url: '{{ kubernetes_helm_url }}'
-            dest: /tmp/{{ kubernetes_helm_archive }}
-            checksum: '{{ kubernetes_helm_checksum }}'
-            mode: 0644
-        - name: Create helm install directory
-          become: true
-          file:
-            path: '{{ kubernetes_helm_install_dir }}'
-            state: directory
-            mode: 0755
-        - name: Unarchive helm
-          become: true
-          unarchive:
-            copy: false
-            src: /tmp/{{ kubernetes_helm_archive }}
-            dest: '{{ kubernetes_helm_install_dir }}'
-            creates: '{{ kubernetes_helm_install_dir }}/{{ kubernetes_helm_platform }}'
-      always:
-        - name: Cleanup helm installer
-          become: true
-          file:
-            path: /tmp/{{ kubernetes_helm_archive }}
-            state: absent
-        - name: Link helm binary
-          become: true
-          with_items:
-            - helm
-          file:
-            src: '{{ kubernetes_helm_install_dir }}/{{ kubernetes_helm_platform }}/{{ item }}'
-            dest: '{{ kubernetes_helm_bin_dir }}/{{ item }}'
-            state: link
   roles:
     - role: docker
       become: true
     - role: kubernetes
       become: true
-      ferrarimarco_kubernetes_filesystem: glusterfs
   vars:
     kubernetes_helm_platform: '{{ kubernetes_helm_os }}-{{ kubernetes_helm_arch }}'
     kubernetes_helm_name: helm-{{ kubernetes_helm_ver }}-{{ kubernetes_helm_platform }}
