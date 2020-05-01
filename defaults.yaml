@@ -21,12 +21,6 @@ conf:
   base_box_builder_name: base-box-builder
   # Master node name.
   master_name: k8s-master-1
-  # Worker 1 node name.
-  minion_1_name: k8s-minion-1
-  # Worker 2 node name.
-  minion_2_name: k8s-minion-2
-  # Worker 3 node name.
-  minion_3_name: k8s-minion-3
   # The default Vagrant provider. Allowed values are: virtualbox, libvirt.
   # After setting this, you need to also follow the instructions in the official
   # Vagrant documentation to choose the default provider, if you've more than
@@ -39,6 +33,10 @@ conf:
     virtualbox: "bento/centos-7.4"
     # ID of the Vagrant box for the libvirt provider.
     libvirt: "centos/7"
+# Kubernetes configuration parameters.
+kubernetes:
+  # Number of worker nodes to provision
+  worker_nodes_count: 1
 # Network configuration parameters.
 net:
   # IPv4 network prefix.
@@ -51,12 +49,6 @@ net:
   subnet_mask_ipv6: "56"
   # IPv6 address suffix for the master node.
   master_ipv6_part: "c40A::"
-  # IPv6 address suffix for the worker 1 node.
-  minion_1_ipv6_part: "c41e::"
-  # IPv6 address suffix for the worker 2 node.
-  minion_2_ipv6_part: "c41f::"
-  # IPv6 address suffix for the worker 3 node.
-  minion_3_ipv6_part: "c420::"
   # libvirt management network subnet.
   libvirt_management_network_address: "192.168.121.0/24"
 # Kubernetes network configuration parameters.

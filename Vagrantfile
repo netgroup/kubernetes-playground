@@ -190,9 +190,6 @@ subnet_mask_ipv6 = settings["net"]["subnet_mask_ipv6"]
 kubeadm_token = "0y5van.5qxccw2ewiarl68v"
 kubernetes_master_1_ip = network_prefix + "10"
 kubernetes_master_1_ipv6 = network_prefix_ipv6 + settings["net"]["master_ipv6_part"]
-kubernetes_minion_1_ipv6 = network_prefix_ipv6 + settings["net"]["minion_1_ipv6_part"]
-kubernetes_minion_2_ipv6 = network_prefix_ipv6 + settings["net"]["minion_2_ipv6_part"]
-kubernetes_minion_3_ipv6 = network_prefix_ipv6 + settings["net"]["minion_3_ipv6_part"]
 
 playground_name = settings["conf"]["playground_name"]
 domain = "." + playground_name + ".local"
@@ -221,21 +218,10 @@ vagrant_x64_kubernetes_nodes_box_id = "ferrarimarco/kubernetes-playground-node"
 # VM Names
 $base_box_builder_vm_name = settings["conf"]["base_box_builder_name"]
 kubernetes_master_1_vm_name = settings["conf"]["master_name"]
-kubernetes_minion_1_vm_name = settings["conf"]["minion_1_name"]
-kubernetes_minion_2_vm_name = settings["conf"]["minion_2_name"]
-kubernetes_minion_3_vm_name = settings["conf"]["minion_3_name"]
-
-# Defines where to run the Ansible container during the provisioning phase.
-# This must be the last machine to be created, because the other ones have to be
-# available before attempting any provisioning.
-ansible_controller_vm_name = kubernetes_minion_3_vm_name
 
 # VM IDs
 base_box_builder_vm_id = $base_box_builder_vm_name + domain
 kubernetes_master_1_vm_id = kubernetes_master_1_vm_name + domain
-kubernetes_minion_1_vm_id = kubernetes_minion_1_vm_name + domain
-kubernetes_minion_2_vm_id = kubernetes_minion_2_vm_name + domain
-kubernetes_minion_3_vm_id = kubernetes_minion_3_vm_name + domain
 
 # memory for each host
 base_box_builder_mem = settings["conf"]["base_box_builder_mem"]
@@ -246,6 +232,42 @@ additional_disk_size = settings["conf"]["additional_disk_size"]
 
 # path to the shared folder with the VMs
 vagrant_root = File.dirname(__FILE__)
+
+kubernetes_worker_nodes_count = settings["kubernetes"]["worker_nodes_count"]
+kubernetes_worker_nodes = {}
+
+ansible_controller_vm_name = nil
+
+kubernetes_worker_nodes_count.times { |i|
+    node_name = "k8s-minion-#{i}"
+    node_id = node_name + domain
+    node_ipv4_address = network_prefix + "30"
+    node_ipv6_address = network_prefix_ipv6 + "c41e::"
+    node_mac_address = "0800271F9D03"
+    kubernetes_worker_nodes[node_id] = {
+        :autostart => true,
+        :box => vagrant_x64_kubernetes_nodes_box_id,
+        :cpus => 1,
+        :mac_address => node_mac_address,
+        :mem => minion_mem,
+        :ip => node_ipv4_address,
+        :net_auto_config => true,
+        :net_type => network_type_static_ip,
+        :subnet_mask => subnet_mask,
+        :show_gui => false,
+        :host_vars => {
+            "ipv6_address" => node_ipv6_address,
+            assigned_hostname_key => node_id
+        }
+    }
+
+    # Defines where to run the Ansible container during the provisioning phase.
+    # This must be the last machine to be created, because the other ones have to be
+    # available before attempting any provisioning.
+    # Assign it on every loop round, so at the end of the loop it will be assigned
+    # to the last worker node to be added to the pool.
+    ansible_controller_vm_name = node_name
+}
 
 playground = {
   base_box_builder_vm_id => {
@@ -277,56 +299,10 @@ playground = {
       assigned_hostname_key => kubernetes_master_1_vm_id
     }
   },
-  kubernetes_minion_1_vm_id => {
-    :autostart => true,
-    :box => vagrant_x64_kubernetes_nodes_box_id,
-    :cpus => 1,
-    :mac_address => "0800271F9D03",
-    :mem => minion_mem,
-    :ip => network_prefix + "30",
-    :net_auto_config => true,
-    :net_type => network_type_static_ip,
-    :subnet_mask => subnet_mask,
-    :show_gui => false,
-    :host_vars => {
-      "ipv6_address" => kubernetes_minion_1_ipv6,
-      assigned_hostname_key => kubernetes_minion_1_vm_id
-    }
-  },
-  kubernetes_minion_2_vm_id => {
-    :autostart => true,
-    :box => vagrant_x64_kubernetes_nodes_box_id,
-    :cpus => 1,
-    :mac_address => "0800271F9D04",
-    :mem => minion_mem,
-    :ip => network_prefix + "31",
-    :net_auto_config => true,
-    :net_type => network_type_static_ip,
-    :subnet_mask => subnet_mask,
-    :show_gui => false,
-    :host_vars => {
-      "ipv6_address" => kubernetes_minion_2_ipv6,
-      assigned_hostname_key => kubernetes_minion_2_vm_id
-    }
-  },
-  kubernetes_minion_3_vm_id => {
-    :autostart => true,
-    :box => vagrant_x64_kubernetes_nodes_box_id,
-    :cpus => 1,
-    :mac_address => "0800271F9D05",
-    :mem => minion_mem,
-    :ip => network_prefix + "32",
-    :net_auto_config => true,
-    :net_type => network_type_static_ip,
-    :subnet_mask => subnet_mask,
-    :show_gui => false,
-    :host_vars => {
-      "ipv6_address" => kubernetes_minion_3_ipv6,
-      assigned_hostname_key => kubernetes_minion_3_vm_id
-    }
-  }
 }
 
+playground.merge!(kubernetes_worker_nodes)
+puts playground.to_yaml
 # Generate an inventory file
 
 masters = {}
