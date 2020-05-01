@@ -26,7 +26,3 @@ apt-get install -y --no-install-recommends \
     zlib1g-dev
 
 modprobe -a kvm
-
-# This doesn't have effect if you don't open a new shell
-adduser "$(id -un)" libvirt
-adduser "$(id -un)" kvm
