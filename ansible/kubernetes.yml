@@ -37,6 +37,20 @@
         docker_cgroup_driver: "{{ docker_cgroup_driver_result.stdout }}"
       tags:
         - quick_setup
+    - name: Get the NetworkManager connection UUID for the {{ ansible_ssh_connection_interface_name }} connection
+      become: true
+      changed_when: false
+      shell: |
+        set -e -o pipefail ; \
+        nmcli -g UUID,DEVICE con show | grep {{ ansible_ssh_connection_interface_name }} | awk -F ":" '{print $1}'
+      register: ansible_ssh_connection_nm_connection_name_result
+      tags:
+        - quick_setup
+    - name: Set facts
+      set_fact:
+        ansible_ssh_connection_nm_connection_name: "{{ ansible_ssh_connection_nm_connection_name_result.stdout }}"
+      tags:
+        - quick_setup
     - name: Display all variables/facts known for {{ inventory_hostname }}
       debug:
         var: hostvars[inventory_hostname]
@@ -54,6 +68,7 @@
             Ansible user: {{ ansible_user }}
             Ansible SSH connection IPv4 address: {{ ansible_ssh_connection_ip_v4_address }}
             Ansible SSH connection interface name: {{ ansible_ssh_connection_interface_name }}
+            Ansible SSH connection Networkmanager UUID: {{ ansible_ssh_connection_nm_connection_name }}
             Cluster IP CIDR: {{ cluster_ip_cidr }}
             Docker cgroup driver: {{ docker_cgroup_driver }}
             Inventory hostname: {{ inventory_hostname }}
@@ -67,14 +82,16 @@
             Subnet mask IPv6: {{ subnet_mask_ipv6 }}
       debug:
         msg: "{{ msg.split('\n') }}"
-    - name: Initialize an IPv6 interface
+    - name: Add an IPv6 address to {{ ansible_ssh_connection_interface_name }}
       become: true
       shell: |
         set -e ; \
         /vagrant/scripts/linux/configure-ipv6-interface.sh \
         {{ ipv6_address }} \
         {{ ansible_ssh_connection_ip_v4_address }} \
-        {{ subnet_mask_ipv6 }}
+        {{ subnet_mask_ipv6 }} \
+        {{ ansible_ssh_connection_interface_name }} \
+        {{ ansible_ssh_connection_nm_connection_name }}
       when: ipv6_address is defined
     - name: Remove FQDN from 127.0.0.1
       become: true

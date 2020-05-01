@@ -55,10 +55,13 @@ jobs:
               "$f" || exit 1; \
         done;
     - name: "YAMLlint"
-      language: shell
-      install: sudo pip install -r requirements.txt
+      cache: pip
+      language: python
+      install: pip install -r requirements.txt
+      python: "3.8"
       script: yamllint --strict $(git ls-files '*.yaml' '*.yml') || exit 1
     - name: "Markdownlint"
+      cache: npm
       install: npm install
       language: node_js
       node_js: node
@@ -72,7 +75,8 @@ jobs:
         - sudo scripts/linux/ci/install-vagrant-plugins.sh
         - sudo scripts/linux/ci/generate-env-for-travis.sh
         - sudo chown -R travis:travis $HOME/.vagrant.d
-      language: shell
+      cache: bundler
+      language: ruby
       script: vagrant validate --ignore-provider
     - name: "shfmt"
       language: go
@@ -81,8 +85,10 @@ jobs:
       script: shfmt -d . || exit 1;
     - name: "ansible-lint"
       before_script: cd ansible || exit 1
-      install: sudo pip install -r requirements.txt
-      language: shell
+      cache: pip
+      install: pip install -r requirements.txt
+      language: python
+      python: "3.8"
       script: |
         ansible-lint -v \
           kubernetes.yml \
@@ -100,6 +106,8 @@ jobs:
       script: |
         docker build --target dev -t kitesproject/net-test:latest-dev .
     - name: "Test Kitchen"
+      after_script:
+        - tree .
       env:
         - VAGRANT_DEFAULT_PROVIDER=libvirt
       stage: test_kitchen
@@ -123,6 +131,10 @@ jobs:
         # Trigger the generation of variable and inventory files
         - vagrant status
         - tree .
+      cache:
+        bundler: true
+        directories:
+          - $HOME/.vagrant.d/boxes
       install:
         - gem install bundler
         - bundle install || exit 1
