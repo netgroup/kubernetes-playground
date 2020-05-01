@@ -35,10 +35,17 @@ conf:
     libvirt: "centos/7"
 # Kubernetes configuration parameters.
 kubernetes:
+  # Number of master nodes to provision
+  # we currently support only one master node
+  master_nodes_count: 1
   # Number of worker nodes to provision
-  worker_nodes_count: 1
+  worker_nodes_count: 2
 # Network configuration parameters.
 net:
+  # base MAC address for master(s)
+  master_base_mac_address: 0800271F9D03
+  # base MAC address for master(s)
+  minion_base_mac_address: 0800271F9D13
   # IPv4 network prefix.
   network_prefix: "192.168.0."
   # IPv6 network prefix.
@@ -47,8 +54,21 @@ net:
   subnet_mask: "255.255.255.0"
   # IPv6 subnet mask.
   subnet_mask_ipv6: "56"
-  # IPv6 address suffix for the master node.
-  master_ipv6_part: "c40A::"
+  # IPv4 base address for master(s) (integer)
+  master_ipv4_base: 10
+  # IPv4 base address for minions (integer)
+  minion_ipv4_base: 30
+  # IPv6 address suffix for the master node
+  # must be a string with 4 hex digits followed by "::"
+  master_ipv6_part: "c40a::"
+  # base IPv6 address suffix for the minion nodes.
+  # must be a string with 4 hex digits followed by "::"
+  #minion_ipv6_part: "c41e:"
+  minion_ipv6_part: "0001::"
+  # delta of IPv6 address suffix for each minion node (integer)
+  delta_ipv6: 1
+  # host part of the IPv6 address of nodes
+  default_ipv6_host_part: "1"
   # libvirt management network subnet.
   libvirt_management_network_address: "192.168.121.0/24"
 # Kubernetes network configuration parameters.

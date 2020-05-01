@@ -8,6 +8,10 @@ ERR_PROVIDER_CONF = 2
 ERR_LIBVIRT_MGT_NET_CONF = 3
 ERR_CALICO_ENV_VAR_CONF = 4
 ERR_CALICO_ENV_VAR_VALUE_CONF = 5
+ERR_BAD_IPV6_SUFFIX = 6
+ERR_MASTER_NODE_COUNT = 7
+
+MAX_NUMBER_OF_MASTER_NODES = 1
 
 def log_info_or_debug(message)
   if ENV['VAGRANT_LOG']=='debug' or ENV['VAGRANT_LOG']=='info'
@@ -125,6 +129,21 @@ def check_and_select_conf_options(selected_dict,target_key,option_array,error)
   end
 end
 
+# returns the string representation of the IPv6 address to be used
+# for a node
+def get_ipv6_address(base_addr,base_suffix,order,delta,final_part)
+  output = base_addr
+  suffix_num = Integer("0x"+base_suffix[0,4])
+  if base_suffix[4,2] != "::"
+    @ui.error 'Malformed IPv6 suffix (must be a string with 4 hex digits followed by "::")'
+    @ui.error 'Value: ' + base_suffix
+    exit(ERR_BAD_IPV6_SUFFIX)
+  end 
+  suffix_num = suffix_num + order * delta
+  output = output + "%04x" % suffix_num + "::" + final_part
+  return output
+end
+
 # Load default settings
 settings = YAML::load_file("defaults.yaml")
 
@@ -184,12 +203,20 @@ additional_ansible_arguments = settings["conf"]["additional_ansible_arguments"]
 
 network_prefix = settings["net"]["network_prefix"]
 network_prefix_ipv6 = settings["net"]["network_prefix_ipv6"]
+node_suffix_ipv6 = settings["net"]["minion_ipv6_part"]
+default_ipv6_host_part = settings["net"]["default_ipv6_host_part"]
+delta_ipv6 = settings["net"]["delta_ipv6"]
 subnet_mask = settings["net"]["subnet_mask"]
 subnet_mask_ipv6 = settings["net"]["subnet_mask_ipv6"]
+master_ipv4_base = settings["net"]["master_ipv4_base"]
+minion_ipv4_base = settings["net"]["minion_ipv4_base"]
+
+master_base_mac_address = settings["net"]["master_base_mac_address"]
+minion_base_mac_address = settings["net"]["minion_base_mac_address"]
 
 kubeadm_token = "0y5van.5qxccw2ewiarl68v"
-kubernetes_master_1_ip = network_prefix + "10"
-kubernetes_master_1_ipv6 = network_prefix_ipv6 + settings["net"]["master_ipv6_part"]
+kubernetes_master_1_ip = network_prefix + master_ipv4_base.to_s
+kubernetes_master_1_ipv6 = network_prefix_ipv6 + settings["net"]["master_ipv6_part"]+ settings["net"]["default_ipv6_host_part"]
 
 playground_name = settings["conf"]["playground_name"]
 domain = "." + playground_name + ".local"
@@ -233,6 +260,12 @@ additional_disk_size = settings["conf"]["additional_disk_size"]
 # path to the shared folder with the VMs
 vagrant_root = File.dirname(__FILE__)
 
+kubernetes_master_nodes_count=settings["kubernetes"]["master_nodes_count"]
+if kubernetes_master_nodes_count > MAX_NUMBER_OF_MASTER_NODES
+  @ui.error "The maximum number of master nodes is " + MAX_NUMBER_OF_MASTER_NODES.to_s
+  exit(ERR_MASTER_NODE_COUNT)
+end
+
 kubernetes_worker_nodes_count = settings["kubernetes"]["worker_nodes_count"]
 kubernetes_worker_nodes = {}
 
@@ -241,9 +274,10 @@ ansible_controller_vm_name = nil
 kubernetes_worker_nodes_count.times { |i|
     node_name = "k8s-minion-#{i}"
     node_id = node_name + domain
-    node_ipv4_address = network_prefix + "30"
-    node_ipv6_address = network_prefix_ipv6 + "c41e::"
-    node_mac_address = "0800271F9D03"
+    node_ipv4_address = network_prefix + (minion_ipv4_base+i).to_s
+    node_ipv6_address = get_ipv6_address(network_prefix_ipv6,node_suffix_ipv6,i,delta_ipv6,default_ipv6_host_part)
+    node_mac_address = minion_base_mac_address[0,10] +
+                       "%02x" % (Integer("0x" + minion_base_mac_address[10,2])+i)
     kubernetes_worker_nodes[node_id] = {
         :autostart => true,
         :box => vagrant_x64_kubernetes_nodes_box_id,
@@ -287,7 +321,7 @@ playground = {
     :autostart => true,
     :box => vagrant_x64_kubernetes_nodes_box_id,
     :cpus => 2,
-    :mac_address => "0800271F9D02",
+    :mac_address => master_base_mac_address,
     :mem => master_mem,
     :ip => kubernetes_master_1_ip,
     :net_auto_config => true,
