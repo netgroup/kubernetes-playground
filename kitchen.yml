@@ -16,8 +16,12 @@ provisioner:
   ansible_host_key_checking: false
   ansible_version: 2.7.12
   custom_pre_play_command: |
-    [ -d /home/vagrant/.ansible ] && sudo chown -R vagrant:vagrant /home/vagrant/.ansible; \
-    sudo /vagrant/scripts/linux/check-kubeadm-requirements.sh
+    echo "Before Ansible play" ;
+    [ -d /home/vagrant/.ansible ] && sudo chown -R vagrant:vagrant /home/vagrant/.ansible ;
+    echo "/etc/fstab contents: $(cat /etc/fstab)"
+  custom_post_play_command: |
+    echo "Post Ansible play" ;
+    echo "/etc/fstab contents: $(cat /etc/fstab)"
   group_vars_path: ansible/group_vars
   host_vars_path: ansible/host_vars
   name: ansible_playbook

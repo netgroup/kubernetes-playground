@@ -38,13 +38,6 @@ if [ "$quick_setup" = "enabled" ]; then
     additional_ansible_arguments="$additional_ansible_arguments --tags quick_setup"
 fi
 
-echo "Ensure the Docker service is enabled and running"
-systemctl enable docker
-if ! systemctl is-active --quiet docker; then
-    echo "Starting the docker service..."
-    systemctl start docker
-fi
-
 inventory="/etc/$inventory"
 
 # Playbooks paths
