@@ -12,7 +12,6 @@ control "kubernetes" do
   packages = [
     'conntrack-tools',
     'docker-ce',
-    'glusterfs-cli',
     'kubeadm',
     'kubectl',
     'kubelet'
@@ -69,27 +68,6 @@ control "kubernetes" do
     end
 
   default_vars = YAML.load_file('ansible/roles/kubernetes/vars/main.yml')
-  glusterfs_kernel_modules = default_vars['__ferrarimarco_kubernetes_glusterfs_kernel_modules']
-
-  config = YAML.load_file('ansible/roles/kubernetes/defaults/main.yml')
-  systemd_modules_load_path = config['ferrarimarco_kubernetes_kernel_modules_conf_dir']
-
-  glusterfs_kernel_modules.each do |item|
-    describe kernel_module(item) do
-      it { should be_loaded }
-      it { should_not be_disabled }
-      it { should_not be_blacklisted }
-    end
-
-    describe file(File.join(systemd_modules_load_path, "#{item}.conf")) do
-      it { should exist }
-      it { should be_file }
-      it { should be_owned_by 'root' }
-      it { should be_grouped_into 'root' }
-      it { should be_readable.by_user('root') }
-      its('mode') { should cmp '0644' }
-    end
-  end
 
     all_group_vars = YAML.load_file('ansible/group_vars/all.yaml')
     ip_to_host_mappings = all_group_vars['ip_to_host_mappings']
@@ -103,5 +81,4 @@ control "kubernetes" do
             its('ipaddress') { should include ip_v4_address }
         end
     }
-
 end
