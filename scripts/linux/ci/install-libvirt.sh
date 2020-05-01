@@ -17,6 +17,7 @@ apt-get install -y --no-install-recommends \
     libvirt-dev \
     libxml2-dev \
     libxslt1-dev \
+    nfs-kernel-server \
     qemu-kvm \
     qemu-utils \
     qemu \
@@ -24,3 +25,5 @@ apt-get install -y --no-install-recommends \
     ruby-dev \
     tree \
     zlib1g-dev
+
+modprobe -a kvm
