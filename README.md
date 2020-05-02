@@ -10,8 +10,6 @@ This project is a playground to play with Kubernetes.
 1. 3x Kubernetes Minions VMs.
 1. "Controller": a Docker container where we run an Ansible instance to
    configure the whole environment.
-1. A hyper-converged, cloud native storage cluster managed with
-   [GlusterFS](https://github.com/gluster/gluster-kubernetes) and [Heketi](https://github.com/heketi/heketi).
 1. A monitoring solution based on [Prometheus](https://prometheus.io/) and [Grafana](https://grafana.com/).
 1. [Traefik](https://traefik.io/)
    [Ingress Controller](https://kubernetes.io/docs/concepts/services-networking/ingress/)
@@ -124,13 +122,6 @@ If you want to test a different CNI plugin, run:
 ## Add-ons
 
 You can install the following, optional, workloads and services in the cluster.
-
-### Cloud Native Storage
-
-To deploy GlusterFS, SSH into the master and run the configuration script:
-
-1. `vagrant ssh kubernetes-master-1.kubernetes-playground.local`
-1. `sudo /vagrant/scripts/linux/bootstrap-glusterfs.sh`
 
 ### Ingress Controller
 
