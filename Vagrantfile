@@ -138,7 +138,7 @@ def get_ipv6_address(base_addr,base_suffix,order,delta,final_part)
     @ui.error 'Malformed IPv6 suffix (must be a string with 4 hex digits followed by "::")'
     @ui.error 'Value: ' + base_suffix
     exit(ERR_BAD_IPV6_SUFFIX)
-  end 
+  end
   suffix_num = suffix_num + order * delta
   output = output + "%04x" % suffix_num + "::" + final_part
   return output
