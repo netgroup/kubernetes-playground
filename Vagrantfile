@@ -465,9 +465,7 @@ Vagrant.configure("2") do |config|
 
   # Install the required Vagrant plugins.
   # Populate this hash with the plugins that don't depend on specific provisioners or providers.
-  config.vagrant.plugins = {
-    "vagrant-hostsupdater" => {"version" => "1.1.1"}
-  }
+  config.vagrant.plugins = {}
 
   playground.each do |(hostname, info)|
     config.vm.define hostname, autostart: info[:autostart] do |host|
@@ -476,10 +474,6 @@ Vagrant.configure("2") do |config|
         host.vm.network :private_network, auto_config: info[:net_auto_config], :mac => "#{info[:mac_address]}", type: info[:net_type]
       elsif(network_type_static_ip == info[:net_type])
         host.vm.network :private_network, auto_config: info[:net_auto_config], :mac => "#{info[:mac_address]}", ip: "#{info[:ip]}", :netmask => "#{info[:subnet_mask]}"
-      end
-
-      if info.key?(:alias)
-        host.hostsupdater.aliases = info[:alias]
       end
 
       if(vagrant_provider == 'virtualbox')
