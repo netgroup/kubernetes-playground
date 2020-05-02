@@ -3,6 +3,7 @@ require 'ipaddr'
 
 @ui = Vagrant::UI::Colored.new
 
+# Definition of error exit codes
 ERR_NET_PLUGIN_CONF = 1
 ERR_PROVIDER_CONF = 2
 ERR_LIBVIRT_MGT_NET_CONF = 3
@@ -11,6 +12,7 @@ ERR_CALICO_ENV_VAR_VALUE_CONF = 5
 ERR_BAD_IPV6_SUFFIX = 6
 ERR_MASTER_NODE_COUNT = 7
 
+# Definition of constants
 MAX_NUMBER_OF_MASTER_NODES = 1
 
 def log_info_or_debug(message)
