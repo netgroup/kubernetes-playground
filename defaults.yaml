@@ -36,9 +36,9 @@ conf:
   # Vagrant boxes IDs.
   kubernetes_nodes_base_box_id:
     # ID of the Vagrant box for the Virtualbox provider.
-    virtualbox: "bento/centos-7.4"
+    virtualbox: "debian/buster64"
     # ID of the Vagrant box for the libvirt provider.
-    libvirt: "centos/7"
+    libvirt: "debian/buster64"
 # Network configuration parameters.
 net:
   # IPv4 network prefix.

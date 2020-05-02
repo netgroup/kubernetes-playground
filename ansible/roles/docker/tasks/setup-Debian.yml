@@ -42,7 +42,10 @@
 
 - name: Add Docker APT repository
   apt_repository:
-    repo: "deb https://download.docker.com/linux/ubuntu {{ ubuntu_release }} {{ docker_apt_repository_section_name }}"
+    repo: |
+      deb https://download.docker.com/linux/ubuntu
+      {{ ansible_distribution_release }}
+      {{ docker_apt_repository_section_name }}
     state: present
     update_cache: true
 

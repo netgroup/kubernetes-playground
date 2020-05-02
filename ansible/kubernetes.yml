@@ -71,6 +71,7 @@
             Additional network interface name: {{ additional_network_interface_name | default('NOT DEFINED') }}
             Additional network NM UUID: {{ additional_network_interface_nm_connection_name | default('NOT DEFINED') }}
             Ansible distribution: {{ ansible_distribution }}
+            Ansible distribution release: {{ ansible_distribution_release }}
             Ansible distribution version: {{ ansible_distribution_version }}
             Ansible domain: {{ ansible_domain }}
             Ansible FQDN: {{ ansible_fqdn }}
