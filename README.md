@@ -37,8 +37,6 @@ This project currently supports the following Vagrant providers:
 When you first bring this environment up, the provisioning process will also
 install the needed Vagrant plugins:
 
-1. [vagrant-hostsupdater](https://github.com/cogitatio/vagrant-hostsupdater)
-    >= 1.1.1
 1. [vagrant-libvirt](https://github.com/vagrant-libvirt/vagrant-libvirt)
     >= 0.0.45
 
