@@ -488,8 +488,7 @@ Vagrant.configure("2") do |config|
           vb.customize ["modifyvm", :id, "--hwvirtex", "on"]
           vb.customize ["modifyvm", :id, "--memory", info[:mem]]
           vb.customize ["modifyvm", :id, "--name", hostname]
-          vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
-          vb.customize ["modifyvm", :id, "--natdnshostresolver2", "on"]
+
           if (additional_disk_size > 0 && (minions.has_key? hostname))
             disk_file = vm_directory + "/#{hostname}-disk-2.vmdk"
             log_info_or_debug "Adding a disk of #{additional_disk_size} MB to the #{hostname} VM. Disk file path: #{disk_file}."
