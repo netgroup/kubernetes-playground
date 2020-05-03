@@ -27,7 +27,7 @@ done
 if command -v docker >/dev/null 2>&1; then
     echo "Docker is already installed"
 else
-    curl -sSL https://get.docker.com | sh
+    wget -qO- https://get.docker.com | sh
     usermod -aG docker "$user"
 
     echo "Ensure the Docker service is enabled and running"
