@@ -136,6 +136,7 @@ jobs:
         bundler: true
         directories:
           - $HOME/.vagrant.d/boxes
+          - $HOME/.vagrant.d/gems
           - $GEM_HOME
       install:
         - gem install bundler
