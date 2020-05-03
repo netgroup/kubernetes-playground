@@ -247,6 +247,8 @@ minion_mem = settings["conf"]["minion_mem"]
 
 additional_disk_size = settings["conf"]["additional_disk_size"]
 
+allow_workloads_on_masters = settings["kubernetes"]["allow_workloads_on_masters"]
+
 # path to the shared folder with the VMs
 vagrant_root = File.dirname(__FILE__)
 
@@ -401,6 +403,7 @@ inventory = {
 IO.write(ansible_inventory_path, inventory.to_yaml)
 
 default_group_vars = {
+  "allow_workloads_on_masters" => "#{allow_workloads_on_masters}",
   "ansible_ssh_extra_args" => "-o StrictHostKeyChecking=no",
   "ansible_ssh_pass" => "vagrant",
   "ansible_user" => "vagrant",

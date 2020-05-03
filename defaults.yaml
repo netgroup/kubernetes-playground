@@ -39,6 +39,10 @@ conf:
     virtualbox: "bento/centos-7.4"
     # ID of the Vagrant box for the libvirt provider.
     libvirt: "centos/7"
+# Kubernetes configuration parameters.
+kubernetes:
+  # If set to true, allows scheduling pods on master nodes.
+  allow_workloads_on_masters: false
 # Network configuration parameters.
 net:
   # IPv4 network prefix.
