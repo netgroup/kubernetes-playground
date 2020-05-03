@@ -24,19 +24,18 @@
       tags:
         - quick_setup
       when: ipv4_address is defined
+    - name: Set facts related to the additional network interface
+      set_fact:
+        additional_network_interface_name: "{{ additional_network_interface_name_result.stdout }}"
+      tags:
+        - quick_setup
+      when: ipv4_address is defined
     - name: Look up docker cgroup driver
       shell: "set -o pipefail && docker info | grep 'Cgroup Driver' | awk -F': ' '{ print $2; }'"
       register: docker_cgroup_driver_result
       changed_when: false
       tags:
         - quick_setup
-    - name: Set facts related to the additional network interface
-      set_fact:
-        additional_network_interface_name: "{{ additional_network_interface_name_result.stdout }}"
-        if_name_for_flannel: "{{ additional_network_interface_name }}"
-      tags:
-        - quick_setup
-      when: ipv4_address is defined
     - name: Set additional facts
       set_fact:
         docker_cgroup_driver: "{{ docker_cgroup_driver_result.stdout }}"
@@ -80,7 +79,6 @@
             Ansible user: {{ ansible_user }}
             Cluster IP CIDR: {{ cluster_ip_cidr }}
             Docker cgroup driver: {{ docker_cgroup_driver }}
-            Interface name for flannel: {{ if_name_for_flannel | default('NOT DEFINED') }}
             Inventory hostname: {{ inventory_hostname }}
             IP address: {{ ipv4_address | default('NOT DEFINED') }}
             IPv6 address: {{ ipv6_address | default('NOT DEFINED') }}
@@ -180,7 +178,7 @@
         mode: 0755
         owner: root
         src: templates/kube-flannel-config.yaml.j2
-      when: inventory_hostname == kubernetes_master_1_hostname and if_name_for_flannel is defined
+      when: inventory_hostname == kubernetes_master_1_hostname and additional_network_interface_name is defined
       tags:
         - initialize_kubernetes_cluster
         - quick_setup
