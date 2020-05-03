@@ -68,16 +68,6 @@ jobs:
       script: |
         find -name "*.md" -not -path "*/node_modules/*" \
         | xargs markdownlint || exit 1
-    - name: "Vagrant validate"
-      before_install:
-        - sudo scripts/linux/ci/install-libvirt.sh
-        - sudo scripts/linux/ci/install-vagrant.sh
-        - sudo scripts/linux/ci/install-vagrant-plugins.sh
-        - sudo scripts/linux/ci/generate-env-for-travis.sh
-        - sudo chown -R travis:travis $HOME/.vagrant.d
-      cache: bundler
-      language: ruby
-      script: vagrant validate --ignore-provider
     - name: "shfmt"
       language: go
       before_install: GO111MODULE=on go get mvdan.cc/sh/v3/cmd/shfmt
