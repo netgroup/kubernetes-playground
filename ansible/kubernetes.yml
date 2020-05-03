@@ -88,7 +88,6 @@
         set -e ; \
         /vagrant/scripts/linux/configure-ipv6-interface.sh \
         {{ ipv6_address }} \
-        {{ ansible_ssh_connection_ip_v4_address }} \
         {{ subnet_mask_ipv6 }} \
         {{ ansible_ssh_connection_interface_name }} \
         {{ ansible_ssh_connection_nm_connection_name }}
