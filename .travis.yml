@@ -122,11 +122,13 @@ jobs:
         - sudo adduser "$(id -un)" libvirt
         - sudo adduser "$(id -un)" kvm
       before_script:
+        - env
         - sudo lsmod | sort
         - kvm-ok
         - gem environment
         # List all installed gems
         - gem query --local
+        - bundle show --paths
         - tree .
         - vagrant validate
         - vagrant status
