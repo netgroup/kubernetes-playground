@@ -148,6 +148,7 @@ os: linux
 services:
   - docker
 stages:
+  - vagrant
   - linting
   - build_container_images
-  - test_kitchen
+  # - vagrant
