@@ -10,6 +10,10 @@
       listen:
         - systemd_read_configs
   post_tasks:
+    - name: Display all variables/facts known for {{ inventory_hostname }} after applying roles
+      debug:
+        var: hostvars[inventory_hostname]
+        verbosity: 2
     - name: Set ansible_ssh_connection_ip_v4_address fact
       set_fact:
         ansible_ssh_connection_ip_v4_address: >-
@@ -51,7 +55,7 @@
         ansible_ssh_connection_nm_connection_name: "{{ ansible_ssh_connection_nm_connection_name_result.stdout }}"
       tags:
         - quick_setup
-    - name: Display all variables/facts known for {{ inventory_hostname }}
+    - name: Display all variables/facts known for {{ inventory_hostname }} after setting facts
       debug:
         var: hostvars[inventory_hostname]
         verbosity: 2
