@@ -124,6 +124,7 @@ jobs:
       before_script:
         - sudo lsmod | sort
         - kvm-ok
+        - gem environment
         # List all installed gems
         - gem query --local
         - tree .
@@ -145,7 +146,7 @@ jobs:
         sudo env \
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-        vagrant up base-box-builder.k8s-play.local
+        vagrant up base-box-builder.k8s-play.local || exit 1
 language: shell
 os: linux
 services:
