@@ -6,4 +6,4 @@ if Gem::Version.new(Bundler::VERSION) < Gem::Version.new('1.13.0')
 end
 
 gem "inspec", '4.18.108'
-gem "travis", '1.9.0'
+gem "travis"
