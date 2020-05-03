@@ -36,7 +36,7 @@ conf:
   # Vagrant boxes IDs.
   kubernetes_nodes_base_box_id:
     # ID of the Vagrant box for the Virtualbox provider.
-    virtualbox: "debian/buster64"
+    virtualbox: "debian/contrib-buster64"
     # ID of the Vagrant box for the libvirt provider.
     libvirt: "debian/buster64"
 # Network configuration parameters.
