@@ -142,8 +142,9 @@ jobs:
       # so the membership to that group is not yet in effect.
       # Set the PATH to make the installed gems accessible.
       script: |
-        sudo env
-        PATH="$PATH" VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER"
+        sudo env \
+        PATH="$PATH" \
+        VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
         vagrant up base-box-builder.k8s-play.local
 language: shell
 os: linux
