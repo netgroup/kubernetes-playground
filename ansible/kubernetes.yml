@@ -137,7 +137,7 @@
         mode: 0755
         owner: root
         src: templates/kubeadm-config.yaml.j2
-      when: ansible_ssh_connection_ip_v4_address == kubernetes_master_1_ip
+      when: inventory_hostname == kubernetes_master_1_hostname
       tags:
         - quick_setup
     - name: Generate weavenet configuration file
@@ -149,7 +149,7 @@
         mode: 0755
         owner: root
         src: templates/weavenet-config.yaml.j2
-      when: ansible_ssh_connection_ip_v4_address == kubernetes_master_1_ip
+      when: inventory_hostname == kubernetes_master_1_hostname
       tags:
         - quick_setup
     - name: Generate Calico configuration file
@@ -161,13 +161,13 @@
         mode: 0755
         owner: root
         src: templates/calico-config.yaml.j2
-      when: ansible_ssh_connection_ip_v4_address == kubernetes_master_1_ip
+      when: inventory_hostname == kubernetes_master_1_hostname
       tags:
         - quick_setup
     - name: Define if_name_for_flannel
       set_fact:
         if_name_for_flannel: "{{ ansible_ssh_connection_interface_name }}"
-      when: ansible_ssh_connection_ip_v4_address == kubernetes_master_1_ip
+      when: inventory_hostname == kubernetes_master_1_hostname
       tags:
         - quick_setup
     - name: Generate Flannel configuration file
@@ -179,7 +179,7 @@
         mode: 0755
         owner: root
         src: templates/kube-flannel-config.yaml.j2
-      when: ansible_ssh_connection_ip_v4_address == kubernetes_master_1_ip
+      when: inventory_hostname == kubernetes_master_1_hostname
       tags:
         - initialize_kubernetes_cluster
         - quick_setup
@@ -192,7 +192,7 @@
         {{ kubernetes_network_plugin }}
       args:
         creates: /home/vagrant/.kube/config
-      when: ansible_ssh_connection_ip_v4_address == kubernetes_master_1_ip
+      when: inventory_hostname == kubernetes_master_1_hostname
       tags:
         - initialize_kubernetes_cluster
         - quick_setup
@@ -201,12 +201,12 @@
         dest: /home/vagrant/.bashrc
         line: "source <(kubectl completion bash)"
         owner: vagrant
-      when: ansible_ssh_connection_ip_v4_address == kubernetes_master_1_ip
+      when: inventory_hostname == kubernetes_master_1_hostname
     - name: Initialize Kubernetes cluster (workers)
       become: true
       shell: |
         /vagrant/scripts/linux/bootstrap-kubernetes-{{ kubernetes_classifier }}.sh \
-        {{ kubernetes_master_1_ip }} \
+        {{ kubernetes_master_1_hostname }} \
         {{ kubeadm_token }} \
         {{ cluster_ip_cidr }} \
         {{ kubernetes_network_plugin }}
