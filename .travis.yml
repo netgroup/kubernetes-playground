@@ -3,6 +3,7 @@ dist: bionic
 env:
   global:
     - VAGRANT_VERSION="2.2.7"
+    - BASE_BOX_VAGRANT_VM_ID="base-box-builder.k8s-play.local"
 jobs:
   fast_finish: true
   include:
@@ -122,6 +123,7 @@ jobs:
         - tree .
         - vagrant validate
         - vagrant status
+        - vagrant ssh-config "$BASE_BOX_VAGRANT_VM_ID"
       cache:
         bundler: true
         directories:
@@ -140,7 +142,8 @@ jobs:
         sudo \
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-        vagrant up base-box-builder.k8s-play.local || exit 1
+        vagrant up "$BASE_BOX_VAGRANT_VM_ID" || exit 1; \
+        inspec exec test/inspec -t ssh://vagrant@"$VAGRANT_SSH_HOST" -p "$VAGRANT_SSH_PORT" || exit 1
 language: shell
 os: linux
 services:
