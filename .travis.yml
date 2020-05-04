@@ -124,6 +124,10 @@ jobs:
         - tree .
         - vagrant validate
         - vagrant status
+        - inspec --chef-license=accept -h
+        - inspec exec -h
+        - inspec check -h
+        - inspec check test/inspec
       cache:
         bundler: true
         directories:
