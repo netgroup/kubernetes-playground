@@ -148,7 +148,7 @@ jobs:
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
         VAGRANT_SUPPRESS_OUTPUT="true" \
         vagrant ssh-config "$BASE_BOX_VAGRANT_VM_ID" | tee "$HOME"/.ssh/config; \
-        inspec exec test/inspec -t ssh://vagrant@"$VAGRANT_SSH_HOST" -p "$VAGRANT_SSH_PORT" || exit 1
+        inspec exec test/inspec -t ssh://"$BASE_BOX_VAGRANT_VM_ID" || exit 1
 language: shell
 os: linux
 services:
