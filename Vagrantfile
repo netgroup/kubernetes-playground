@@ -164,8 +164,7 @@ if settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"] == "cal
                               "calico_env_var_value",
                               ["Always","CrossSubnet","Never"],
                               ERR_CALICO_ENV_VAR_VALUE_CONF)
-  output_info_if_enabled "Calico environment variable: #{settings["ansible"]["group_vars"]["all"]["calico_config"]["calico_env_var"]}
-            = #{settings["ansible"]["group_vars"]["all"]["calico_config"]["calico_env_var_value"]}"
+  output_info_if_enabled "Calico environment variable: #{settings["ansible"]["group_vars"]["all"]["calico_config"]["calico_env_var"]} = #{settings["ansible"]["group_vars"]["all"]["calico_config"]["calico_env_var_value"]}"
 end
 
 # Check that the provider is supported
