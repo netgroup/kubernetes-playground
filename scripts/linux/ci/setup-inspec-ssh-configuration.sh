@@ -9,8 +9,8 @@ echo "Setting environment variables for InSpec to connect to $SSH_HOST via ssh..
 SSH_CONFIG_FILE_PATH="$HOME"/.ssh/config
 echo "Current ssh configuration ($SSH_CONFIG_FILE_PATH) $(cat "$SSH_CONFIG_FILE_PATH")"
 
-SSH_CONFIG_FOR_HOST="$(ssh -G "$SSH_HOST")"
-echo "ssh configuration for $SSH_HOST: $SSH_CONFIG_FOR_HOST"
+SSH_CONFIG_FOR_HOST="$(vagrant ssh-config "$SSH_HOST")"
+echo "vagrant ssh configuration for $SSH_HOST: $SSH_CONFIG_FOR_HOST"
 
 INSPEC_SSH_USER=
 INSPEC_SSH_HOST=
