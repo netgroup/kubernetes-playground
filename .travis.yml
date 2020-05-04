@@ -123,7 +123,6 @@ jobs:
         - tree .
         - vagrant validate
         - vagrant status
-        - vagrant ssh-config "$BASE_BOX_VAGRANT_VM_ID"
       cache:
         bundler: true
         directories:
@@ -143,6 +142,7 @@ jobs:
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
         vagrant up "$BASE_BOX_VAGRANT_VM_ID" || exit 1; \
+        vagrant ssh-config "$BASE_BOX_VAGRANT_VM_ID"; \
         inspec exec test/inspec -t ssh://vagrant@"$VAGRANT_SSH_HOST" -p "$VAGRANT_SSH_PORT" || exit 1
 language: shell
 os: linux
