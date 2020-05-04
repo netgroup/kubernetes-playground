@@ -147,7 +147,7 @@ check_and_select_conf_options(settings["ansible"]["group_vars"]["all"],
                               "kubernetes_network_plugin",
                               ["no-cni-plugin", "weavenet", "calico", "flannel"],
                               ERR_NET_PLUGIN_CONF)
-@ui.info "Networking plugin : " + settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"]
+@ui.info "Networking plugin: " + settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"]
 # if calico, check that at least one and only one env_var and env_var_value is selected
 if settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"] == "calico"
   check_and_select_conf_options(settings["ansible"]["group_vars"]["all"]["calico_config"],
@@ -158,7 +158,7 @@ if settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"] == "cal
                               "calico_env_var_value",
                               ["Always","CrossSubnet","Never"],
                               ERR_CALICO_ENV_VAR_VALUE_CONF)
-  @ui.info "Calico env variable: " + settings["ansible"]["group_vars"]["all"]["calico_config"]["calico_env_var"] +
+  @ui.info "Calico environment variable: " + settings["ansible"]["group_vars"]["all"]["calico_config"]["calico_env_var"] +
             "=" + settings["ansible"]["group_vars"]["all"]["calico_config"]["calico_env_var_value"]
 end
 
@@ -189,6 +189,9 @@ subnet_mask_ipv6 = settings["net"]["subnet_mask_ipv6"]
 
 kubeadm_token = "0y5van.5qxccw2ewiarl68v"
 kubernetes_master_1_ip = network_prefix + "10"
+kubernetes_minion_1_ip = network_prefix + "30"
+kubernetes_minion_2_ip = network_prefix + "31"
+kubernetes_minion_3_ip = network_prefix + "32"
 kubernetes_master_1_ipv6 = network_prefix_ipv6 + settings["net"]["master_ipv6_part"]
 kubernetes_minion_1_ipv6 = network_prefix_ipv6 + settings["net"]["minion_1_ipv6_part"]
 kubernetes_minion_2_ipv6 = network_prefix_ipv6 + settings["net"]["minion_2_ipv6_part"]
@@ -273,6 +276,7 @@ playground = {
     :subnet_mask => subnet_mask,
     :show_gui => false,
     :host_vars => {
+      "ipv4_address" => kubernetes_master_1_ip,
       "ipv6_address" => kubernetes_master_1_ipv6,
       assigned_hostname_key => kubernetes_master_1_vm_id
     }
@@ -283,12 +287,13 @@ playground = {
     :cpus => 1,
     :mac_address => "0800271F9D03",
     :mem => minion_mem,
-    :ip => network_prefix + "30",
+    :ip => kubernetes_minion_1_ip,
     :net_auto_config => true,
     :net_type => network_type_static_ip,
     :subnet_mask => subnet_mask,
     :show_gui => false,
     :host_vars => {
+      "ipv4_address" => kubernetes_minion_1_ip,
       "ipv6_address" => kubernetes_minion_1_ipv6,
       assigned_hostname_key => kubernetes_minion_1_vm_id
     }
@@ -299,12 +304,13 @@ playground = {
     :cpus => 1,
     :mac_address => "0800271F9D04",
     :mem => minion_mem,
-    :ip => network_prefix + "31",
+    :ip => kubernetes_minion_2_ip,
     :net_auto_config => true,
     :net_type => network_type_static_ip,
     :subnet_mask => subnet_mask,
     :show_gui => false,
     :host_vars => {
+      "ipv4_address" => kubernetes_minion_2_ip,
       "ipv6_address" => kubernetes_minion_2_ipv6,
       assigned_hostname_key => kubernetes_minion_2_vm_id
     }
@@ -315,12 +321,13 @@ playground = {
     :cpus => 1,
     :mac_address => "0800271F9D05",
     :mem => minion_mem,
-    :ip => network_prefix + "32",
+    :ip => kubernetes_minion_3_ip,
     :net_auto_config => true,
     :net_type => network_type_static_ip,
     :subnet_mask => subnet_mask,
     :show_gui => false,
     :host_vars => {
+      "ipv4_address" => kubernetes_minion_3_ip,
       "ipv6_address" => kubernetes_minion_3_ipv6,
       assigned_hostname_key => kubernetes_minion_3_vm_id
     }
