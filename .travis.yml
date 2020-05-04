@@ -151,9 +151,9 @@ jobs:
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
         VAGRANT_SUPPRESS_OUTPUT="true" \
         vagrant ssh-config "$BASE_BOX_VAGRANT_VM_ID" >>"$HOME"/.ssh/config; \
-        sudo scripts/linux/ci/setup-inspec-ssh-configuration.sh "$BASE_BOX_VAGRANT_VM_ID";
-        inspec exec --chef-license=accept test/inspec/kubernetes-playground \
-        -t ssh://"$INSPEC_SSH_USER"@"$INSPEC_SSH_HOST" -i "$INSPEC_SSH_PRIVATE_KEY_PATH" -p "$INSPEC_SSH_PORT" || exit 1
+#        sudo scripts/linux/ci/setup-inspec-ssh-configuration.sh "$BASE_BOX_VAGRANT_VM_ID";
+#        inspec exec --chef-license=accept test/inspec/kubernetes-playground \
+#       -t ssh://"$INSPEC_SSH_USER"@"$INSPEC_SSH_HOST" -i "$INSPEC_SSH_PRIVATE_KEY_PATH" -p "$INSPEC_SSH_PORT" || exit 1
 language: shell
 os: linux
 services:
