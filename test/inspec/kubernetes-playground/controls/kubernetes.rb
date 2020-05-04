@@ -2,6 +2,7 @@ require 'yaml'
 
 control "kubernetes" do
   title "kubernetes role check"
+  description "This control checks that the kubernetes role has been correctly applied"
 
   describe yum.repo('kubernetes') do
     it { should exist }

@@ -1,10 +1,9 @@
 ---
 name: kubernetes-playground
 title: Kubernetes Playground
-# maintainer: Chef Software, Inc.
-# copyright: Chef Software, Inc.
-# copyright_email: support@chef.io
-# license: Proprietary, All rights reserved
+maintainer: ferrari.marco@gmail.com
+copyright: Marco Ferrari
+license: MIT License
 summary: Verify that the Kubernetes playground is correctly configured
 version: 1.0.0
 supports:
