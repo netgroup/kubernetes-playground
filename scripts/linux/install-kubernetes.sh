@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 if ! TEMP="$(getopt -o a:i:q --long additional-ansible-arguments:,inventory:,quick-setup \
     -n 'install-kubernetes' -- "$@")"; then
     echo "Terminating..." >&2
