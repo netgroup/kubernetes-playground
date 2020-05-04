@@ -99,7 +99,8 @@ jobs:
     - name: "Build base box"
       after_script:
         - tree .
-        - cat "$HOME"/.ssh/config
+        - echo "ssh configuration $(cat "$HOME"/.ssh/config)
+        - echo "ssh configuration for $BASE_BOX_VAGRANT_VM_ID $(ssh -G "$BASE_BOX_VAGRANT_VM_ID")"
       env:
         - VAGRANT_DEFAULT_PROVIDER=libvirt
       stage: vagrant
@@ -151,7 +152,8 @@ jobs:
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
         VAGRANT_SUPPRESS_OUTPUT="true" \
-        vagrant ssh-config "$BASE_BOX_VAGRANT_VM_ID" | tee "$HOME"/.ssh/config; \
+        echo "Vagrant ssh-config for $BASE_BOX_VAGRANT_VM_ID: " \
+        && vagrant ssh-config "$BASE_BOX_VAGRANT_VM_ID" | tee "$HOME"/.ssh/config; \
         inspec exec --chef-license=accept test/inspec/kubernetes-playground -t ssh://"$BASE_BOX_VAGRANT_VM_ID" || exit 1
 language: shell
 os: linux
