@@ -99,6 +99,7 @@ jobs:
     - name: "Build base box"
       after_script:
         - tree .
+        - cat "$HOME"/.ssh/config
       env:
         - VAGRANT_DEFAULT_PROVIDER=libvirt
       stage: vagrant
@@ -146,7 +147,7 @@ jobs:
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
         VAGRANT_SUPPRESS_OUTPUT="true" \
-        vagrant ssh-config "$BASE_BOX_VAGRANT_VM_ID"; \
+        vagrant ssh-config "$BASE_BOX_VAGRANT_VM_ID" | tee "$HOME"/.ssh/config; \
         inspec exec test/inspec -t ssh://vagrant@"$VAGRANT_SSH_HOST" -p "$VAGRANT_SSH_PORT" || exit 1
 language: shell
 os: linux
