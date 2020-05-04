@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 if ! TEMP="$(getopt -o vdm: --long user: -n 'install-docker' -- "$@")"; then
     echo "Terminating..." >&2
     exit 1
