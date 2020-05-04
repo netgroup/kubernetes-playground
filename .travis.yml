@@ -107,7 +107,6 @@ jobs:
         - sudo scripts/linux/ci/install-vagrant.sh
         - sudo scripts/linux/ci/install-vagrant-plugins.sh
         - sudo scripts/linux/ci/generate-env-for-travis.sh
-        - sudo scripts/linux/ci/setup-inspec-ssh-configuration.sh
         # Fix permissions after installing vagrant plugins with sudo
         - sudo chown -R travis:travis $HOME/.vagrant.d
         # This doesn't have effect if you don't open a new shell
@@ -153,6 +152,7 @@ jobs:
         VAGRANT_SUPPRESS_OUTPUT="true" \
         echo "Vagrant ssh-config for $BASE_BOX_VAGRANT_VM_ID: " \
         && vagrant ssh-config "$BASE_BOX_VAGRANT_VM_ID" | tee "$HOME"/.ssh/config; \
+        sudo scripts/linux/ci/setup-inspec-ssh-configuration.sh;
         inspec exec --chef-license=accept test/inspec/kubernetes-playground \
         -t ssh://"$INSPEC_SSH_USER"@"$INSPEC_SSH_HOST" -i "$INSPEC_SSH_PRIVATE_KEY_PATH" -p "$INSPEC_SSH_PORT" || exit 1
 language: shell
