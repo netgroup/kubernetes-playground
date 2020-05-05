@@ -55,15 +55,6 @@ control "kubernetes" do
         end
     end
 
-    describe file(sysctl_configuration_file_path) do
-        it { should exist }
-        it { should be_file }
-        it { should be_owned_by 'root' }
-        it { should be_grouped_into 'root' }
-        it { should be_readable.by_user('root') }
-        its('mode') { should cmp '0644' }
-    end
-
     describe etc_fstab.where { file_system_type.match(/swap/) } do
         it { should_not be_configured }
     end
