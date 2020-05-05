@@ -12,20 +12,30 @@
 
 # clean up kubernetes control information and cni settings in all nodes
 
+drain_and_delete_node() {
+    NODE_NAME="$1"
+    echo "Draining $NODE_NAME"
+    kubectl drain "$NODE_NAME" --delete-local-data --force --ignore-daemonsets
+
+    echo "Deleting $NODE_NAME from the cluster"
+    kubectl delete "$NODE_NAME"
+
+    unset NODE_NAME
+}
+
 KUBE_CONFIG_PATH="$HOME/.kube"
 
 # If we're on a master, let's drain and remove all the workers first.
 # Note that if there are multiple masters, we should provide a mechanism to
 # avoid stepping on another master's toes when draining and removing nodes.
-if [ -d "$KUBE_CONFIG_PATH" ] && kubectl get nodes -l node-role.kubernetes.io/master= -o name | grep -qs "$(hostname)"; then
+HOSTNAME="$(hostname)"
+if [ -d "$KUBE_CONFIG_PATH" ] && kubectl get nodes -l node-role.kubernetes.io/master= -o name | grep -qs "$HOSTNAME"; then
     echo "Draining and deleting nodes from the cluster"
     kubectl get no -o name | while IFS= read -r line; do
-        echo "Draining $line"
-        kubectl drain "$line" --delete-local-data --force --ignore-daemonsets
-
-        echo "Deleting $line from the cluster"
-        kubectl delete "$line"
+        drain_and_delete_node "$line"
     done
+
+    drain_and_delete_node "$HOSTNAME"
 fi
 
 echo "Resetting changes done by kubeadm"
