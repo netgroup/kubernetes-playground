@@ -34,8 +34,6 @@ if [ -d "$KUBE_CONFIG_PATH" ] && kubectl get nodes -l node-role.kubernetes.io/ma
     kubectl get no -o name | while IFS= read -r line; do
         drain_and_delete_node "$line"
     done
-
-    drain_and_delete_node "$HOSTNAME"
 fi
 
 echo "Resetting changes done by kubeadm"
