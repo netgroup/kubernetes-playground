@@ -277,13 +277,15 @@ The test suite checks the whole environment for compliance using a verifier
 
 ##### How to run the compliance test suites
 
-You can run the test suite manually. [Test-Kitchen](https://kitchen.ci/) will
-manage the lifecycle of the test instances.
+You can run the test suite against any guest, after provisioning and configuring
+it.
 
 1. Install the dependencies (you need to have a working Ruby environment):
     1. Install bundler: `gem install bundler`
     1. Install required gems: `bundle install`
-1. Run the tests with Test-Kitchen: `kitchen test`
+1. Provision and configure the desired guest: `vagrant up <guest-name>`, or
+`vagrant provision <guest-name>` if the guest is already up.
+1. Run the tests: `scripts/linux/ci/run-inspec-against-host.sh <guest-name>`
 
 ### Debugging and troubleshooting utilities
 
