@@ -15,7 +15,7 @@ def log_info_or_debug(message)
   end
 end
 
-def output_info_if_enabled(message)
+def ui_info_if_enabled(message)
   unless ENV['VAGRANT_SUPPRESS_OUTPUT'] == 'true' || ENV['VAGRANT_SUPPRESS_OUTPUT'] == 1
     @ui.info message
   end
@@ -144,8 +144,8 @@ if File.exist?(env_specific_config_path)
 end
 
 # Display the main current configuration parameters
-output_info_if_enabled "Welcome to Kubernetes playground!"
-output_info_if_enabled "Vagrant provider: #{settings["conf"]["vagrant_provider"]}"
+ui_info_if_enabled "Welcome to Kubernetes playground!"
+ui_info_if_enabled "Vagrant provider: #{settings["conf"]["vagrant_provider"]}"
 log_info_or_debug "Active settings (from defaults.yaml and env.yaml): #{settings.to_yaml}"
 
 # Check that at least one and only one plugin is selected
@@ -153,7 +153,7 @@ check_and_select_conf_options(settings["ansible"]["group_vars"]["all"],
                               "kubernetes_network_plugin",
                               ["no-cni-plugin", "weavenet", "calico", "flannel"],
                               ERR_NET_PLUGIN_CONF)
-output_info_if_enabled "Networking plugin: #{settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"]}"
+ui_info_if_enabled "Networking plugin: #{settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"]}"
 # if calico, check that at least one and only one env_var and env_var_value is selected
 if settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"] == "calico"
   check_and_select_conf_options(settings["ansible"]["group_vars"]["all"]["calico_config"],
@@ -164,7 +164,7 @@ if settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"] == "cal
                               "calico_env_var_value",
                               ["Always","CrossSubnet","Never"],
                               ERR_CALICO_ENV_VAR_VALUE_CONF)
-  output_info_if_enabled "Calico environment variable: #{settings["ansible"]["group_vars"]["all"]["calico_config"]["calico_env_var"]} = #{settings["ansible"]["group_vars"]["all"]["calico_config"]["calico_env_var_value"]}"
+  ui_info_if_enabled "Calico environment variable: #{settings["ansible"]["group_vars"]["all"]["calico_config"]["calico_env_var"]} = #{settings["ansible"]["group_vars"]["all"]["calico_config"]["calico_env_var_value"]}"
 end
 
 # Check that the provider is supported
