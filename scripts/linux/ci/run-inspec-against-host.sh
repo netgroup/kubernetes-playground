@@ -22,6 +22,8 @@ INSPEC_SSH_PORT=$INSPEC_SSH_PORT"
 
 echo "Running inspec against $SSH_HOST ($INSPEC_SSH_USER@$INSPEC_SSH_HOST:$INSPEC_SSH_PORT)"
 inspec exec --chef-license=accept test/inspec/kubernetes-playground \
+    --diagnose \
+    --log-level=debug \
     -t ssh://"$INSPEC_SSH_USER"@"$INSPEC_SSH_HOST" \
     -i "$INSPEC_SSH_PRIVATE_KEY_PATH" \
     -p "$INSPEC_SSH_PORT"
