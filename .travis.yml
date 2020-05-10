@@ -151,6 +151,7 @@ jobs:
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
         VAGRANT_SUPPRESS_OUTPUT="true" \
+        VAGRANT_LOG=info \
         scripts/linux/ci/run-inspec-against-host.sh "$BASE_BOX_VAGRANT_VM_ID" || exit 1
 language: shell
 os: linux
