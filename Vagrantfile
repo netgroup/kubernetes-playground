@@ -299,6 +299,7 @@ kubernetes_worker_nodes_count.times { |i|
         :subnet_mask => subnet_mask,
         :show_gui => false,
         :host_vars => {
+            "ipv4_address" => node_ipv4_address,
             "ipv6_address" => node_ipv6_address,
             assigned_hostname_key => node_id
         }
