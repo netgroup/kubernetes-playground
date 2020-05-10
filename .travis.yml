@@ -123,6 +123,7 @@ jobs:
         - tree .
         - vagrant validate
         - vagrant status
+        - vagrant box list -i
         - inspec -h
         - inspec exec -h
         - inspec check -h
