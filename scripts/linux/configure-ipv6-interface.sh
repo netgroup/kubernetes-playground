@@ -3,12 +3,9 @@
 echo "Configuring the IPv6 interface"
 
 IPV6_ADDRESS="$1"
-CURRENT_IPV4_ADDRESS="$2"
-IPV6_NETMASK="$3"
-DEVICE="$4"
-UUID="$5"
-
-echo "Current IPv4 address $CURRENT_IPV4_ADDRESS assigned to $DEVICE"
+IPV6_NETMASK="$2"
+DEVICE="$3"
+UUID="$4"
 
 echo "Current NetworkManager UUID $UUID assigned to $DEVICE"
 

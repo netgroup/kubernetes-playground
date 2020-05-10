@@ -35,6 +35,8 @@ conf:
     libvirt: "centos/7"
 # Kubernetes configuration parameters.
 kubernetes:
+  # If set to true, allows scheduling pods on master nodes.
+  allow_workloads_on_masters: false
   # Number of master nodes to provision
   # we currently support only one master node
   master_nodes_count: 1

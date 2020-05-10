@@ -3,20 +3,25 @@ require 'ipaddr'
 
 @ui = Vagrant::UI::Colored.new
 
-# Definition of error exit codes
-ERR_NET_PLUGIN_CONF = 1
-ERR_PROVIDER_CONF = 2
-ERR_LIBVIRT_MGT_NET_CONF = 3
-ERR_CALICO_ENV_VAR_CONF = 4
-ERR_CALICO_ENV_VAR_VALUE_CONF = 5
-ERR_BAD_IPV6_SUFFIX = 6
-ERR_MASTER_NODE_COUNT = 7
-
 # Definition of constants
 MAX_NUMBER_OF_MASTER_NODES = 1
+ERR_NET_PLUGIN_CONF ||= 1
+ERR_PROVIDER_CONF ||= 2
+ERR_LIBVIRT_MGT_NET_CONF ||= 3
+ERR_CALICO_ENV_VAR_CONF ||= 4
+ERR_CALICO_ENV_VAR_VALUE_CONF ||= 5
+ERR_BAD_IPV6_SUFFIX |= 6
+ERR_MASTER_NODE_COUNT |= 7
+
 
 def log_info_or_debug(message)
   if ENV['VAGRANT_LOG']=='debug' or ENV['VAGRANT_LOG']=='info'
+    @ui.info message
+  end
+end
+
+def ui_info_if_enabled(message)
+  unless ENV['VAGRANT_SUPPRESS_OUTPUT'] == 'true' || ENV['VAGRANT_SUPPRESS_OUTPUT'] == 1
     @ui.info message
   end
 end
@@ -159,8 +164,8 @@ if File.exist?(env_specific_config_path)
 end
 
 # Display the main current configuration parameters
-@ui.info "Welcome to Kubernetes playground!"
-@ui.info "Vagrant provider: " + settings["conf"]["vagrant_provider"]
+ui_info_if_enabled "Welcome to Kubernetes playground!"
+ui_info_if_enabled "Vagrant provider: #{settings["conf"]["vagrant_provider"]}"
 log_info_or_debug "Active settings (from defaults.yaml and env.yaml): #{settings.to_yaml}"
 
 # Check that at least one and only one plugin is selected
@@ -168,7 +173,7 @@ check_and_select_conf_options(settings["ansible"]["group_vars"]["all"],
                               "kubernetes_network_plugin",
                               ["no-cni-plugin", "weavenet", "calico", "flannel"],
                               ERR_NET_PLUGIN_CONF)
-@ui.info "Networking plugin : " + settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"]
+ui_info_if_enabled "Networking plugin: #{settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"]}"
 # if calico, check that at least one and only one env_var and env_var_value is selected
 if settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"] == "calico"
   check_and_select_conf_options(settings["ansible"]["group_vars"]["all"]["calico_config"],
@@ -179,8 +184,7 @@ if settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"] == "cal
                               "calico_env_var_value",
                               ["Always","CrossSubnet","Never"],
                               ERR_CALICO_ENV_VAR_VALUE_CONF)
-  @ui.info "Calico env variable: " + settings["ansible"]["group_vars"]["all"]["calico_config"]["calico_env_var"] +
-            "=" + settings["ansible"]["group_vars"]["all"]["calico_config"]["calico_env_var_value"]
+  ui_info_if_enabled "Calico environment variable: #{settings["ansible"]["group_vars"]["all"]["calico_config"]["calico_env_var"]} = #{settings["ansible"]["group_vars"]["all"]["calico_config"]["calico_env_var_value"]}"
 end
 
 # Check that the provider is supported
@@ -259,6 +263,8 @@ minion_mem = settings["conf"]["minion_mem"]
 
 additional_disk_size = settings["conf"]["additional_disk_size"]
 
+allow_workloads_on_masters = settings["kubernetes"]["allow_workloads_on_masters"]
+
 # path to the shared folder with the VMs
 vagrant_root = File.dirname(__FILE__)
 
@@ -331,6 +337,7 @@ playground = {
     :subnet_mask => subnet_mask,
     :show_gui => false,
     :host_vars => {
+      "ipv4_address" => kubernetes_master_1_ip,
       "ipv6_address" => kubernetes_master_1_ipv6,
       assigned_hostname_key => kubernetes_master_1_vm_id
     }
@@ -406,6 +413,7 @@ inventory = {
 IO.write(ansible_inventory_path, inventory.to_yaml)
 
 default_group_vars = {
+  "allow_workloads_on_masters" => "#{allow_workloads_on_masters}",
   "ansible_ssh_extra_args" => "-o StrictHostKeyChecking=no",
   "ansible_ssh_pass" => "vagrant",
   "ansible_user" => "vagrant",
@@ -477,9 +485,7 @@ Vagrant.configure("2") do |config|
 
   # Install the required Vagrant plugins.
   # Populate this hash with the plugins that don't depend on specific provisioners or providers.
-  config.vagrant.plugins = {
-    "vagrant-hostsupdater" => {"version" => "1.1.1"}
-  }
+  config.vagrant.plugins = {}
 
   playground.each do |(hostname, info)|
     config.vm.define hostname, autostart: info[:autostart] do |host|
@@ -488,10 +494,6 @@ Vagrant.configure("2") do |config|
         host.vm.network :private_network, auto_config: info[:net_auto_config], :mac => "#{info[:mac_address]}", type: info[:net_type]
       elsif(network_type_static_ip == info[:net_type])
         host.vm.network :private_network, auto_config: info[:net_auto_config], :mac => "#{info[:mac_address]}", ip: "#{info[:ip]}", :netmask => "#{info[:subnet_mask]}"
-      end
-
-      if info.key?(:alias)
-        host.hostsupdater.aliases = info[:alias]
       end
 
       if(vagrant_provider == 'virtualbox')
@@ -506,8 +508,7 @@ Vagrant.configure("2") do |config|
           vb.customize ["modifyvm", :id, "--hwvirtex", "on"]
           vb.customize ["modifyvm", :id, "--memory", info[:mem]]
           vb.customize ["modifyvm", :id, "--name", hostname]
-          vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
-          vb.customize ["modifyvm", :id, "--natdnshostresolver2", "on"]
+
           if (additional_disk_size > 0 && (minions.has_key? hostname))
             disk_file = vm_directory + "/#{hostname}-disk-2.vmdk"
             log_info_or_debug "Adding a disk of #{additional_disk_size} MB to the #{hostname} VM. Disk file path: #{disk_file}."

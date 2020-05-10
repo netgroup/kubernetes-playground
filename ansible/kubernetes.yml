@@ -10,48 +10,56 @@
       listen:
         - systemd_read_configs
   post_tasks:
-    - name: Set ansible_ssh_connection_ip_v4_address fact
-      set_fact:
-        ansible_ssh_connection_ip_v4_address: >-
-          {{ hostvars[inventory_hostname]['ansible_env'].SSH_CONNECTION.split(' ')[2] }}
-      tags:
-        - quick_setup
-    - name: Get the interface name for Ansible SSH connection interface
+    - name: Display all variables/facts known for {{ inventory_hostname }} after applying roles
+      debug:
+        var: hostvars[inventory_hostname]
+        verbosity: 2
+    - name: Get the interface name for the additional network interface
       become: true
       changed_when: false
       shell: |
         set -e -o pipefail ; \
-        ip -o addr show | grep {{ ansible_ssh_connection_ip_v4_address }} | awk '{print $2}'
-      register: ansible_ssh_connection_interface_name_result
+        ip -o addr show | grep {{ ipv4_address }} | awk '{print $2}'
+      register: additional_network_interface_name_result
       tags:
         - quick_setup
+      when: ipv4_address is defined
+    - name: Set facts related to the additional network interface
+      set_fact:
+        additional_network_interface_name: "{{ additional_network_interface_name_result.stdout }}"
+      tags:
+        - quick_setup
+      when: ipv4_address is defined
     - name: Look up docker cgroup driver
       shell: "set -o pipefail && docker info | grep 'Cgroup Driver' | awk -F': ' '{ print $2; }'"
       register: docker_cgroup_driver_result
       changed_when: false
       tags:
         - quick_setup
-    - name: Set facts
+    - name: Set additional facts
       set_fact:
-        ansible_ssh_connection_interface_name: "{{ ansible_ssh_connection_interface_name_result.stdout }}"
         docker_cgroup_driver: "{{ docker_cgroup_driver_result.stdout }}"
       tags:
         - quick_setup
-    - name: Get the NetworkManager connection UUID for the {{ ansible_ssh_connection_interface_name }} connection
+    - name: |
+        Get the NetworkManager connection UUID for the {{ additional_network_interface_name | default('NOT DEFINED') }}
+        connection
       become: true
       changed_when: false
       shell: |
         set -e -o pipefail ; \
-        nmcli -g UUID,DEVICE con show | grep {{ ansible_ssh_connection_interface_name }} | awk -F ":" '{print $1}'
-      register: ansible_ssh_connection_nm_connection_name_result
+        nmcli -g UUID,DEVICE con show | grep {{ additional_network_interface_name }} | awk -F ":" '{print $1}'
+      register: additional_network_interface_nm_conn_name_result
       tags:
         - quick_setup
-    - name: Set facts
+      when: ipv4_address is defined
+    - name: Set more facts related to the additional network interface
       set_fact:
-        ansible_ssh_connection_nm_connection_name: "{{ ansible_ssh_connection_nm_connection_name_result.stdout }}"
+        additional_network_interface_nm_connection_name: "{{ additional_network_interface_nm_conn_name_result.stdout }}"
       tags:
         - quick_setup
-    - name: Display all variables/facts known for {{ inventory_hostname }}
+      when: ipv4_address is defined and additional_network_interface_nm_conn_name_result is defined
+    - name: Display all variables/facts known for {{ inventory_hostname }} after setting facts
       debug:
         var: hostvars[inventory_hostname]
         verbosity: 2
@@ -59,6 +67,10 @@
       changed_when: false
       vars:
         msg: |
+            Additional network interface IPv4 address: {{ ipv4_address | default('NOT DEFINED') }}
+            Additional network interface name: {{ additional_network_interface_name | default('NOT DEFINED') }}
+            Additional network NM UUID: {{ additional_network_interface_nm_connection_name | default('NOT DEFINED') }}
+            Allow workloads on master nodes: {{ allow_workloads_on_masters | default('NOT DEFINED') }}
             Ansible distribution: {{ ansible_distribution }}
             Ansible distribution version: {{ ansible_distribution_version }}
             Ansible domain: {{ ansible_domain }}
@@ -66,12 +78,10 @@
             ansible hostname: {{ ansible_hostname }}
             Ansible kernel: {{ ansible_kernel }}
             Ansible user: {{ ansible_user }}
-            Ansible SSH connection IPv4 address: {{ ansible_ssh_connection_ip_v4_address }}
-            Ansible SSH connection interface name: {{ ansible_ssh_connection_interface_name }}
-            Ansible SSH connection Networkmanager UUID: {{ ansible_ssh_connection_nm_connection_name }}
             Cluster IP CIDR: {{ cluster_ip_cidr }}
             Docker cgroup driver: {{ docker_cgroup_driver }}
             Inventory hostname: {{ inventory_hostname }}
+            IP address: {{ ipv4_address | default('NOT DEFINED') }}
             IPv6 address: {{ ipv6_address | default('NOT DEFINED') }}
             Kubeadm token: {{ kubeadm_token }}
             Kubernetes master 1 hostname: {{ kubernetes_master_1_hostname }}
@@ -82,16 +92,15 @@
             Subnet mask IPv6: {{ subnet_mask_ipv6 }}
       debug:
         msg: "{{ msg.split('\n') }}"
-    - name: Add an IPv6 address to {{ ansible_ssh_connection_interface_name }}
+    - name: Add an IPv6 address to {{ additional_network_interface_name }}
       become: true
       shell: |
         set -e ; \
         /vagrant/scripts/linux/configure-ipv6-interface.sh \
         {{ ipv6_address }} \
-        {{ ansible_ssh_connection_ip_v4_address }} \
         {{ subnet_mask_ipv6 }} \
-        {{ ansible_ssh_connection_interface_name }} \
-        {{ ansible_ssh_connection_nm_connection_name }}
+        {{ additional_network_interface_name }} \
+        {{ additional_network_interface_nm_connection_name }}
       when: ipv6_address is defined
     - name: Remove FQDN from 127.0.0.1
       become: true
@@ -134,7 +143,7 @@
         mode: 0755
         owner: root
         src: templates/kubeadm-config.yaml.j2
-      when: ansible_ssh_connection_ip_v4_address == kubernetes_master_1_ip
+      when: inventory_hostname == kubernetes_master_1_hostname
       tags:
         - quick_setup
     - name: Generate weavenet configuration file
@@ -146,7 +155,7 @@
         mode: 0755
         owner: root
         src: templates/weavenet-config.yaml.j2
-      when: ansible_ssh_connection_ip_v4_address == kubernetes_master_1_ip
+      when: inventory_hostname == kubernetes_master_1_hostname
       tags:
         - quick_setup
     - name: Generate Calico configuration file
@@ -158,13 +167,7 @@
         mode: 0755
         owner: root
         src: templates/calico-config.yaml.j2
-      when: ansible_ssh_connection_ip_v4_address == kubernetes_master_1_ip
-      tags:
-        - quick_setup
-    - name: Define if_name_for_flannel
-      set_fact:
-        if_name_for_flannel: "{{ ansible_ssh_connection_interface_name }}"
-      when: ansible_ssh_connection_ip_v4_address == kubernetes_master_1_ip
+      when: inventory_hostname == kubernetes_master_1_hostname
       tags:
         - quick_setup
     - name: Generate Flannel configuration file
@@ -176,7 +179,7 @@
         mode: 0755
         owner: root
         src: templates/kube-flannel-config.yaml.j2
-      when: ansible_ssh_connection_ip_v4_address == kubernetes_master_1_ip
+      when: inventory_hostname == kubernetes_master_1_hostname and additional_network_interface_name is defined
       tags:
         - initialize_kubernetes_cluster
         - quick_setup
@@ -187,9 +190,10 @@
         /vagrant/scripts/linux/bootstrap-kubernetes-{{ kubernetes_classifier }}.sh \
         /tmp/kubeadm-config.yaml \
         {{ kubernetes_network_plugin }}
+        {{ allow_workloads_on_masters }}
       args:
         creates: /home/vagrant/.kube/config
-      when: ansible_ssh_connection_ip_v4_address == kubernetes_master_1_ip
+      when: inventory_hostname == kubernetes_master_1_hostname
       tags:
         - initialize_kubernetes_cluster
         - quick_setup
@@ -198,12 +202,12 @@
         dest: /home/vagrant/.bashrc
         line: "source <(kubectl completion bash)"
         owner: vagrant
-      when: ansible_ssh_connection_ip_v4_address == kubernetes_master_1_ip
+      when: inventory_hostname == kubernetes_master_1_hostname
     - name: Initialize Kubernetes cluster (workers)
       become: true
       shell: |
         /vagrant/scripts/linux/bootstrap-kubernetes-{{ kubernetes_classifier }}.sh \
-        {{ kubernetes_master_1_ip }} \
+        {{ kubernetes_master_1_hostname }} \
         {{ kubeadm_token }} \
         {{ cluster_ip_cidr }} \
         {{ kubernetes_network_plugin }}

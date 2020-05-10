@@ -37,8 +37,6 @@ This project currently supports the following Vagrant providers:
 When you first bring this environment up, the provisioning process will also
 install the needed Vagrant plugins:
 
-1. [vagrant-hostsupdater](https://github.com/cogitatio/vagrant-hostsupdater)
-    >= 1.1.1
 1. [vagrant-libvirt](https://github.com/vagrant-libvirt/vagrant-libvirt)
     >= 0.0.45
 
@@ -85,6 +83,19 @@ commands from the root of the repository:
 
 If you want to run this project in WSL, follow the instructions in the
 [official Vagrant docs](https://www.vagrantup.com/docs/other/wsl.html).
+
+Additionally, you need to enable the [`metadata`](https://docs.microsoft.com/en-us/windows/wsl/wsl-config#set-wsl-launch-settings)
+as one of the default mount options. You might want to specify it in
+`/etc/wsl.conf` as follows:
+
+```shell
+[automount]
+enabled = true
+options = metadata,uid=1000,gid=1000,umask=0022
+```
+
+This is needed because otherwise the SSH private key file that Vagrant generates
+has too broad permissions and `ssh` refuses to use it.
 
 ### Environment-specific configuration
 
@@ -266,13 +277,15 @@ The test suite checks the whole environment for compliance using a verifier
 
 ##### How to run the compliance test suites
 
-You can run the test suite manually. [Test-Kitchen](https://kitchen.ci/) will
-manage the lifecycle of the test instances.
+You can run the test suite against any guest, after provisioning and configuring
+it.
 
 1. Install the dependencies (you need to have a working Ruby environment):
     1. Install bundler: `gem install bundler`
     1. Install required gems: `bundle install`
-1. Run the tests with Test-Kitchen: `kitchen test`
+1. Provision and configure the desired guest: `vagrant up <guest-name>`, or
+`vagrant provision <guest-name>` if the guest is already up.
+1. Run the tests: `scripts/linux/ci/run-inspec-against-host.sh <guest-name>`
 
 ### Debugging and troubleshooting utilities
 

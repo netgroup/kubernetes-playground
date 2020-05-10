@@ -2,6 +2,7 @@ require 'yaml'
 
 control "kubernetes" do
   title "kubernetes role check"
+  desc "This control checks that the kubernetes role has been correctly applied"
 
   describe yum.repo('kubernetes') do
     it { should exist }
@@ -52,15 +53,6 @@ control "kubernetes" do
         describe parse_config_file(sysctl_configuration_file_path, sysctl_parse_options).params[key] do
             it { should eq "#{value}" }
         end
-    end
-
-    describe file(sysctl_configuration_file_path) do
-        it { should exist }
-        it { should be_file }
-        it { should be_owned_by 'root' }
-        it { should be_grouped_into 'root' }
-        it { should be_readable.by_user('root') }
-        its('mode') { should cmp '0644' }
     end
 
     describe etc_fstab.where { file_system_type.match(/swap/) } do

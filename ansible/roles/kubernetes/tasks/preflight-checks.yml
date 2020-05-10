@@ -1,5 +1,5 @@
 ---
-- name: Refresh facts to evaluate the fresh information
+- name: Refresh facts to evaluate fresh information
   setup:
 
 - name: Stop if swap enabled
