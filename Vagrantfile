@@ -4,14 +4,14 @@ require 'ipaddr'
 @ui = Vagrant::UI::Colored.new
 
 # Definition of constants
-MAX_NUMBER_OF_MASTER_NODES = 1
+MAX_NUMBER_OF_MASTER_NODES ||= 1
 ERR_NET_PLUGIN_CONF ||= 1
 ERR_PROVIDER_CONF ||= 2
 ERR_LIBVIRT_MGT_NET_CONF ||= 3
 ERR_CALICO_ENV_VAR_CONF ||= 4
 ERR_CALICO_ENV_VAR_VALUE_CONF ||= 5
-ERR_BAD_IPV6_SUFFIX |= 6
-ERR_MASTER_NODE_COUNT |= 7
+ERR_BAD_IPV6_SUFFIX ||= 6
+ERR_MASTER_NODE_COUNT ||= 7
 
 
 def log_info_or_debug(message)
@@ -280,7 +280,8 @@ kubernetes_worker_nodes = {}
 ansible_controller_vm_name = nil
 
 kubernetes_worker_nodes_count.times { |i|
-    node_name = "k8s-minion-#{i}"
+    # Count from 1, to maintain the same behaviour of the static configuration
+    node_name = "k8s-minion-#{i + 1}"
     node_id = node_name + domain
     node_ipv4_address = network_prefix + (minion_ipv4_base+i).to_s
     node_ipv6_address = get_ipv6_address(network_prefix_ipv6,node_suffix_ipv6,i,delta_ipv6,default_ipv6_host_part)
