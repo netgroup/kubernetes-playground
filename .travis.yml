@@ -2,7 +2,7 @@
 dist: bionic
 env:
   global:
-    - VAGRANT_VERSION="2.2.9"
+    - VAGRANT_VERSION="2.2.7"
     - BASE_BOX_VAGRANT_VM_ID="base-box-builder.k8s-play.local"
 jobs:
   fast_finish: true
@@ -127,6 +127,7 @@ jobs:
         - sudo adduser "$(id -un)" libvirt
         - sudo adduser "$(id -un)" kvm
       before_script:
+        - ls -al /home
         - env | sort
         - sudo lsmod | sort
         - ip addr
