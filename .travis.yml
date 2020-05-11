@@ -129,6 +129,7 @@ jobs:
         - sudo adduser "$(id -un)" kvm
       before_script:
         - ls -al /home
+        - cat /etc/hosts
         - env | sort
         - sudo lsmod | sort
         - ip addr
