@@ -99,6 +99,7 @@ jobs:
     - name: "Build base box"
       after_script:
         - tree .
+        - cat /etc/exports
       env:
         - VAGRANT_DEFAULT_PROVIDER=libvirt
       stage: vagrant
@@ -148,12 +149,12 @@ jobs:
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
         VAGRANT_LOG=info \
-        vagrant up "$BASE_BOX_VAGRANT_VM_ID" || exit 1; \
+        vagrant up "$BASE_BOX_VAGRANT_VM_ID"; \
         sudo \
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
         VAGRANT_SUPPRESS_OUTPUT="true" \
-        scripts/linux/ci/run-inspec-against-host.sh "$BASE_BOX_VAGRANT_VM_ID" || exit 1
+        scripts/linux/ci/run-inspec-against-host.sh "$BASE_BOX_VAGRANT_VM_ID"
 language: shell
 os: linux
 services:
