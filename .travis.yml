@@ -2,7 +2,7 @@
 dist: bionic
 env:
   global:
-    - VAGRANT_VERSION="2.2.7"
+    - VAGRANT_VERSION="2.2.9"
     - BASE_BOX_VAGRANT_VM_ID="base-box-builder.k8s-play.local"
 jobs:
   fast_finish: true
