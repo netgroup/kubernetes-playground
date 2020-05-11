@@ -115,6 +115,7 @@ jobs:
           vagrant ssh-config "$BASE_BOX_VAGRANT_VM_ID"
         - showmount -e localhost
         - sudo cat /var/log/syslog
+        - sudo journalctl --no-pager
       env:
         - VAGRANT_DEFAULT_PROVIDER=libvirt
       stage: vagrant
@@ -130,6 +131,7 @@ jobs:
         - sudo adduser "$(id -un)" kvm
       before_script:
         - ls -al /home
+        - sudo ls -al /var/lib/nfs/nfsdcltrack
         - cat /etc/hosts
         - env | sort
         - sudo lsmod | sort

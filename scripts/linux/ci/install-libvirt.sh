@@ -28,3 +28,8 @@ apt-get install -y --no-install-recommends \
     zlib1g-dev
 
 modprobe -a kvm
+
+# Workaround for https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=867067
+mkdir -p /var/lib/nfs/nfsdcltrack
+nfsdcltrack init
+systemctl restart nfs-server
