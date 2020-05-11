@@ -113,6 +113,7 @@ jobs:
           VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
           VAGRANT_SUPPRESS_OUTPUT="true" \
           vagrant ssh-config "$BASE_BOX_VAGRANT_VM_ID"
+        - cat /var/log/syslog
       env:
         - VAGRANT_DEFAULT_PROVIDER=libvirt
       stage: vagrant
