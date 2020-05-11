@@ -100,6 +100,19 @@ jobs:
       after_script:
         - tree .
         - cat /etc/exports
+        - ip addr
+        - |
+          sudo \
+          PATH="$PATH" \
+          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
+          VAGRANT_SUPPRESS_OUTPUT="true" \
+          vagrant status
+        - |
+          sudo \
+          PATH="$PATH" \
+          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
+          VAGRANT_SUPPRESS_OUTPUT="true" \
+          vagrant ssh-config "$BASE_BOX_VAGRANT_VM_ID"
       env:
         - VAGRANT_DEFAULT_PROVIDER=libvirt
       stage: vagrant
