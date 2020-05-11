@@ -115,6 +115,7 @@ jobs:
       before_script:
         - env | sort
         - sudo lsmod | sort
+        - ip addr
         - kvm-ok
         - gem environment
         # List all installed gems
