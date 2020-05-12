@@ -3,10 +3,6 @@
 # Stop the execution on errors.
 set -e
 
-ETC_SHADOW_FILE_PATH=/etc/shadow
-echo "$ETC_SHADOW_FILE_PATH contents: $(cat "$ETC_SHADOW_FILE_PATH")"
-unset ETC_SHADOW_FILE_PATH
-
 SSH_CONFIG_FILE_PATH=/etc/ssh/sshd_config
 if [ -f "$SSH_CONFIG_FILE_PATH" ]; then
     echo "Checking if password authentication is enabled for SSH connections in: $SSH_CONFIG_FILE_PATH"
@@ -22,7 +18,6 @@ if [ -f "$SSH_CONFIG_FILE_PATH" ]; then
     fi
 
     if [ "$SSHD_CONFIG_UPDATED" = "true" ]; then
-        echo "sshd configuration file contents: $(cat "$SSH_CONFIG_FILE_PATH")"
         echo "Restarting the sshd service to get the updated configuration..."
         systemctl restart sshd
     else
@@ -35,7 +30,23 @@ else
     exit 1
 fi
 
+echo "sshd configuration file contents: $(cat "$SSH_CONFIG_FILE_PATH")"
+echo "current sshd configuration $(sshd -T)"
+
 unset SSH_CONFIG_FILE_PATH
+
+ETC_SHADOW_FILE_PATH=/etc/shadow
+echo "$ETC_SHADOW_FILE_PATH contents: $(cat "$ETC_SHADOW_FILE_PATH")"
+
+VAGRANT_USER_NAME="vagrant"
+VAGRANT_USER_PASSWORD="vagrant"
+echo "Ensure the $VAGRANT_USER_NAME user has a known password (user: $VAGRANT_USER_NAME, password: $VAGRANT_USER_PASSWORD"
+usermod --password "$(openssl passwd -1 "$VAGRANT_USER_PASSWORD")" "$VAGRANT_USER_NAME"
+unset VAGRANT_USER_NAME
+unset VAGRANT_USER_PASSWORD
+
+echo "$ETC_SHADOW_FILE_PATH contents after configuring passwords: $(cat "$ETC_SHADOW_FILE_PATH")"
+unset ETC_SHADOW_FILE_PATH
 
 # Re-enable the default behaviour, because we don't know if other scripts are
 # aware of this change.
