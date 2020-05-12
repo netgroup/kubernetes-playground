@@ -116,6 +116,7 @@ jobs:
         - showmount -e localhost
         - sudo cat /var/log/syslog
         - sudo journalctl --no-pager
+        - sudo dpkg -l | sort
       env:
         - VAGRANT_DEFAULT_PROVIDER=libvirt
       stage: vagrant
@@ -137,6 +138,7 @@ jobs:
         - sudo lsmod | sort
         - ip addr
         - kvm-ok
+        - sudo dpkg -l | sort
         - gem environment
         # List all installed gems
         - gem query --local
