@@ -18,7 +18,7 @@
       become: true
       changed_when: false
       shell: |
-        set -e -o pipefail ; \
+        set -e; \
         ip -o addr show | grep {{ ipv4_address }} | awk '{print $2}'
       register: additional_network_interface_name_result
       tags:
@@ -31,10 +31,9 @@
         - quick_setup
       when: ipv4_address is defined
     - name: Look up docker cgroup driver
-      become: true
       changed_when: false
       shell: |
-        set -e -o pipefail ; \
+        set -e; \
         docker info | grep 'Cgroup Driver' | awk -F': ' '{print $2}'
       register: docker_cgroup_driver_result
       tags:
@@ -50,7 +49,7 @@
       become: true
       changed_when: false
       shell: |
-        set -e -o pipefail ; \
+        set -e; \
         nmcli -g UUID,DEVICE con show | grep {{ additional_network_interface_name }} | awk -F ":" '{print $1}'
       register: additional_network_interface_nm_conn_name_result
       tags:
