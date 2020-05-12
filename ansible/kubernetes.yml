@@ -31,8 +31,11 @@
         - quick_setup
       when: ipv4_address is defined
     - name: Look up docker cgroup driver
-      shell: "set -o pipefail && docker info | grep 'Cgroup Driver' | awk -F': ' '{ print $2; }'"
+      shell: |
+        set -e -o pipefail ; \
+        docker info | grep 'Cgroup Driver' | awk -F': ' '{ print $2; }'
       register: docker_cgroup_driver_result
+      become: true
       changed_when: false
       tags:
         - quick_setup
