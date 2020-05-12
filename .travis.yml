@@ -81,7 +81,7 @@ jobs:
       language: python
       python: "3.8"
       script: |
-        ansible-lint
+        ansible-lint \
           -v \
           kubernetes.yml \
           openssl-self-signed-certificate.yml \
