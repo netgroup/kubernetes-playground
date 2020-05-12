@@ -36,6 +36,5 @@ control "docker" do
 
     describe command('docker') do
         it { should exist }
-        its('property') { should eq 'value' }
     end
 end
