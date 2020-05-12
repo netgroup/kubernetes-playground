@@ -18,6 +18,7 @@ if [ -f "$SSH_CONFIG_FILE_PATH" ]; then
     fi
 
     if [ "$SSHD_CONFIG_UPDATED" = "true" ]; then
+        echo "sshd configuration file contents: $(cat "$SSH_CONFIG_FILE_PATH")"
         echo "Restarting the sshd service to get the updated configuration..."
         systemctl restart sshd
     else
@@ -29,6 +30,8 @@ else
     echo "File $SSH_CONFIG_FILE_PATH not found."
     exit 1
 fi
+
+unset SSH_CONFIG_FILE_PATH
 
 # Re-enable the default behaviour, because we don't know if other scripts are
 # aware of this change.
