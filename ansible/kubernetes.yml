@@ -70,6 +70,7 @@
             Additional network interface IPv4 address: {{ ipv4_address | default('NOT DEFINED') }}
             Additional network interface name: {{ additional_network_interface_name | default('NOT DEFINED') }}
             Additional network NM UUID: {{ additional_network_interface_nm_connection_name | default('NOT DEFINED') }}
+            Allow workloads on master nodes: {{ allow_workloads_on_masters | default('NOT DEFINED') }}
             Ansible distribution: {{ ansible_distribution }}
             Ansible distribution release: {{ ansible_distribution_release }}
             Ansible distribution version: {{ ansible_distribution_version }}
@@ -190,6 +191,7 @@
         /vagrant/scripts/linux/bootstrap-kubernetes-{{ kubernetes_classifier }}.sh \
         /tmp/kubeadm-config.yaml \
         {{ kubernetes_network_plugin }}
+        {{ allow_workloads_on_masters }}
       args:
         creates: /home/vagrant/.kube/config
       when: inventory_hostname == kubernetes_master_1_hostname
