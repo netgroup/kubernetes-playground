@@ -132,7 +132,6 @@ jobs:
         - sudo adduser "$(id -un)" kvm
       before_script:
         - ls -al /home
-        - sudo ls -al /var/lib/nfs/nfsdcltrack
         - cat /etc/hosts
         - env | sort
         - sudo lsmod | sort
@@ -153,6 +152,7 @@ jobs:
         - inspec check --chef-license=accept test/inspec/kubernetes-playground
         # Workaround for https://github.com/hashicorp/vagrant/issues/8279
         - chmod a+rx $HOME
+        - ls -al /home
       cache:
         bundler: true
         directories:
