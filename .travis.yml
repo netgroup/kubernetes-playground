@@ -171,7 +171,6 @@ jobs:
         sudo \
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-        VAGRANT_LOG=info \
         vagrant up "$BASE_BOX_VAGRANT_VM_ID"; \
         sudo \
         PATH="$PATH" \
