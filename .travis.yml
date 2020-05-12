@@ -151,6 +151,8 @@ jobs:
         - inspec exec -h
         - inspec check -h
         - inspec check --chef-license=accept test/inspec/kubernetes-playground
+        # Workaround for https://github.com/hashicorp/vagrant/issues/8279
+        - chmod a+rx $HOME
       cache:
         bundler: true
         directories:
