@@ -144,6 +144,7 @@ jobs:
         - gem query --local
         - bundle list
         - tree .
+        - vagrant version
         - vagrant validate
         - vagrant status
         - vagrant box list -i
