@@ -24,8 +24,24 @@
       paths:
         - ../vars
 
-- include_tasks: setup-RedHat.yml
-  when: ansible_os_family == "RedHat"
+- name: Print debug information
+  changed_when: false
+  vars:
+    msg: |
+        Ansible distribution: {{ ansible_distribution }}
+        Ansible distribution release: {{ ansible_distribution_release }}
+        Ansible distribution version: {{ ansible_distribution_version }}
+        Ansible domain: {{ ansible_domain }}
+        Ansible FQDN: {{ ansible_fqdn }}
+        ansible hostname: {{ ansible_hostname }}
+        Ansible OS family: {{ ansible_os_family }}
+        Ansible kernel: {{ ansible_kernel }}
+        Inventory hostname: {{ inventory_hostname }}
+  debug:
+    msg: "{{ msg.split('\n') }}"
+
+- include_tasks: setup-Debian.yml
+  when: ansible_os_family == "Debian"
 
 - name: Ensure that OS-specific handlers run before carrying on
   meta: flush_handlers
@@ -39,7 +55,6 @@
     name: "{{ item }}"
     state: present
   with_items:
-    - conntrack-tools
     - kubelet
     - kubeadm
     - kubectl

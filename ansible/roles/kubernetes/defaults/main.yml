@@ -1,8 +1,1 @@
 ---
-# kubelet configuration file path
-# ferrarimarco_kubernetes_kubelet_systemd_service_config_file:
-
-ferrarimarco_kubernetes_kernel_modules_conf_dir: "/etc/modules-load.d"
-
-# Abort if swap is enabled
-ferrarimarco_kubernetes_kubelet_fail_swap_on: true
