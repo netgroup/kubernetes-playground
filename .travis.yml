@@ -2,7 +2,8 @@
 dist: bionic
 env:
   global:
-    - VAGRANT_VERSION="2.2.7"
+    # When changing this, ensure that the Vagrantfile is updated as well
+    - VAGRANT_VERSION="2.2.9"
     - BASE_BOX_VAGRANT_VM_ID="base-box-builder.k8s-play.local"
 jobs:
   fast_finish: true

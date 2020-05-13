@@ -20,7 +20,8 @@ This project is a playground to play with Kubernetes.
 
 ### Runtime
 
-1. Vagrant >= 2.2.7
+1. Vagrant. For the exact version, look the `Vagrant.require_version` constraint
+    in the [Vagrantfile](Vagrantfile).
 
 #### Vagrant providers
 
