@@ -11,6 +11,7 @@ control "kubernetes" do
 
   packages = [
     'docker-ce',
+    'helm',
     'kubeadm',
     'kubectl',
     'kubelet',
