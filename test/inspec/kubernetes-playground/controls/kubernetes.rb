@@ -4,18 +4,18 @@ control "kubernetes" do
   title "kubernetes role check"
   desc "This control checks that the kubernetes role has been correctly applied"
 
-  describe yum.repo('kubernetes') do
-    it { should exist }
-    it { should be_enabled }
-    its('baseurl') { should include 'https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64' }
-  end
+    describe apt('https://apt.kubernetes.io/') do
+        it { should exist }
+        it { should be_enabled }
+    end
 
   packages = [
-    'conntrack-tools',
     'docker-ce',
     'kubeadm',
     'kubectl',
-    'kubelet'
+    'kubelet',
+    'python-selinux',
+    'selinux-policy-default'
   ]
 
   packages.each do |item|
@@ -27,10 +27,6 @@ control "kubernetes" do
   describe service('kubelet') do
     it { should be_installed }
     it { should be_enabled }
-  end
-
-  if os.family == 'redhat'
-    os_specific_vars_file_path = 'ansible/roles/kubernetes/vars/redhat.yml'
   end
 
     sysctl_parse_options = {

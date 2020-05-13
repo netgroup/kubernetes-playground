@@ -18,7 +18,7 @@
       become: true
       changed_when: false
       shell: |
-        set -e -o pipefail ; \
+        set -e; \
         ip -o addr show | grep {{ ipv4_address }} | awk '{print $2}'
       register: additional_network_interface_name_result
       tags:
@@ -31,9 +31,11 @@
         - quick_setup
       when: ipv4_address is defined
     - name: Look up docker cgroup driver
-      shell: "set -o pipefail && docker info | grep 'Cgroup Driver' | awk -F': ' '{ print $2; }'"
-      register: docker_cgroup_driver_result
       changed_when: false
+      shell: |
+        set -e; \
+        docker info | grep 'Cgroup Driver' | awk -F': ' '{print $2}'
+      register: docker_cgroup_driver_result
       tags:
         - quick_setup
     - name: Set additional facts
@@ -47,7 +49,7 @@
       become: true
       changed_when: false
       shell: |
-        set -e -o pipefail ; \
+        set -e; \
         nmcli -g UUID,DEVICE con show | grep {{ additional_network_interface_name }} | awk -F ":" '{print $1}'
       register: additional_network_interface_nm_conn_name_result
       tags:
@@ -72,6 +74,7 @@
             Additional network NM UUID: {{ additional_network_interface_nm_connection_name | default('NOT DEFINED') }}
             Allow workloads on master nodes: {{ allow_workloads_on_masters | default('NOT DEFINED') }}
             Ansible distribution: {{ ansible_distribution }}
+            Ansible distribution release: {{ ansible_distribution_release }}
             Ansible distribution version: {{ ansible_distribution_version }}
             Ansible domain: {{ ansible_domain }}
             Ansible FQDN: {{ ansible_fqdn }}

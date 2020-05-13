@@ -21,6 +21,7 @@ apt-get install -y --no-install-recommends \
     qemu-kvm \
     qemu-utils \
     qemu \
+    portmap \
     rsync \
     ruby-dev \
     tree \

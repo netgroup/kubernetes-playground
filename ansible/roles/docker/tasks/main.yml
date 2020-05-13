@@ -2,9 +2,6 @@
 - include: setup-Debian.yml
   when: ansible_os_family == "Debian"
 
-- include: setup-RedHat.yml
-  when: ansible_os_family == "RedHat"
-
 - name: Load OS specific variables
   include_vars: "{{ item }}"
   with_first_found:
