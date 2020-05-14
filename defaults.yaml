@@ -42,6 +42,25 @@ kubernetes:
   master_nodes_count: 1
   # Number of worker nodes to provision
   worker_nodes_count: 2
+  # Labels to add to cluster nodes
+  node_labels:
+    # List of labels to apply to all master nodes
+    masters:
+      # Example tag that will be applied to all master nodes
+      - label_key: kubernetes_playground_node_type
+        label_value: master
+    # List of labels to apply to all worker nodes
+    workers:
+      # Example tag that will be applied to all worker nodes
+      - label_key: kubernetes_playground_node_type
+        label_value: worker
+    # Add labels to specific nodes, selected by name
+    by_node_name:
+      # Example label that will be applied to the k8s-master-1 node
+      k8s-master-1:
+        - label_key: kubernetes_playground_main_master
+          label_value: true
+
 # Network configuration parameters.
 net:
   # base MAC address for master(s)
