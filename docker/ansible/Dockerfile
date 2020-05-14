@@ -12,7 +12,7 @@ RUN apk add --no-cache \
     openssl=1.1.1g-r0 \
     openssl-dev=1.1.1g-r0 \
     python3=3.8.2-r0 \
-    python-dev=3.8.2-r0 \
+    python3-dev=3.8.2-r0 \
     sshpass=1.06-r0
 
 # install and update pip
