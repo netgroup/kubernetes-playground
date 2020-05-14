@@ -15,9 +15,9 @@ RUN apk add --no-cache \
     python3-dev=3.8.2-r0 \
     sshpass=1.06-r0
 
-RUN python -m ensurepip
+RUN python3 -m ensurepip
 
-RUN pip install --no-cache-dir --upgrade \
+RUN pip3 install --no-cache-dir --upgrade \
     pip==20.1 \
     pyopenssl==19.1.0
 
