@@ -585,7 +585,7 @@ Vagrant.configure("2") do |config|
         elsif(vagrant_provider == 'libvirt')
             # Vagrant plugins for the libvirt provider
             config.vagrant.plugins.merge!({
-                "vagrant-libvirt" => {"version" => "0.0.45"}
+                "vagrant-libvirt" => {"version" => "0.1.2"}
             })
 
             $mountNfsShare = <<-'SCRIPT'
