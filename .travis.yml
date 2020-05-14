@@ -102,7 +102,7 @@ jobs:
       language: shell
       before_script: cd docker/ansible || exit 1
       script: |
-        docker build --target dev -t ferrarimarco/kubernetes-playground-ansible .
+        docker build -t ferrarimarco/kubernetes-playground-ansible .
     - name: "Build base box"
       after_script:
         - tree .
