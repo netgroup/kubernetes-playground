@@ -16,7 +16,7 @@ RUN apk add --no-cache \
     sshpass=1.06-r0
 
 # install and update pip
-RUN python -m ensurepip \
+RUN python3 -m ensurepip \
     && pip install --no-cache-dir --upgrade \
     pip==20.1 \
     pyopenssl==19.1.0
