@@ -40,6 +40,8 @@ if [ "$quick_setup" = "enabled" ]; then
     additional_ansible_arguments="$additional_ansible_arguments --tags quick_setup"
 fi
 
+echo "Current working directory: $(pwd)"
+
 inventory="/etc/$inventory"
 
 # Playbooks paths
