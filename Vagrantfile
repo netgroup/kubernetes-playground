@@ -601,6 +601,8 @@ Vagrant.configure("2") do |config|
             SCRIPT
         elsif(vagrant_provider == 'libvirt')
             # Vagrant plugins for the libvirt provider
+            # When updating this, ensure that the versions you specify here match
+            # with scripts/linux/ci/install-vagrant-plugins.sh
             config.vagrant.plugins.merge!({
                 "vagrant-libvirt" => {"version" => "0.1.2"}
             })
