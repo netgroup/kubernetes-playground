@@ -37,4 +37,13 @@ elif [ "$network_plugin_id" = 'flannel' ]; then
     # which is based on https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
 fi
 
+allow_workloads_on_masters="$3"
+if [ "$allow_workloads_on_masters" = "true" ] && kubectl get nodes -l node-role.kubernetes.io/master= -o name | grep -qs "$(hostname)"; then
+    echo "Removing master taints from master nodes"
+    kubectl get no -o name | while IFS= read -r line; do
+        echo "Removing master taint from $line"
+        kubectl taint nodes "$line" node-role.kubernetes.io/master-
+    done
+fi
+
 set +e

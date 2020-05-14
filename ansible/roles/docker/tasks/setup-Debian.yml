@@ -8,41 +8,24 @@
       - apt-transport-https
       - ca-certificates
       - curl
+      - gnupg-agent
       - software-properties-common
-
-- name: Remove legacy Docker APT repository key
-  apt_key:
-    id: "58118E89F3A912897C070ADBF76221572C52609D"
-    keyserver: "hkp://p80.pool.sks-keyservers.net:80"
-    state: absent
-
-- name: Remove legacy Docker APT repository
-  apt_repository:
-    repo: deb https://apt.dockerproject.org/repo ubuntu-{{ item[0] }} {{ item[1] }}
-    state: absent
-  with_nested:
-    - ['trusty', 'xenial', 'yakkety']
-    - ['main', 'testing']
-
-- name: Remove legacy Docker packages
-  yum:
-    name: "{{ packages }}"
-    purge: true
-    state: absent
-  vars:
-    packages:
-      - lxc-docker
-      - docker
-      - docker-engine
 
 - name: Add Docker APT repository key
   apt_key:
-    url: "https://download.docker.com/linux/ubuntu/gpg"
+    url: "https://download.docker.com/linux/debian/gpg"
     state: present
 
 - name: Add Docker APT repository
   apt_repository:
-    repo: "deb https://download.docker.com/linux/ubuntu {{ ubuntu_release }} {{ docker_apt_repository_section_name }}"
+    repo: |
+      deb https://download.docker.com/linux/debian
+      {{ ansible_distribution_release }}
+      {{ docker_apt_repository_section_name }}
+    # Set the filename because the docker installation scripts adds the same
+    # APT repository in this file. Specifying this avoids adding the same
+    # repository in a different file.
+    filename: docker
     state: present
     update_cache: true
 

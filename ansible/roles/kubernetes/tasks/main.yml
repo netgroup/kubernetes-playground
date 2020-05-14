@@ -1,4 +1,14 @@
 ---
+- name: Disable swap
+  command: swapoff -a
+  when: ansible_swaptotal_mb != 0
+
+- name: Disable automounting swap partitions
+  mount:
+    fstype: swap
+    name: none
+    state: absent
+
 - include_tasks: preflight-checks.yml
 
 - name: Load OS specific variables
@@ -14,8 +24,24 @@
       paths:
         - ../vars
 
-- include_tasks: setup-RedHat.yml
-  when: ansible_os_family == "RedHat"
+- name: Print debug information
+  changed_when: false
+  vars:
+    msg: |
+        Ansible distribution: {{ ansible_distribution }}
+        Ansible distribution release: {{ ansible_distribution_release }}
+        Ansible distribution version: {{ ansible_distribution_version }}
+        Ansible domain: {{ ansible_domain }}
+        Ansible FQDN: {{ ansible_fqdn }}
+        ansible hostname: {{ ansible_hostname }}
+        Ansible OS family: {{ ansible_os_family }}
+        Ansible kernel: {{ ansible_kernel }}
+        Inventory hostname: {{ inventory_hostname }}
+  debug:
+    msg: "{{ msg.split('\n') }}"
+
+- include_tasks: setup-Debian.yml
+  when: ansible_os_family == "Debian"
 
 - name: Ensure that OS-specific handlers run before carrying on
   meta: flush_handlers
@@ -29,21 +55,22 @@
     name: "{{ item }}"
     state: present
   with_items:
-    - conntrack-tools
     - kubelet
     - kubeadm
     - kubectl
 
-- name: Enable the passing of bridged IPv4 traffic to iptables’ chains
+- name: Configure forwarding and bridging for IPv6 and IPv4
   sysctl:
-    name: net.bridge.bridge-nf-call-iptables
+    name: "{{ item }}"
     value: 1
     state: present
+    sysctl_set: true
+  with_items:
+    - net.bridge.bridge-nf-call-iptables
+    - net.bridge.bridge-nf-call-ip6tables
+    - net.ipv4.ip_forward
 
 - name: Enable kubelet service
   service:
     name: kubelet
     enabled: true
-
-- include_tasks: setup-glusterfs.yml
-  when: ferrarimarco_kubernetes_filesystem == "glusterfs"

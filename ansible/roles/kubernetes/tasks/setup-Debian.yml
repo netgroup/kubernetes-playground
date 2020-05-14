@@ -1,0 +1,21 @@
+---
+- name: Add Kubernetes APT repository key
+  apt_key:
+    url: "https://packages.cloud.google.com/apt/doc/apt-key.gpg"
+    state: present
+
+- name: Add Kubernetes APT repository
+  apt_repository:
+    # see https://github.com/kubernetes/release/issues/728
+    repo: "deb https://apt.kubernetes.io/ kubernetes-xenial main"
+    state: present
+    update_cache: true
+
+- name: Install role dependencies
+  apt:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+      - python-selinux
+      - selinux-policy-default
