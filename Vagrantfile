@@ -1,6 +1,9 @@
 require 'yaml'
 require 'ipaddr'
 
+# When changing this, ensure that the CI environment is updated as well
+Vagrant.require_version "= 2.2.9"
+
 @ui = Vagrant::UI::Colored.new
 
 # Definition of constants
@@ -598,8 +601,10 @@ Vagrant.configure("2") do |config|
             SCRIPT
         elsif(vagrant_provider == 'libvirt')
             # Vagrant plugins for the libvirt provider
+            # When updating this, ensure that the versions you specify here match
+            # with scripts/linux/ci/install-vagrant-plugins.sh
             config.vagrant.plugins.merge!({
-                "vagrant-libvirt" => {"version" => "0.0.45"}
+                "vagrant-libvirt" => {"version" => "0.1.2"}
             })
 
             $mountNfsShare = <<-'SCRIPT'
