@@ -65,6 +65,13 @@
       debug:
         var: hostvars[inventory_hostname]
         verbosity: 2
+    - name: Populate inventory node label
+      set_fact:
+        inventory_node_labels: "{{ inventory_node_labels + [ '%s=%s'|format(item.key, item.value) ] }}"
+      loop: "{{ node_labels|d({})|dict2items }}"
+      when:
+        - node_labels is defined
+        - node_labels is mapping
     - name: Print debug information
       changed_when: false
       vars:
@@ -90,6 +97,8 @@
             Kubernetes master 1 hostname: {{ kubernetes_master_1_hostname }}
             Kubernetes master 1 IP: {{ kubernetes_master_1_ip }}
             Kubernetes network plugin: {{ kubernetes_network_plugin }}
+            Kubernetes node labels (role): {{ role_node_labels }}
+            Kubernetes node labels (inventory): {{ inventory_node_labels }}
             PATH: {{ hostvars[inventory_hostname]['ansible_env']['PATH'] }}
             Service IP CIDR: {{ service_ip_cidr }}
             Subnet mask IPv6: {{ subnet_mask_ipv6 }}
@@ -219,6 +228,12 @@
       when: "'kubernetes-minions' in group_names"
       tags:
         - quick_setup
+    - name: Set label to node
+      command: >-
+        {{ bin_dir }}/kubectl label node {{ inventory_hostname }} {{ item }} --overwrite=true
+      loop: "{{ role_node_labels + inventory_node_labels }}"
+      delegate_to: "{{ groups['kube-master'][0] }}"
+      changed_when: false
   roles:
     - role: docker
       become: true
