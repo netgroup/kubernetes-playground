@@ -65,17 +65,28 @@
       debug:
         var: hostvars[inventory_hostname]
         verbosity: 2
-    - name: Populate inventory node label
+    - name: Populate all nodes Kubernetes labels variable
       set_fact:
-        inventory_node_labels: "{{ inventory_node_labels + [ '%s=%s'|format(item.key, item.value) ] }}"
-      loop: "{{ node_labels|d({})|dict2items }}"
+        kubernetes_node_labels: "{{ kubernetes_node_labels + [ '%s=%s'|format(item.label_key, item.label_value) ] }}"
+      loop: "{{ all_nodes_kubernetes_labels }}"
       when:
-        - node_labels is defined
-        - node_labels is mapping
+        - all_nodes_kubernetes_labels is defined
+    - name: Populate group Kubernetes node labels variable
+      set_fact:
+        kubernetes_node_labels: "{{ kubernetes_node_labels + [ '%s=%s'|format(item.label_key, item.label_value) ]] }}"
+      loop: "{{ group_kubernetes_labels }}"
+      when:
+        - group_kubernetes_labels is defined
+    - name: Add node_name label to the list of labels
+      set_fact:
+        kubernetes_node_labels: "{{ kubernetes_node_labels + [ '%s=%s'|format(item.label_key, item.label_value) ] }}"
+      when:
+        - kubernetes_add_node_name_as_label
     - name: Print debug information
       changed_when: false
       vars:
         msg: |
+            Add Kubernetes node name as label: {{ kubernetes_add_node_name_as_label }}
             Additional network interface IPv4 address: {{ ipv4_address | default('NOT DEFINED') }}
             Additional network interface name: {{ additional_network_interface_name | default('NOT DEFINED') }}
             Additional network NM UUID: {{ additional_network_interface_nm_connection_name | default('NOT DEFINED') }}
@@ -97,8 +108,9 @@
             Kubernetes master 1 hostname: {{ kubernetes_master_1_hostname }}
             Kubernetes master 1 IP: {{ kubernetes_master_1_ip }}
             Kubernetes network plugin: {{ kubernetes_network_plugin }}
-            Kubernetes node labels (role): {{ role_node_labels }}
-            Kubernetes node labels (inventory): {{ inventory_node_labels }}
+            Kubernetes node labels (all nodes): {{ all_nodes_kubernetes_labels }}
+            Kubernetes node labels (group): {{ group_kubernetes_labels }}
+            Kubernetes node labels (to be applied): {{ kubernetes_node_labels }}
             PATH: {{ hostvars[inventory_hostname]['ansible_env']['PATH'] }}
             Service IP CIDR: {{ service_ip_cidr }}
             Subnet mask IPv6: {{ subnet_mask_ipv6 }}
@@ -228,12 +240,12 @@
       when: "'kubernetes-minions' in group_names"
       tags:
         - quick_setup
-    - name: Set label to node
+    - name: Add labels to Kubernetes nodes
       command: >-
-        {{ bin_dir }}/kubectl label node {{ inventory_hostname }} {{ item }} --overwrite=true
-      loop: "{{ role_node_labels + inventory_node_labels }}"
-      delegate_to: "{{ groups['kube-master'][0] }}"
+        kubectl label node {{ inventory_hostname }} {{ item }} --overwrite=true
+      loop: "{{ kubernetes_node_labels }}"
       changed_when: false
+      when: inventory_hostname == kubernetes_master_1_hostname and kubernetes_node_labels is defined
   roles:
     - role: docker
       become: true

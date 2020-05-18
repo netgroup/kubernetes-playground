@@ -8,11 +8,6 @@ control "kubernetes" do
 
     kubernetes_labels_configuration = default_configuration['kubernetes']['node_labels']
 
-    kubernetes_labels_all_nodes = kubernetes_labels_configuration['all']
-    kubernetes_labels_master_nodes = kubernetes_labels_configuration['masters']
-    kubernetes_labels_worker_nodes = kubernetes_labels_configuration['workers']
-    kubernetes_labels_by_node_name = kubernetes_labels_configuration['by_node_name']
-
     tag_configuration_type = [
         'all',
         'masters',

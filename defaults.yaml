@@ -42,30 +42,6 @@ kubernetes:
   master_nodes_count: 1
   # Number of worker nodes to provision
   worker_nodes_count: 2
-  # Labels to add to cluster nodes
-  node_labels:
-    # List of labels to apply to all nodes
-    all:
-      # Example label that will be applied to all nodes
-      - label_key: kubernetes_playground_node
-        label_value: true
-    # List of labels to apply to all master nodes
-    masters:
-      # Example label that will be applied to all master nodes
-      - label_key: kubernetes_playground_node_type
-        label_value: master
-    # List of labels to apply to all worker nodes
-    workers:
-      # Example label that will be applied to all worker nodes
-      - label_key: kubernetes_playground_node_type
-        label_value: worker
-    # Add labels to specific nodes, selected by name
-    by_node_name:
-      # Example label that will be applied to the k8s-master-1 node
-      k8s-master-1:
-        - label_key: kubernetes_playground_main_master
-          label_value: true
-
 # Network configuration parameters.
 net:
   # base MAC address for master(s)
@@ -129,6 +105,9 @@ ansible:
           Always: true
           CrossSubnet: false
           Never: false
+      # If this is true, each Kubernetes node will have a label with a key set to
+      # node_name and a value set to the name of the node
+      kubernetes_add_node_name_as_label: true
       # Mirror where to download helm. Configurable to allow for an eventual
       # air gapped environment.
       kubernetes_helm_mirror: https://get.helm.sh
@@ -150,9 +129,24 @@ ansible:
         v3.1.2:
           # https://get.helm.sh/helm-v3.1.2-linux-amd64.tar.gz.sha256
           linux-amd64: sha256:e6be589df85076108c33e12e60cfb85dcd82c5d756a6f6ebc8de0ee505c9fd4c
+      # List of labels to apply to all nodes
+      all_nodes_kubernetes_labels:
+        # Example label that will be applied to all nodes
+        - label_key: kubernetes_playground_node
+          label_value: true
     # Variables for the "kubernetes-masters" group. Variables defined here will
     # be available to the nodes in the "kubernetes-masters" group.
     kubernetes-masters:
+      # List of labels to apply to all master nodes
+      group_kubernetes_labels:
+        # Example label that will be applied to all master nodes
+        - label_key: kubernetes_playground_node_type
+          label_value: master
     # Variables for the "kubernetes-minions" group. Variables defined here will
     # be available to the nodes in the "kubernetes-minions" group.
     kubernetes-minions:
+      # List of labels to apply to all worker nodes
+      group_kubernetes_labels:
+        # Example label that will be applied to all worker nodes
+        - label_key: kubernetes_playground_node_type
+          label_value: worker
