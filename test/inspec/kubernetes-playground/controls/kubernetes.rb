@@ -29,6 +29,10 @@ control "kubernetes" do
         its('stdout') { should match (/helm/) }
     end
 
+    describe command('helm') do
+        it { should exist }
+    end
+
   describe service('kubelet') do
     it { should be_installed }
     it { should be_enabled }
