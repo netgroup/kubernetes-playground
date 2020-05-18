@@ -11,12 +11,12 @@ control "kubernetes" do
 
   packages = [
     'docker-ce',
-    'helm',
     'kubeadm',
     'kubectl',
     'kubelet',
     'python-selinux',
-    'selinux-policy-default'
+    'selinux-policy-default',
+    'snapd'
   ]
 
   packages.each do |item|
@@ -24,6 +24,10 @@ control "kubernetes" do
       it { should be_installed }
     end
   end
+
+    describe command('snap list') do
+        its('stdout') { should match (/helm/) }
+    end
 
   describe service('kubelet') do
     it { should be_installed }
