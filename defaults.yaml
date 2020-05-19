@@ -86,6 +86,7 @@ ansible:
     # Variables for the "all" group. Variables defined here will be available
     # to all nodes.
     all:
+      ansible_python_interpreter: /usr/bin/python
       # The networking plugin used by kubernetes, supported plugins are:
       # weavenet, calico, flannel, in addition "no-cni-plugin" prepares
       # the environment but does not boostrap the kubernetes cluster.
