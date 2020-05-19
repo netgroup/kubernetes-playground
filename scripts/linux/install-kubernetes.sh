@@ -56,3 +56,5 @@ docker run --rm \
     ferrarimarco/open-development-environment-ansible:2.7.12-alpine \
     /bin/sh -c "ansible-playbook -i $inventory $additional_ansible_arguments $playbooks" \
     2>&1 | tee /vagrant/ansible_output.txt
+
+echo "Return code after running Ansible: $?"
