@@ -65,6 +65,9 @@
       debug:
         var: hostvars[inventory_hostname]
         verbosity: 2
+    - name: Initialize Kubernetes node labels list
+      set_fact:
+        kubernetes_node_labels: []
     - name: Populate all nodes Kubernetes labels variable
       set_fact:
         kubernetes_node_labels: "{{ kubernetes_node_labels + [ '%s=%s'|format(item.label_key, item.label_value) ] }}"
@@ -79,7 +82,7 @@
         - group_kubernetes_labels is defined
     - name: Add node_name label to the list of labels
       set_fact:
-        kubernetes_node_labels: "{{ kubernetes_node_labels + [ '%s=%s'|format(item.label_key, item.label_value) ] }}"
+        kubernetes_node_labels: "{{ kubernetes_node_labels + [ '%s=%s'|format('node_name', inventory_hostname) ] }}"
       when:
         - kubernetes_add_node_name_as_label
     - name: Print debug information
