@@ -111,8 +111,8 @@
             Kubernetes master 1 hostname: {{ kubernetes_master_1_hostname }}
             Kubernetes master 1 IP: {{ kubernetes_master_1_ip }}
             Kubernetes network plugin: {{ kubernetes_network_plugin }}
-            Kubernetes node labels (all nodes): {{ all_nodes_kubernetes_labels }}
-            Kubernetes node labels (group): {{ group_kubernetes_labels }}
+            Kubernetes node labels (all nodes): {{ all_nodes_kubernetes_labels | default([]) }}
+            Kubernetes node labels (group): {{ group_kubernetes_labels | default([]) }}
             Kubernetes node labels (to be applied): {{ kubernetes_node_labels }}
             PATH: {{ hostvars[inventory_hostname]['ansible_env']['PATH'] }}
             Service IP CIDR: {{ service_ip_cidr }}
@@ -248,7 +248,7 @@
         kubectl label node {{ inventory_hostname }} {{ item }} --overwrite=true
       loop: "{{ kubernetes_node_labels }}"
       changed_when: false
-      when: inventory_hostname == kubernetes_master_1_hostname and kubernetes_node_labels is defined
+      when: kubernetes_node_labels is defined
   roles:
     - role: docker
       become: true
