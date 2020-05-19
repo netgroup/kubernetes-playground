@@ -76,7 +76,7 @@
         - all_nodes_kubernetes_labels is defined
     - name: Populate group Kubernetes node labels variable
       set_fact:
-        kubernetes_node_labels: "{{ kubernetes_node_labels + [ '%s=%s'|format(item.label_key, item.label_value) ]] }}"
+        kubernetes_node_labels: "{{ kubernetes_node_labels + [ '%s=%s'|format(item.label_key, item.label_value) ] }}"
       loop: "{{ group_kubernetes_labels }}"
       when:
         - group_kubernetes_labels is defined
