@@ -170,16 +170,15 @@ jobs:
       # so the membership to that group is not yet in effect.
       # Set the PATH to make the installed gems accessible.
       script: |
-        set -e; \
         sudo \
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-        vagrant up "$BASE_BOX_VAGRANT_VM_ID"; \
+        vagrant up "$BASE_BOX_VAGRANT_VM_ID" || exit 1; \
         sudo \
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
         VAGRANT_SUPPRESS_OUTPUT="true" \
-        scripts/linux/ci/run-inspec-against-host.sh "$BASE_BOX_VAGRANT_VM_ID"
+        scripts/linux/ci/run-inspec-against-host.sh "$BASE_BOX_VAGRANT_VM_ID" || exit 1
 language: shell
 os: linux
 services:
