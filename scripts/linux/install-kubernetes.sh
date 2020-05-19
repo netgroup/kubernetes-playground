@@ -1,6 +1,7 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
+set -o pipefail
 
 if ! TEMP="$(getopt -o a:i:q --long additional-ansible-arguments:,inventory:,quick-setup \
     -n 'install-kubernetes' -- "$@")"; then
