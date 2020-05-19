@@ -19,7 +19,8 @@ RUN python3 -m ensurepip
 
 RUN pip3 install --no-cache-dir --upgrade \
     pip==20.1 \
-    pyopenssl==19.1.0
+    pyopenssl==19.1.0 \
+    wheel==0.34.2
 
 # Install Ansible
 # We use a requirements.txt file so that we can watch it for dependency updates
