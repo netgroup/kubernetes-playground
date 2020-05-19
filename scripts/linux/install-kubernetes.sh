@@ -64,5 +64,7 @@ docker run --rm \
     /bin/sh -c "ansible-playbook -i $inventory $additional_ansible_arguments $playbooks" \
     2>&1 | tee /vagrant/ansible_output.txt
 
-echo "Return code after running Ansible: $?"
 unset ANSIBLE_DOCKER_IMAGE_TAG
+
+echo "Pulling Kubernetes images..."
+kubeadm config images pull
