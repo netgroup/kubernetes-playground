@@ -104,6 +104,9 @@ jobs:
       script: |
         docker build -t ferrarimarco/kubernetes-playground-ansible .
     - name: "Build base box"
+      after_failure:
+        - sudo cat /var/log/syslog
+        - sudo journalctl --no-pager
       after_script:
         - tree .
         - cat /etc/exports
@@ -121,8 +124,6 @@ jobs:
           VAGRANT_SUPPRESS_OUTPUT="true" \
           vagrant ssh-config "$BASE_BOX_VAGRANT_VM_ID"
         - showmount -e localhost
-        - sudo cat /var/log/syslog
-        - sudo journalctl --no-pager
         - sudo dpkg -l | sort
       env:
         - VAGRANT_DEFAULT_PROVIDER=libvirt
@@ -184,6 +185,11 @@ jobs:
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
         VAGRANT_SUPPRESS_OUTPUT="true" \
         scripts/linux/ci/run-inspec-against-host.sh "$BASE_BOX_VAGRANT_VM_ID";
+        sudo \
+        PATH="$PATH" \
+        VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
+        vagrant package base-box-builder.k8s-play.local \
+            --output kubernetes-playground-base.box;
 language: shell
 os: linux
 services:
