@@ -29,7 +29,7 @@ control "kubernetes" do
         its('stdout') { should match (/helm/) }
     end
 
-    describe command('helm') do
+    describe command('/snap/bin/helm') do
         it { should exist }
     end
 
