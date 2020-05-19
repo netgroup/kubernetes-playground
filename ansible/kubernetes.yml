@@ -99,7 +99,8 @@
             Ansible distribution version: {{ ansible_distribution_version }}
             Ansible domain: {{ ansible_domain }}
             Ansible FQDN: {{ ansible_fqdn }}
-            ansible hostname: {{ ansible_hostname }}
+            Ansible hostname: {{ ansible_hostname }}
+            Ansible node name: {{ ansible_nodename  }}
             Ansible kernel: {{ ansible_kernel }}
             Ansible user: {{ ansible_user }}
             Cluster IP CIDR: {{ cluster_ip_cidr }}
@@ -149,18 +150,6 @@
         group: root
         mode: 0644
       loop: "{{ ip_to_host_mappings }}"
-    - name: Configure Kubelet
-      become: true
-      template:
-        backup: false
-        dest: /usr/lib/systemd/system/kubelet.service.d/90-node-ip.conf
-        group: root
-        mode: 0755
-        owner: root
-        src: templates/90-node-ip.conf.j2
-      notify:
-        - systemd_read_configs
-      when: "'kubernetes-masters' in group_names or 'kubernetes-minions' in group_names"
     - name: Generate Kubeadm configuration file
       become: true
       template:
@@ -245,7 +234,8 @@
         - quick_setup
     - name: Add labels to Kubernetes nodes
       command: >-
-        kubectl label node {{ inventory_hostname }} {{ item }} --overwrite=true
+        kubectl label node {{ ansible_hostname }} {{ item }} --overwrite=true
+      delegate_to: "{{ groups['kubernetes-masters'][0] }}"
       loop: "{{ kubernetes_node_labels }}"
       changed_when: false
       when:
