@@ -98,6 +98,11 @@ jobs:
       before_script: cd docker/kites/net-tests || exit 1
       script: |
         docker build --target dev -t kitesproject/net-test:latest-dev .
+    - name: "Build ferrarimarco/kubernetes-playground-ansible container image"
+      language: shell
+      before_script: cd docker/ansible || exit 1
+      script: |
+        docker build -t ferrarimarco/kubernetes-playground-ansible .
     - name: "Build base box"
       after_script:
         - tree .
