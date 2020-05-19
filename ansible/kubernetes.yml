@@ -235,6 +235,7 @@
     - name: Add labels to Kubernetes nodes
       command: >-
         kubectl label node {{ ansible_hostname }} {{ item }} --overwrite=true
+      # Delegate to the first master, because it has the config file to connect to the cluster
       delegate_to: "{{ groups['kubernetes-masters'][0] }}"
       loop: "{{ kubernetes_node_labels }}"
       changed_when: false
