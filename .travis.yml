@@ -123,6 +123,11 @@ jobs:
           VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
           VAGRANT_SUPPRESS_OUTPUT="true" \
           vagrant ssh-config "$BASE_BOX_VAGRANT_VM_ID"
+        - |
+          sudo \
+          PATH="$PATH" \
+          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
+          vagrant box list -i
         - showmount -e localhost
         - sudo dpkg -l | sort
       env:
