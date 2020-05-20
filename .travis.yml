@@ -207,6 +207,7 @@ jobs:
         sudo \
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
+        VAGRANT_LOG=info \
         vagrant up;
 language: shell
 os: linux
