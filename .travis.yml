@@ -103,7 +103,7 @@ jobs:
       before_script: cd docker/ansible || exit 1
       script: |
         docker build -t ferrarimarco/kubernetes-playground-ansible .
-    - name: "Build base box"
+    - name: "Build base box and start the cluster"
       after_failure:
         - sudo cat /var/log/syslog
         - sudo journalctl --no-pager
@@ -207,7 +207,7 @@ jobs:
         sudo \
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-        vagrant box up;
+        vagrant up;
 language: shell
 os: linux
 services:
