@@ -33,7 +33,7 @@
         state_or_province_name: Lazio
       run_once: true
     - name: >-
-        Generate a Self Signed OpenSSL certificate forIngress and Docker
+        Generate a Self Signed OpenSSL certificate for Ingress and Docker
         Registry
       delegate_to: localhost
       openssl_certificate:
