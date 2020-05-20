@@ -8,6 +8,7 @@ localAPIEndpoint:
 nodeRegistration:
   kubeletExtraArgs:
     cgroup-driver: "{{docker_cgroup_driver}}"
+    node-ip: "{{ ipv4_address }}"
 ---
 apiVersion: kubeadm.k8s.io/v1beta2
 kind: ClusterConfiguration

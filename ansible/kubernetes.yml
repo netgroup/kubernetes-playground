@@ -65,10 +65,31 @@
       debug:
         var: hostvars[inventory_hostname]
         verbosity: 2
+    - name: Initialize Kubernetes node labels list
+      set_fact:
+        kubernetes_node_labels: []
+    - name: Populate all nodes Kubernetes labels variable
+      set_fact:
+        kubernetes_node_labels: "{{ kubernetes_node_labels + [ '%s=%s'|format(item.label_key, item.label_value) ] }}"
+      loop: "{{ all_nodes_kubernetes_labels }}"
+      when:
+        - all_nodes_kubernetes_labels is defined
+    - name: Populate group Kubernetes node labels variable
+      set_fact:
+        kubernetes_node_labels: "{{ kubernetes_node_labels + [ '%s=%s'|format(item.label_key, item.label_value) ] }}"
+      loop: "{{ group_kubernetes_labels }}"
+      when:
+        - group_kubernetes_labels is defined
+    - name: Add node_name label to the list of labels
+      set_fact:
+        kubernetes_node_labels: "{{ kubernetes_node_labels + [ '%s=%s'|format('node_name', inventory_hostname) ] }}"
+      when:
+        - kubernetes_add_node_name_as_label
     - name: Print debug information
       changed_when: false
       vars:
         msg: |
+            Add Kubernetes node name as label: {{ kubernetes_add_node_name_as_label }}
             Additional network interface IPv4 address: {{ ipv4_address | default('NOT DEFINED') }}
             Additional network interface name: {{ additional_network_interface_name | default('NOT DEFINED') }}
             Additional network NM UUID: {{ additional_network_interface_nm_connection_name | default('NOT DEFINED') }}
@@ -78,7 +99,8 @@
             Ansible distribution version: {{ ansible_distribution_version }}
             Ansible domain: {{ ansible_domain }}
             Ansible FQDN: {{ ansible_fqdn }}
-            ansible hostname: {{ ansible_hostname }}
+            Ansible hostname: {{ ansible_hostname }}
+            Ansible node name: {{ ansible_nodename  }}
             Ansible kernel: {{ ansible_kernel }}
             Ansible user: {{ ansible_user }}
             Cluster IP CIDR: {{ cluster_ip_cidr }}
@@ -90,6 +112,9 @@
             Kubernetes master 1 hostname: {{ kubernetes_master_1_hostname }}
             Kubernetes master 1 IP: {{ kubernetes_master_1_ip }}
             Kubernetes network plugin: {{ kubernetes_network_plugin }}
+            Kubernetes node labels (all nodes): {{ all_nodes_kubernetes_labels | default([]) }}
+            Kubernetes node labels (group): {{ group_kubernetes_labels | default([]) }}
+            Kubernetes node labels (to be applied): {{ kubernetes_node_labels }}
             PATH: {{ hostvars[inventory_hostname]['ansible_env']['PATH'] }}
             Service IP CIDR: {{ service_ip_cidr }}
             Subnet mask IPv6: {{ subnet_mask_ipv6 }}
@@ -125,18 +150,6 @@
         group: root
         mode: 0644
       loop: "{{ ip_to_host_mappings }}"
-    - name: Configure Kubelet
-      become: true
-      template:
-        backup: false
-        dest: /usr/lib/systemd/system/kubelet.service.d/90-node-ip.conf
-        group: root
-        mode: 0755
-        owner: root
-        src: templates/90-node-ip.conf.j2
-      notify:
-        - systemd_read_configs
-      when: "'kubernetes-masters' in group_names or 'kubernetes-minions' in group_names"
     - name: Generate Kubeadm configuration file
       become: true
       template:
@@ -226,6 +239,16 @@
         channel: "{{ kubernetes_helm_snap_channel }}"
         name: helm
         state: present
+    - name: Add labels to Kubernetes nodes
+      command: >-
+        kubectl label node {{ ansible_hostname }} {{ item }} --overwrite=true
+      # Delegate to the first master, because it has the config file to connect to the cluster
+      delegate_to: "{{ groups['kubernetes-masters'][0] }}"
+      loop: "{{ kubernetes_node_labels }}"
+      changed_when: false
+      when:
+        - "'kubernetes-masters' in group_names or 'kubernetes-minions' in group_names"
+        - kubernetes_node_labels is defined
   roles:
     - role: docker
       become: true

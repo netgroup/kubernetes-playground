@@ -1,6 +1,7 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
+set -o pipefail
 
 if ! TEMP="$(getopt -o a:i:q --long additional-ansible-arguments:,inventory:,quick-setup \
     -n 'install-kubernetes' -- "$@")"; then
@@ -64,3 +65,6 @@ docker run --rm \
     2>&1 | tee /vagrant/ansible_output.txt
 
 unset ANSIBLE_DOCKER_IMAGE_TAG
+
+echo "Pulling Kubernetes images..."
+kubeadm config images pull

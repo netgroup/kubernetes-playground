@@ -86,6 +86,7 @@ ansible:
     # Variables for the "all" group. Variables defined here will be available
     # to all nodes.
     all:
+      ansible_python_interpreter: /usr/bin/python
       # The networking plugin used by kubernetes, supported plugins are:
       # weavenet, calico, flannel, in addition "no-cni-plugin" prepares
       # the environment but does not boostrap the kubernetes cluster.
@@ -107,9 +108,27 @@ ansible:
           Never: false
       # Helm version to install.
       kubernetes_helm_snap_channel: "2.16/stable"
+      # If this is true, each Kubernetes node will have a label with a key set to
+      # node_name and a value set to the name of the node
+      kubernetes_add_node_name_as_label: true
+      # List of labels to apply to all nodes
+      all_nodes_kubernetes_labels:
+        # Example label that will be applied to all nodes
+        - label_key: kubernetes_playground_node
+          label_value: true
     # Variables for the "kubernetes-masters" group. Variables defined here will
     # be available to the nodes in the "kubernetes-masters" group.
     kubernetes-masters:
+      # List of labels to apply to all master nodes
+      group_kubernetes_labels:
+        # Example label that will be applied to all master nodes
+        - label_key: kubernetes_playground_node_type
+          label_value: master
     # Variables for the "kubernetes-minions" group. Variables defined here will
     # be available to the nodes in the "kubernetes-minions" group.
     kubernetes-minions:
+      # List of labels to apply to all worker nodes
+      group_kubernetes_labels:
+        # Example label that will be applied to all worker nodes
+        - label_key: kubernetes_playground_node_type
+          label_value: worker

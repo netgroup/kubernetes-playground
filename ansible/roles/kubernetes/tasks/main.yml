@@ -62,7 +62,7 @@
 - name: Configure forwarding and bridging for IPv6 and IPv4
   sysctl:
     name: "{{ item }}"
-    value: 1
+    value: "1"
     state: present
     sysctl_set: true
   with_items:
