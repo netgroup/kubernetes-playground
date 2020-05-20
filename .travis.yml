@@ -204,7 +204,10 @@ jobs:
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
         vagrant box add --force kubernetes-playground-base.box \
             --name ferrarimarco/kubernetes-playground-node;
-
+        sudo \
+        PATH="$PATH" \
+        VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
+        vagrant box up;
 language: shell
 os: linux
 services:
