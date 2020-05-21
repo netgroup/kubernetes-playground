@@ -106,6 +106,9 @@ jobs:
     - name: "Build base box and start the cluster"
       after_failure:
         - sudo cat /var/log/libvirt/libvirtd.log
+        - sudo cat $HOME/.virt-manager/virt-manager.log
+        - sudo ls -al /var/log/libvirt/qemu/
+        - sudo virsh list
         - sudo cat /var/log/syslog
         - sudo journalctl --no-pager
       after_script:
@@ -205,6 +208,7 @@ jobs:
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
         vagrant box add --force kubernetes-playground-base.box \
             --name ferrarimarco/kubernetes-playground-node;
+        travis_wait && \
         sudo \
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
