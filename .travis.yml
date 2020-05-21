@@ -115,12 +115,6 @@ jobs:
           sudo \
           PATH="$PATH" \
           VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-          VAGRANT_SUPPRESS_OUTPUT="true" \
-          vagrant ssh-config "$BASE_BOX_VAGRANT_VM_ID"
-        - |
-          sudo \
-          PATH="$PATH" \
-          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
           scripts/linux/ci/diagnostics.sh
       env:
         - VAGRANT_DEFAULT_PROVIDER=libvirt

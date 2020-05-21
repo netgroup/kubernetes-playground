@@ -9,8 +9,6 @@ if command -v git >/dev/null 2>&1; then
     echo "git log: $(git log --oneline --graph --all)"
 fi
 
-echo
-
 [ -f env.yaml ] && echo "env.yaml contents: $(cat env.yaml)"
 
 command -v dpkg >/dev/null && echo "Docker version: $(docker --version)"
@@ -31,8 +29,7 @@ command -v kvm-ok >/dev/null && echo "kvm-ok: $(kvm-ok)"
 if command -v vagrant >/dev/null 2>&1; then
     echo "vagrant status: $(VAGRANT_SUPPRESS_OUTPUT="true" vagrant version)"
     echo "vagrant box list: $(VAGRANT_SUPPRESS_OUTPUT="true" vagrant box list -i)"
-    echo "vagrant status: $(VAGRANT_SUPPRESS_OUTPUT="true" vagrant status)"
-    echo "vagrant box list: $(VAGRANT_SUPPRESS_OUTPUT="true" vagrant box list -i)"
+    echo "vagrant ssh-config: $(VAGRANT_SUPPRESS_OUTPUT="true" vagrant ssh-config)"
 fi
 
 if command -v gem >/dev/null 2>&1; then
