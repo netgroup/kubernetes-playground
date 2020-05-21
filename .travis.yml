@@ -105,22 +105,12 @@ jobs:
         docker build -t ferrarimarco/kubernetes-playground-ansible .
     - name: "Build base box and start the cluster"
       after_failure:
-        - sudo cat /var/log/libvirt/libvirtd.log
-        - sudo cat $HOME/.virt-manager/virt-manager.log
-        - sudo ls -al /var/log/libvirt/qemu/
-        - sudo virsh list
-        - sudo cat /var/log/syslog
-        - sudo journalctl --no-pager
-      after_script:
-        - tree .
-        - cat /etc/exports
-        - ip addr
         - |
           sudo \
           PATH="$PATH" \
           VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-          VAGRANT_SUPPRESS_OUTPUT="true" \
-          vagrant status
+          scripts/linux/ci/diagnostics.sh
+      after_script:
         - |
           sudo \
           PATH="$PATH" \
@@ -131,9 +121,7 @@ jobs:
           sudo \
           PATH="$PATH" \
           VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-          vagrant box list -i
-        - showmount -e localhost
-        - sudo dpkg -l | sort
+          scripts/linux/ci/diagnostics.sh
       env:
         - VAGRANT_DEFAULT_PROVIDER=libvirt
       stage: vagrant
@@ -148,28 +136,14 @@ jobs:
         - sudo adduser "$(id -un)" libvirt
         - sudo adduser "$(id -un)" kvm
       before_script:
-        - ls -al /home
-        - cat /etc/hosts
-        - env | sort
-        - sudo lsmod | sort
-        - ip addr
-        - kvm-ok
-        - gem environment
-        # List all installed gems
-        - gem query --local
-        - bundle list
-        - tree .
-        - vagrant version
-        - vagrant validate
-        - vagrant status
-        - vagrant box list -i
-        - inspec -h
-        - inspec exec -h
-        - inspec check -h
         - inspec check --chef-license=accept test/inspec/kubernetes-playground
         # Workaround for https://github.com/hashicorp/vagrant/issues/8279
         - chmod a+rx $HOME
-        - ls -al /home
+        - |
+          sudo \
+          PATH="$PATH" \
+          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
+          scripts/linux/ci/diagnostics.sh
       cache:
         bundler: true
         directories:
