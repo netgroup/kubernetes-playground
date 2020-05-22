@@ -11,7 +11,7 @@ jobs:
     - name: "Whitespace error check"
       language: shell
       script: git diff-tree --check $(git hash-object -t tree /dev/null) HEAD
-      stage: linting
+      stage: linting_and_docker
     - name: "Missing EOF newlines check"
       language: shell
       script: |
@@ -88,7 +88,6 @@ jobs:
           openssl-self-signed-certificate.yml \
         || exit 1
     - name: "Build kitesproject/net-tests container image (final)"
-      stage: build_container_images
       language: shell
       before_script: cd docker/kites/net-tests || exit 1
       script: |
@@ -222,7 +221,6 @@ os: linux
 services:
   - docker
 stages:
-  - linting
-  - build_container_images
+  - linting_and_docker
   - vagrant-base-box
   - vagrant-up
