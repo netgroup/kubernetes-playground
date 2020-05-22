@@ -8,100 +8,31 @@ env:
 jobs:
   fast_finish: true
   include:
-    - name: "Whitespace error check"
+    - name: "Linting"
+      cache:
+        directories:
+          - $HOME/.cache/pip
+          - $HOME/.vagrant.d/boxes
+          - $HOME/.vagrant.d/gems
+          - $GEM_HOME
+          - ./kubernetes-playground-base.box
+          - vendor/bundle
       language: shell
-      script: git diff-tree --check $(git hash-object -t tree /dev/null) HEAD
+      install: scripts/linux/ci/install-linting-tools.sh
+      script: scripts/linux/ci/lint.sh
       stage: linting_and_docker
-    - name: "Missing EOF newlines check"
-      language: shell
-      script: |
-        find "$(pwd)" -type f -not -path "*/\.git/*" >tmp; \
-        while IFS= read -r file; do \
-          case "$(git diff --no-index --numstat /dev/null "$file")" in \
-            "$(printf '%s\t-\t' -)"*) echo "skipping newline check for $file because it's a binary"; continue ;; \
-            *) echo "Checking $file"; [ -z "$(tail -c1 "$file")" ] || exit 1 ;; \
-          esac; \
-        done <tmp; \
-        rm tmp;
-    - name: "hadolint"
-      language: shell
-      script: |
-        find . -name "Dockerfile" -type f -print0 \
-        | xargs -0 -I file sh -c 'docker run --rm -i hadolint/hadolint:v1.17.5-8-gc8bf307-alpine < "file"' \
-        || exit 1
-    - name: kubeval
-      language: shell
-      script: |
-        docker run -t \
-          -v "$(pwd)":/kubernetes-playground:ro \
-          garethr/kubeval:0.14.0 \
-          --strict  -d /kubernetes-playground/kubernetes
-    # Disabling travis lint for now, the client is too buggy (complains about missing tokens)
-    # - before_install: gem install travis --no-document
-    #   install: echo "Overriding the default install, to avoid installing gems from the Gemfile"
-    #   name: "Travis lint"
-    #   script: travis lint --skip-completion-check -x
-    - name: "Shellcheck"
-      language: shell
-      script: |
-        for file in $(find "$(pwd)" \
-          -type f \
-          -not -path "*/\.git/*" \
-          -not -name "*.md" \
-          -exec grep -Eq '^#!(.*/|.*env +)(sh|bash|ksh)' {} \; -print); do \
-            f="${file#$(pwd)}"; \
-            f="${f/\//}"; \
-            echo "Linting $f"; \
-            if [ ! -x "$f" ]; then echo "Error: $f is not executable!"; exit 1; fi; \
-            docker run -v "$(pwd)":/mnt:ro --rm -t koalaman/shellcheck:v0.7.1 \
-              "$f" || exit 1; \
-        done;
-    - name: "YAMLlint"
-      cache: pip
-      language: python
-      install: pip install -r requirements.txt
-      python: "3.8"
-      script: yamllint --strict $(git ls-files '*.yaml' '*.yml') || exit 1
-    - name: "Markdownlint"
-      cache: npm
-      install: npm install
-      language: node_js
-      node_js: node
-      script: |
-        find -name "*.md" -not -path "*/node_modules/*" \
-        | xargs markdownlint || exit 1
-    - name: "shfmt"
-      language: go
-      before_install: GO111MODULE=on go get mvdan.cc/sh/v3/cmd/shfmt
-      go: "1.14.1"
-      script: shfmt -d . || exit 1;
-    - name: "ansible-lint"
-      before_script: cd ansible || exit 1
-      cache: pip
-      install: pip install -r requirements.txt
-      language: python
-      python: "3.8"
-      script: |
-        ansible-lint \
-          -v \
-          kubernetes.yml \
-          openssl-self-signed-certificate.yml \
-        || exit 1
     - name: "Build kitesproject/net-tests container image (final)"
       language: shell
-      before_script: cd docker/kites/net-tests || exit 1
-      script: |
-        docker build --target final -t kitesproject/net-test .
+      before_script: cd docker/kites/net-tests
+      script: docker build --target final -t kitesproject/net-test .
     - name: "Build kitesproject/net-tests container image (dev)"
       language: shell
-      before_script: cd docker/kites/net-tests || exit 1
-      script: |
-        docker build --target dev -t kitesproject/net-test:latest-dev .
+      before_script: cd docker/kites/net-tests
+      script: docker build --target dev -t kitesproject/net-test:latest-dev .
     - name: "Build ferrarimarco/kubernetes-playground-ansible container image"
       language: shell
-      before_script: cd docker/ansible || exit 1
-      script: |
-        docker build -t ferrarimarco/kubernetes-playground-ansible .
+      before_script: cd docker/ansible
+      script: docker build -t ferrarimarco/kubernetes-playground-ansible .
     - name: "Build base box"
       after_script:
         - |
@@ -132,12 +63,13 @@ jobs:
           VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
           scripts/linux/ci/diagnostics.sh
       cache:
-        bundler: true
         directories:
+          - $HOME/.cache/pip
           - $HOME/.vagrant.d/boxes
           - $HOME/.vagrant.d/gems
           - $GEM_HOME
           - ./kubernetes-playground-base.box
+          - vendor/bundle
       install:
         - gem install bundler
         - bundle install
@@ -194,12 +126,13 @@ jobs:
           VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
           scripts/linux/ci/diagnostics.sh
       cache:
-        bundler: true
         directories:
+          - $HOME/.cache/pip
           - $HOME/.vagrant.d/boxes
           - $HOME/.vagrant.d/gems
           - $GEM_HOME
           - ./kubernetes-playground-base.box
+          - vendor/bundle
       install:
         - sudo \
           PATH="$PATH" \
