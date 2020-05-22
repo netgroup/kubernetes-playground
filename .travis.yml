@@ -103,7 +103,7 @@ jobs:
       before_script: cd docker/ansible || exit 1
       script: |
         docker build -t ferrarimarco/kubernetes-playground-ansible .
-    - name: "Build base box and start the cluster"
+    - name: "Build base box"
       after_failure:
         - |
           sudo \
@@ -144,9 +144,10 @@ jobs:
           - $HOME/.vagrant.d/boxes
           - $HOME/.vagrant.d/gems
           - $GEM_HOME
+          - ./kubernetes-playground-base.box
       install:
         - gem install bundler
-        - bundle install || exit 1
+        - bundle install
       language: ruby
       # Run with sudo because the libvirt socket is owned by the libvirt group,
       # and the current user was added to the group in the current session,
@@ -171,12 +172,57 @@ jobs:
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
         vagrant destroy --force "$BASE_BOX_VAGRANT_VM_ID";
-        sudo \
-        PATH="$PATH" \
-        VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-        vagrant box add --force kubernetes-playground-base.box \
-            --name ferrarimarco/kubernetes-playground-node;
-        travis_wait \
+    - name: "Build base box and start the cluster"
+      after_failure:
+        - |
+          sudo \
+          PATH="$PATH" \
+          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
+          scripts/linux/ci/diagnostics.sh
+      after_script:
+        - |
+          sudo \
+          PATH="$PATH" \
+          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
+          scripts/linux/ci/diagnostics.sh
+      env:
+        - VAGRANT_DEFAULT_PROVIDER=libvirt
+      before_install:
+        - sudo scripts/linux/ci/install-libvirt.sh
+        - sudo scripts/linux/ci/install-vagrant.sh
+        - sudo scripts/linux/ci/install-vagrant-plugins.sh
+        - sudo scripts/linux/ci/generate-env-for-travis.sh
+        # Fix permissions after installing vagrant plugins with sudo
+        - sudo chown -R travis:travis $HOME/.vagrant.d
+        # This doesn't have effect if you don't open a new shell
+        - sudo adduser "$(id -un)" libvirt
+        - sudo adduser "$(id -un)" kvm
+      before_script:
+        # Workaround for https://github.com/hashicorp/vagrant/issues/8279
+        - chmod a+rx $HOME
+        - |
+          sudo \
+          PATH="$PATH" \
+          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
+          scripts/linux/ci/diagnostics.sh
+      cache:
+        bundler: true
+        directories:
+          - $HOME/.vagrant.d/boxes
+          - $HOME/.vagrant.d/gems
+          - $GEM_HOME
+      install:
+        - sudo \
+          PATH="$PATH" \
+          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
+          vagrant box add --force kubernetes-playground-base.box \
+              --name ferrarimarco/kubernetes-playground-node;
+      language: ruby
+      # Run with sudo because the libvirt socket is owned by the libvirt group,
+      # and the current user was added to the group in the current session,
+      # so the membership to that group is not yet in effect.
+      # Set the PATH to make the installed gems accessible.
+      script: |
         sudo \
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
@@ -186,6 +232,6 @@ os: linux
 services:
   - docker
 stages:
+  - vagrant
   - linting
   - build_container_images
-  - vagrant
