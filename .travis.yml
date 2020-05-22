@@ -62,6 +62,8 @@ jobs:
           PATH="$PATH" \
           VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
           scripts/linux/ci/diagnostics.sh
+        - |
+          sudo rm ./kubernetes-playground-base.box
       cache:
         directories:
           - $HOME/.cache/pip
