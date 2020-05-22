@@ -104,12 +104,6 @@ jobs:
       script: |
         docker build -t ferrarimarco/kubernetes-playground-ansible .
     - name: "Build base box"
-      after_failure:
-        - |
-          sudo \
-          PATH="$PATH" \
-          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-          scripts/linux/ci/diagnostics.sh
       after_script:
         - |
           sudo \
@@ -118,7 +112,7 @@ jobs:
           scripts/linux/ci/diagnostics.sh
       env:
         - VAGRANT_DEFAULT_PROVIDER=libvirt
-      stage: vagrant
+      stage: vagrant-base-box
       before_install:
         - sudo scripts/linux/ci/install-libvirt.sh
         - sudo scripts/linux/ci/install-vagrant.sh
@@ -173,12 +167,7 @@ jobs:
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
         vagrant destroy --force "$BASE_BOX_VAGRANT_VM_ID";
     - name: "Build base box and start the cluster"
-      after_failure:
-        - |
-          sudo \
-          PATH="$PATH" \
-          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-          scripts/linux/ci/diagnostics.sh
+      stage: vagrant-up
       after_script:
         - |
           sudo \
@@ -211,6 +200,7 @@ jobs:
           - $HOME/.vagrant.d/boxes
           - $HOME/.vagrant.d/gems
           - $GEM_HOME
+          - ./kubernetes-playground-base.box
       install:
         - sudo \
           PATH="$PATH" \
@@ -232,6 +222,7 @@ os: linux
 services:
   - docker
 stages:
-  - vagrant
   - linting
   - build_container_images
+  - vagrant-base-box
+  - vagrant-up
