@@ -16,8 +16,6 @@ echo "pip 3 version: $(pip3 --version)"
 echo "Gimme version: $(gimme --version)"
 echo "Go version: $(go version)"
 
-command -v node >/dev/null && echo "Node.JS version: $(node --version)"
-
 command -v docker >/dev/null && echo "Docker version: $(docker --version)"
 
 if command -v git >/dev/null 2>&1; then
@@ -58,7 +56,13 @@ if command -v gem >/dev/null 2>&1; then
     echo "Locally installed gems: $(gem query --local)"
 fi
 
+if command -v node >/dev/null 2>&1; then
+    echo "node command: $(command -v node)"
+    echo "Node.JS version: $(node --version)"
+fi
+
 if command -v npm >/dev/null 2>&1; then
+    echo "npm command: $(command -v npm)"
     echo "npm version: $(npm --version)"
     npm list -g --depth=0
 fi

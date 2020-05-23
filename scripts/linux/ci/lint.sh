@@ -3,6 +3,8 @@
 PWD="$(pwd)"
 echo "Current working directory: $PWD"
 
+nvm use
+
 git diff-tree --check "$(git hash-object -t tree /dev/null)" HEAD
 
 find "$(pwd)" -type f -not -path "*/\.git/*" -not -path "*/\node_modules/*" >tmp
