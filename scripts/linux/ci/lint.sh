@@ -36,7 +36,14 @@ while IFS= read -r -d '' file; do
     docker run -v "$(pwd)":/mnt:ro --rm -t koalaman/shellcheck:v0.7.1 "$f" || exit 1
 done < <(find "$(pwd)" -type f -not -path "*/\.git/*" -not -name "*.md" -not -path "*/\node_modules/*" -exec grep -Eq '^#!(.*/|.*env +)(sh|bash|ksh)' {} \; -print0)
 
-yamllint --strict "$(git ls-files '*.yaml' '*.yml')"
+find . -type f \( -iname \*.yml -o -iname \*.yaml \) -not -path "*/\\.git/*" -not -path "*/\node_modules/*" | sort -u | while read -r f; do
+    if yamllint --strict "$f"; then
+        echo "[OK]: sucessfully linted $f"
+    else
+        echo "[FAIL]: found errors/warnings while linting $f"
+        exit 1
+    fi
+done
 
 find "$(pwd)" -name "*.md" -type f -not -path "*/\.git/*" -not -path "*/\node_modules/*" >tmp
 while IFS= read -r file; do
