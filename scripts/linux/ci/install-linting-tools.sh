@@ -18,6 +18,10 @@ echo "Python 3 version: $(python3 --version)"
 echo "pip 3 path: $(command -v pip3)"
 echo "pip 3 version: $(pip3 --version)"
 
+pip3 install \
+    setuptools \
+    wheel
+
 pip3 install -r requirements.txt
 
 echo "Gimme version: $(gimme --version)"
