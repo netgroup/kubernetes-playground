@@ -211,6 +211,26 @@ You can also run the same test suite locally. To bootstrap a development
 environment, you need to install the runtime dependencies listed above, plus the
 development environment dependencies.
 
+### Development dependencies
+
+These are the dependencies that you need to install in your development
+environment:
+
+1. Python 3, with pip.
+1. NodeJS, with npm. If you use [nvm](https://github.com/nvm-sh/nvm), you can
+    point it at the [.nvmrc](.nvmrc) in this repository.
+1. Docker, 1.12+
+
+### Setting up the development environment
+
+After installing the dependencies, run the following scripts to install the
+necessary packages:
+
+1. Install Vagrant: [scripts/linux/ci/install-vagrant.sh](scripts/linux/ci/install-vagrant.sh)
+1. (only for headless environments) Manually install Vagrant plugins:
+    [scripts/linux/ci/install-vagrant.sh](scripts/linux/ci/install-vagrant.sh)
+1. Install linting tools: [scripts/linux/ci/install-linting-tools.sh](scripts/linux/ci/install-linting-tools.sh)
+
 ### Travis CI environment customization
 
 The `scripts/linux/ci/generate-env-for-travis.sh` script creates and populates
@@ -243,12 +263,8 @@ same linters and test suites run automatically on each commit.
 
 The codebase is checked with linters and against common formatting rules.
 
-##### Linters and formatters dependencies
-
-1. Python 3, with pip.
-1. NodeJS, with npm.
-1. See [requirements.txt](requirements.txt).
-1. See [package.json](package.json).
+To run the same linting that the CI builds run, execute the
+[scripts/linux/ci/lint.sh](scripts/linux/ci/lint.sh) script.
 
 ##### Linting and formatting rules
 
@@ -290,6 +306,8 @@ it.
 
 ### Debugging and troubleshooting utilities
 
+1. A script that gathers information about the host:
+    [scripts/linux/ci/diagnostics.sh](scripts/linux/ci/diagnostics.sh)
 1. Multiple load balanced nginx server instances: `kubernetes/nginx-stateless`
 1. A busybox instance, useful for debugging and troubleshooting (run commands
     with `kubectl exec`.

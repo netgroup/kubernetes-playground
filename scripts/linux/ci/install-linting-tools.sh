@@ -3,13 +3,6 @@
 set -e
 set -o pipefail
 
-# - name: "YAMLlint"
-# language: python
-# python: "3.8"
-# - name: "Markdownlint"
-# language: node_js
-# node_js: node
-
 echo "Python path: $(command -v python)"
 echo "Python version: $(python --version)"
 
@@ -34,4 +27,6 @@ echo "Go version: $(go version)"
 
 GO111MODULE=on go get mvdan.cc/sh/v3/cmd/shfmt
 
+echo "Node.JS version: $(node --version)"
+echo "npm version: $(npm --version)"
 npm install
