@@ -38,7 +38,12 @@ done < <(find "$(pwd)" -type f -not -path "*/\.git/*" -not -name "*.md" -not -pa
 
 yamllint --strict "$(git ls-files '*.yaml' '*.yml')"
 
-find . -name "*.md" -print0 -not -path "*/node_modules/*" | xargs markdownlint
+find "$(pwd)" -name "*.md" -type f -not -path "*/\.git/*" -not -path "*/\node_modules/*" >tmp
+while IFS= read -r file; do
+    echo "Checking $file with markdownlint"
+    markdownlint "$file" || exit 1
+done <tmp
+rm tmp
 
 shfmt -d .
 

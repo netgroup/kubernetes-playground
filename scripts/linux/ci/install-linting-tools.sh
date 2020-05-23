@@ -29,4 +29,5 @@ GO111MODULE=on go get mvdan.cc/sh/v3/cmd/shfmt
 
 echo "Node.JS version: $(node --version)"
 echo "npm version: $(npm --version)"
+echo "Installing npm packages..."
 npm install
