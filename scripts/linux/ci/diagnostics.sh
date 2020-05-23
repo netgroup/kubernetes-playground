@@ -16,8 +16,7 @@ echo "pip 3 version: $(pip3 --version)"
 echo "Gimme version: $(gimme --version)"
 echo "Go version: $(go version)"
 
-echo "Node.JS version: $(node --version)"
-echo "npm version: $(npm --version)"
+command -v node >/dev/null && echo "Node.JS version: $(node --version)"
 
 command -v docker >/dev/null && echo "Docker version: $(docker --version)"
 
@@ -32,7 +31,7 @@ fi
 [ -f /etc/exports ] && echo "/etc/exports contents: $(cat /etc/exports)"
 
 echo "ip addr: $(ip addr)"
-echo "showmount localhost: $(showmount -e localhost)"
+command -v showmount >/dev/null && echo "showmount localhost: $(showmount -e localhost)"
 echo "etc hosts content: $(cat /etc/hosts)"
 echo "environment: $(env | sort)"
 echo "lsmod: $(lsmod | sort)"
@@ -57,6 +56,11 @@ command -v tree >/dev/null && echo "Current directory tree: $(tree .)"
 if command -v gem >/dev/null 2>&1; then
     echo "gem environment: $(gem environment)"
     echo "Locally installed gems: $(gem query --local)"
+fi
+
+if command -v npm >/dev/null 2>&1; then
+    echo "npm version: $(npm --version)"
+    npm list -g --depth=0
 fi
 
 if command -v inspec >/dev/null 2>&1; then
