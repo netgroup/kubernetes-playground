@@ -26,6 +26,8 @@ jobs:
         - scripts/linux/ci/install-linting-tools.sh
       script: scripts/linux/ci/lint.sh
       stage: linting_and_docker
+      after_failure:
+        - scripts/linux/ci/diagnostics.sh
     - name: "Build kitesproject/net-tests container image (final)"
       language: shell
       before_script: cd docker/kites/net-tests

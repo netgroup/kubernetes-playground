@@ -3,6 +3,22 @@
 echo "Current user: $(whoami)"
 echo "Current working directory: $(pwd)"
 
+echo "Python path: $(command -v python)"
+echo "Python version: $(python --version)"
+echo "pip path: $(command -v pip)"
+echo "pip version: $(pip --version)"
+
+echo "Python 3 path: $(command -v python3)"
+echo "Python 3 version: $(python3 --version)"
+echo "pip 3 path: $(command -v pip3)"
+echo "pip 3 version: $(pip3 --version)"
+
+echo "Gimme version: $(gimme --version)"
+echo "Go version: $(go version)"
+
+echo "Node.JS version: $(node --version)"
+echo "npm version: $(npm --version)"
+
 command -v docker >/dev/null && echo "Docker version: $(docker --version)"
 
 if command -v git >/dev/null 2>&1; then
