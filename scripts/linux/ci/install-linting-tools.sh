@@ -20,7 +20,7 @@ GIMME_GO_VERSION="1.14.x"
 GIMME_ARCH=amd64
 GIMME_OS=linux
 echo "Installing Go $GIMME_GO_VERSION ($GIMME_ARCH $GIMME_OS)"
-GIMME_GO_VERSION GIMME_ARCH GIMME_OS gimme
+gimme
 
 echo "Go version: $(go --version)"
 
