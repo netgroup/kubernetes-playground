@@ -14,26 +14,26 @@ while IFS= read -r file; do
         ;;
     *)
         echo "Checking if $file ends with a newline"
-        [ -z "$(tail -c1 "$file")" ] || echo "ERROR: $file doesn't end with a newline" exit 1
+        [ -z "$(tail -c1 "$file")" ] || echo "ERROR: $file doesn't end with a newline" || exit 1
         ;;
     esac
 done <tmp
 rm tmp
 
 find . -name "Dockerfile" -type f -print0 |
-    xargs -0 -I file sh -c 'docker run --rm -i hadolint/hadolint:v1.17.5-8-gc8bf307-alpine < "file"'
+    xargs -0 -I file sh -c 'docker run --rm -i hadolint/hadolint:v1.17.5-8-gc8bf307-alpine < "file"' || exit 1
 
 docker run -t \
     -v "$(pwd)":/kubernetes-playground:ro \
     garethr/kubeval:0.14.0 \
-    --strict -d /kubernetes-playground/kubernetes
+    --strict -d /kubernetes-playground/kubernetes || exit 1
 
 while IFS= read -r -d '' file; do
     f="${file#$(pwd)}"
     f="${f/\//}"
     echo "Linting $f"
-    if [ ! -x "$f" ]; then echo "Error: $f is not executable!"; fi
-    docker run -v "$(pwd)":/mnt:ro --rm -t koalaman/shellcheck:v0.7.1 "$f"
+    if [ ! -x "$f" ]; then echo "Error: $f is not executable!" || exit 1; fi
+    docker run -v "$(pwd)":/mnt:ro --rm -t koalaman/shellcheck:v0.7.1 "$f" || exit 1
 done < <(find "$(pwd)" -type f -not -path "*/\.git/*" -not -name "*.md" -not -path "*/\node_modules/*" -exec grep -Eq '^#!(.*/|.*env +)(sh|bash|ksh)' {} \; -print0)
 
 yamllint --strict "$(git ls-files '*.yaml' '*.yml')"
@@ -45,7 +45,7 @@ while IFS= read -r file; do
 done <tmp
 rm tmp
 
-shfmt -d .
+shfmt -d . || exit 1
 
 cd ansible || exit 1
-ansible-lint -v kubernetes.yml openssl-self-signed-certificate.yml
+ansible-lint -v kubernetes.yml openssl-self-signed-certificate.yml || exit 1
