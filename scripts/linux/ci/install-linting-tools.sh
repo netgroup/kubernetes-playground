@@ -18,4 +18,4 @@ eval "$(GIMME_GO_VERSION=$GIMME_GO_VERSION GIMME_ARCH=$GIMME_ARCH GIMME_OS=$GIMM
 GO111MODULE=on go get mvdan.cc/sh/v3/cmd/shfmt
 
 echo "Installing npm packages..."
-npm install
+npm install -g markdownlint-cli
