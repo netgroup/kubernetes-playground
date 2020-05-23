@@ -10,7 +10,7 @@
 # language: go
 # go: "1.14.1"
 
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 
 echo "Gimme version: $(gimme --version)"
 echo "Gimme help: $(gimme --help)"
@@ -20,12 +20,9 @@ GIMME_GO_VERSION="1.14.x"
 GIMME_ARCH=amd64
 GIMME_OS=linux
 echo "Installing Go $GIMME_GO_VERSION ($GIMME_ARCH $GIMME_OS)"
-gimme
+eval "$(GIMME_GO_VERSION=$GIMME_GO_VERSION GIMME_ARCH=$GIMME_ARCH=amd64 GIMME_OS=$GIMME_OS gimme)"
 
 echo "Go version: $(go --version)"
-
-# shellcheck source=/dev/null
-. "$HOME"/.gimme/envs/go1.4.env
 
 GO111MODULE=on go get mvdan.cc/sh/v3/cmd/shfmt
 
