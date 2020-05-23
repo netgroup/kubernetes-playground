@@ -1,7 +1,7 @@
 #!/bin/bash
 
-PWD="$(pwd)"
-echo "Current working directory: $PWD"
+INITIAL_PWD="$(pwd)"
+echo "Current working directory: $INITIAL_PWD"
 
 git diff-tree --check "$(git hash-object -t tree /dev/null)" HEAD
 
@@ -56,3 +56,5 @@ shfmt -d . || exit 1
 
 cd ansible || exit 1
 ansible-lint -v kubernetes.yml openssl-self-signed-certificate.yml || exit 1
+echo "Setting the working directory back to $INITIAL_PWD"
+cd "$INITIAL_PWD" || exit 1
