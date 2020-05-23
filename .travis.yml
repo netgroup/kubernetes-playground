@@ -9,6 +9,12 @@ jobs:
   fast_finish: true
   include:
     - name: "Linting"
+      before_cache:
+        # Save tagged docker images
+        - >
+          mkdir -p $HOME/docker \
+          && docker images -a --filter='dangling=false' --format '{{.Repository}}:{{.Tag}} {{.ID}}'
+          | xargs -n 2 -t sh -c 'test -e $HOME/docker/$1.tar.gz || docker save $0 | gzip -2 > $HOME/docker/$1.tar.gz'
       cache:
         directories:
           - $HOME/.cache/pip
@@ -18,12 +24,20 @@ jobs:
           - ./kubernetes-playground-base.box
           - vendor/bundle
           - $GOPATH/pkg/mod
+          - $HOME/docker
       language: shell
+      before_install:
+        # Load cached docker images
+        - if [ -d $HOME/docker ]; then ls $HOME/docker/*.tar.gz | xargs -I {file} sh -c "zcat {file} | docker load"; fi
       install:
         - sudo apt-get update
         - sudo apt-get install python3 python3-pip
         - curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
         - nvm install
+        - |
+          export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] \
+          && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
+        - "[ -s $NVM_DIR/nvm.sh ] && . $NVM_DIR/nvm.sh"
         - nvm use
         - scripts/linux/ci/install-linting-tools.sh
       script: scripts/linux/ci/lint.sh
