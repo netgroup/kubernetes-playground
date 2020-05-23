@@ -18,7 +18,11 @@ jobs:
           - ./kubernetes-playground-base.box
           - vendor/bundle
       language: shell
-      install: scripts/linux/ci/install-linting-tools.sh
+      install:
+        - sudo apt-get update
+        - sudo apt-get install python3
+        - sudo python3 -m pip install --upgrade pip
+        - scripts/linux/ci/install-linting-tools.sh
       script: scripts/linux/ci/lint.sh
       stage: linting_and_docker
     - name: "Build kitesproject/net-tests container image (final)"
