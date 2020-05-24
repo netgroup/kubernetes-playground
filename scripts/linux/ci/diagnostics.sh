@@ -18,6 +18,7 @@ echo "Go version: $(go version)"
 
 if command -v docker >/dev/null 2>&1; then
     echo "Docker version: $(docker --version)"
+    echo "Docker info: $(docker info)"
     echo "Downloaded non-dangling Docker images: $(docker images -a --filter='dangling=false' --format '{{.Repository}}:{{.Tag}} {{.ID}}')"
     echo "Contents of the Docker images cache directory: $("$HOME"/docker)"
 fi
