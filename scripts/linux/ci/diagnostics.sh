@@ -90,5 +90,3 @@ fi
 [ -f "$HOME"/.virt-manager/virt-manager.log ] && echo "virt-manager.log contents: $(cat "$HOME"/.virt-manager/virt-manager.log)"
 
 command -v dpkg >/dev/null && echo "Installed debian packages: $(dpkg -l | sort)"
-[ -f /var/log/syslog ] && echo "syslog contents: $(cat /var/log/syslog)"
-command -v journalctl >/dev/null && echo "journalctl: $(journalctl --no-pager)"

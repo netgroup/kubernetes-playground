@@ -43,12 +43,6 @@ jobs:
       after_failure:
         - scripts/linux/ci/diagnostics.sh
     - name: "Build base box"
-      after_script:
-        - |
-          sudo \
-          PATH="$PATH" \
-          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-          scripts/linux/ci/diagnostics.sh
       env:
         - VAGRANT_DEFAULT_PROVIDER=libvirt
       stage: vagrant-base-box
@@ -123,6 +117,12 @@ jobs:
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
         vagrant box add --force kubernetes-playground-base.box \
             --name ferrarimarco/kubernetes-playground-node;
+      after_failure:
+        - |
+          sudo \
+          PATH="$PATH" \
+          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
+          scripts/linux/ci/diagnostics.sh
     - name: "Build base box and start the cluster"
       stage: vagrant-up
       after_script:
