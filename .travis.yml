@@ -21,7 +21,6 @@ jobs:
           - $HOME/.vagrant.d/boxes
           - $HOME/.vagrant.d/gems
           - $GEM_HOME
-          - ./kubernetes-playground-base.box
           - vendor/bundle
           - $GOPATH/pkg/mod
           - $HOME/docker
@@ -54,7 +53,6 @@ jobs:
           - $HOME/.vagrant.d/boxes
           - $HOME/.vagrant.d/gems
           - $GEM_HOME
-          - ./kubernetes-playground-base.box
           - vendor/bundle
           - $GOPATH/pkg/mod
           - $HOME/docker
@@ -79,7 +77,6 @@ jobs:
           - $HOME/.vagrant.d/boxes
           - $HOME/.vagrant.d/gems
           - $GEM_HOME
-          - ./kubernetes-playground-base.box
           - vendor/bundle
           - $GOPATH/pkg/mod
           - $HOME/docker
@@ -121,7 +118,7 @@ jobs:
           VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
           scripts/linux/ci/diagnostics.sh
         - |
-          sudo rm ./kubernetes-playground-base.box
+          sudo rm -rf ./kubernetes-playground-base.box
       before_cache:
         # Save tagged docker images
         - >
@@ -134,7 +131,6 @@ jobs:
           - $HOME/.vagrant.d/boxes
           - $HOME/.vagrant.d/gems
           - $GEM_HOME
-          - ./kubernetes-playground-base.box
           - vendor/bundle
           - $GOPATH/pkg/mod
           - $HOME/docker
