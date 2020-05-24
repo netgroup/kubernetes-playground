@@ -73,6 +73,7 @@ jobs:
           PATH="$PATH" \
           VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
           scripts/linux/ci/diagnostics.sh
+        # Ensure we don't have leftovers from the build cache
         - |
           sudo rm -rf ./kubernetes-playground-base.box
       before_cache:
