@@ -36,56 +36,12 @@ jobs:
         - NVM_DIR="${HOME}/.nvm" && [ -s $NVM_DIR/nvm.sh ] && . $NVM_DIR/nvm.sh
         - nvm use
         - scripts/linux/ci/install-linting-tools.sh
-      script: scripts/linux/ci/lint.sh
+      script: |
+        scripts/linux/ci/lint.sh || exit 1;
+        scripts/linux/ci/build-docker-images.sh || exit 1;
       stage: linting_and_docker
       after_failure:
         - scripts/linux/ci/diagnostics.sh
-    - name: "Build kitesproject/net-tests container images"
-      before_cache:
-        # Save tagged docker images
-        - >
-          mkdir -p $HOME/docker \
-          && docker images -a --filter='dangling=false' --format '{{.Repository}}:{{.Tag}} {{.ID}}'
-          | xargs -n 2 -t sh -c 'test -e $HOME/docker/$1.tar.gz || docker save $0 | gzip -2 > $HOME/docker/$1.tar.gz'
-      cache:
-        directories:
-          - $HOME/.cache/pip
-          - $HOME/.vagrant.d/boxes
-          - $HOME/.vagrant.d/gems
-          - $GEM_HOME
-          - vendor/bundle
-          - $GOPATH/pkg/mod
-          - $HOME/docker
-      language: shell
-      before_install:
-        # Load cached docker images
-        - if [ -d $HOME/docker ]; then ls $HOME/docker/*.tar.gz | xargs -I {file} sh -c "zcat {file} | docker load"; fi
-      before_script: cd docker/kites/net-tests
-      script: |
-        docker build --target final -t kitesproject/net-test . || exit 1; \
-        docker build --target dev -t kitesproject/net-test:latest-dev . || exit 1
-    - name: "Build ferrarimarco/kubernetes-playground-ansible container image"
-      before_cache:
-        # Save tagged docker images
-        - >
-          mkdir -p $HOME/docker \
-          && docker images -a --filter='dangling=false' --format '{{.Repository}}:{{.Tag}} {{.ID}}'
-          | xargs -n 2 -t sh -c 'test -e $HOME/docker/$1.tar.gz || docker save $0 | gzip -2 > $HOME/docker/$1.tar.gz'
-      cache:
-        directories:
-          - $HOME/.cache/pip
-          - $HOME/.vagrant.d/boxes
-          - $HOME/.vagrant.d/gems
-          - $GEM_HOME
-          - vendor/bundle
-          - $GOPATH/pkg/mod
-          - $HOME/docker
-      language: shell
-      before_install:
-        # Load cached docker images
-        - if [ -d $HOME/docker ]; then ls $HOME/docker/*.tar.gz | xargs -I {file} sh -c "zcat {file} | docker load"; fi
-      before_script: cd docker/ansible
-      script: docker build -t ferrarimarco/kubernetes-playground-ansible .
     - name: "Build base box"
       after_script:
         - |

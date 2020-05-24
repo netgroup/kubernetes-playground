@@ -80,6 +80,12 @@ commands from the root of the repository:
     vagrant up
     ```
 
+### Automatic Ansible Inventory Creation
+
+When you run any vagrant command, an Ansible inventory (and related group_vars)
+will be generated in the ansible directory.
+Note that the contents of those file will be overidden on each run.
+
 ### Running in Windows Subsystem for Linux (WSL)
 
 If you want to run this project in WSL, follow the instructions in the
@@ -148,11 +154,6 @@ script:
 The Traefik monitoring UI is accessible at
 `http://kubernetes-master-1.kubernetes-playground.local/monitoring/ingress`
 
-#### Secure Communication
-
-We generate a self-signed wildcard certificate to use for all the ingress
-controllers.
-
 ### Helm
 
 To initialize Helm, SSH into the master and run the configuration script:
@@ -219,7 +220,9 @@ environment:
 1. Python 3, with pip.
 1. NodeJS, with npm. If you use [nvm](https://github.com/nvm-sh/nvm), you can
     point it at the [.nvmrc](.nvmrc) in this repository.
-1. Docker, 1.12+
+1. Docker, 19.03+
+1. Ruby 2.6.0+
+1. Bundler 1.13.0+
 
 ### Setting up the development environment
 
@@ -247,12 +250,6 @@ For debbugging and development purposes, you can add the verbosity flags in your
 conf:
   additional_ansible_arguments: "-vv"
 ```
-
-### Automatic Ansible Inventory Creation
-
-When you run any vagrant command, an Ansible inventory (and related group_vars)
-will be generated in the ansible directory.
-Note that the contents of those file will be overidden on each run.
 
 ### Running the tests
 
@@ -282,15 +279,16 @@ We currently check the following file types, and enforce the following rules:
 | Dockerfiles                  | See [.editorconfig](.editorconfig) | [hadolint](https://github.com/hadolint/hadolint) |
 | All text files               | See [.editorconfig](.editorconfig) | N/A |
 
+#### Build the Docker images
+
+To build all the Docker images that the CI builds run, execute the
+[scripts/linux/ci/build-docker-images.sh](scripts/linux/ci/build-docker-images.sh)
+script.
+
 #### Compliance test suite
 
 The test suite checks the whole environment for compliance using a verifier
 ([InSpec](https://www.inspec.io/) in this case).
-
-##### Compliance test suites dependencies
-
-1. Ruby 2.6.0+
-1. Bundler 1.13.0+
 
 ##### How to run the compliance test suites
 
