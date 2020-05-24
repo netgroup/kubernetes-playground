@@ -16,7 +16,11 @@ echo "pip 3 version: $(pip3 --version)"
 echo "Gimme version: $(gimme --version)"
 echo "Go version: $(go version)"
 
-command -v docker >/dev/null && echo "Docker version: $(docker --version)"
+if command -v docker >/dev/null 2>&1; then
+    echo "Docker version: $(docker --version)"
+    echo "Downloaded non-dangling Docker images: $(docker images -a --filter='dangling=false' --format '{{.Repository}}:{{.Tag}} {{.ID}}')"
+    echo "Contents of the Docker images cache directory: $("$HOME"/docker)"
+fi
 
 if command -v git >/dev/null 2>&1; then
     echo "git status: $(git status)"
