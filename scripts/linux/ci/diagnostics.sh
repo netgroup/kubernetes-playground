@@ -102,16 +102,12 @@ fi
 
 if [ -s "$NVM_DIR"/nvm.sh ]; then
     echo "Found nvm. Switching to the default node version (see .nvmrc)"
+    [ -f .nvmrc ] && echo ".nvmrc contents: $(cat .nvmrc)"
     # shellcheck source=/dev/null
     NVM_DIR="${HOME}/.nvm" && [ -s "$NVM_DIR"/nvm.sh ] && . "$NVM_DIR/nvm.sh"
-    nvm use
     echo "nvm command: $(command -v nvm)"
     echo "nvm version: $(nvm --version)"
-fi
-
-if command -v node >/dev/null 2>&1; then
-    echo "node command: $(command -v node)"
-    echo "Node.JS version: $(node --version)"
+    nvm use
 fi
 
 if command -v npm >/dev/null 2>&1; then
