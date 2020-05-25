@@ -50,7 +50,8 @@ if command -v docker >/dev/null 2>&1; then
     echo "Docker version: $(docker --version)"
     echo "Docker info: $(docker -D info)"
     echo "Downloaded non-dangling Docker images: $(docker images -a --filter='dangling=false' --format '{{.Repository}}:{{.Tag}} {{.ID}}')"
-    echo "Contents of the Docker images cache directory: $(ls -al "$HOME"/docker)"
+    echo "Docker dir contents: $(ls -al /var/lib/docker)"
+    echo "Docker info (JSON): $(docker info --format '{{json .}}')"
     echo "----------------"
 fi
 
@@ -76,13 +77,13 @@ command -v kvm-ok >/dev/null && echo "kvm-ok: $(kvm-ok)"
 
 if command -v vagrant >/dev/null 2>&1; then
     echo "vagrant status: $(VAGRANT_SUPPRESS_OUTPUT="true" vagrant version)"
+    echo "vagrant global-status: $(vagrant global-status --prune)"
     echo "vagrant box list: $(VAGRANT_SUPPRESS_OUTPUT="true" vagrant box list -i)"
 
     if [ -z "$vagrant_vm_name" ]; then
         echo "vagrant ssh-config: $(VAGRANT_SUPPRESS_OUTPUT="true" vagrant ssh-config "$vagrant_vm_name")"
         echo "vagrant box diagnostics: $(VAGRANT_SUPPRESS_OUTPUT="true" vagrant ssh "$vagrant_vm_name" -C "/vagrant/scripts/linux/ci/diagnostics.sh")"
     fi
-
 fi
 
 command -v bundle >/dev/null && echo "bundle list: $(bundle list)"
