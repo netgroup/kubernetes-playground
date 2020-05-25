@@ -19,16 +19,20 @@ echo "Go version: $(go version)"
 echo "Systemd version: $(systemctl --version)"
 
 if command -v docker >/dev/null 2>&1; then
+    echo "-------- Docker --------"
     echo "Docker version: $(docker --version)"
-    echo "Docker info: $(docker info)"
+    echo "Docker info: $(docker -D info)"
     echo "Downloaded non-dangling Docker images: $(docker images -a --filter='dangling=false' --format '{{.Repository}}:{{.Tag}} {{.ID}}')"
-    echo "Contents of the Docker images cache directory: $("$HOME"/docker)"
+    echo "Contents of the Docker images cache directory: $(ls -al "$HOME"/docker)"
+    echo "----------------"
 fi
 
 if command -v git >/dev/null 2>&1; then
+    echo "-------- Git --------"
     echo "git status: $(git status)"
     echo "git branch: $(git branch)"
     echo "git log: $(git log --oneline --graph --all | tail -n 10)"
+    echo "----------------"
 fi
 
 [ -f env.yaml ] && echo "env.yaml contents: $(cat env.yaml)"
