@@ -155,6 +155,7 @@ jobs:
       before_script:
         # Workaround for https://github.com/hashicorp/vagrant/issues/8279
         - chmod a+rx $HOME
+        - timeout --help
         - |
           sudo \
           PATH="$PATH" \
