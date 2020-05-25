@@ -142,7 +142,7 @@ jobs:
         - if [ -d $HOME/docker ]; then ls $HOME/docker/*.tar.gz | xargs -I {file} sh -c "zcat {file} | docker load"; fi
       install:
         - sudo apt-get update
-        - sudo apt-get install coreutils python3 python3-pip
+        - sudo apt-get install coreutils
         - sudo scripts/linux/ci/install-libvirt.sh
         - sudo scripts/linux/ci/install-vagrant.sh
         - sudo scripts/linux/ci/install-vagrant-plugins.sh
@@ -165,7 +165,7 @@ jobs:
       # so the membership to that group is not yet in effect.
       # Set the PATH to make the installed gems accessible.
       script: |
-        timout -v 9m time sudo \
+        timeout -v 9m time sudo \
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
         vagrant up k8s-master-1.k8s-play.local --no-provision;

@@ -16,6 +16,8 @@ echo "pip 3 version: $(pip3 --version)"
 echo "Gimme version: $(gimme --version)"
 echo "Go version: $(go version)"
 
+echo "Systemd version: $(systemctl --version)"
+
 if command -v docker >/dev/null 2>&1; then
     echo "Docker version: $(docker --version)"
     echo "Docker info: $(docker info)"
