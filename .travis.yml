@@ -23,6 +23,7 @@ jobs:
         - sudo scripts/linux/ci/install-dependencies.sh
         - sudo scripts/linux/ci/install-node.sh
       install:
+        - nvm use
         - scripts/linux/ci/install-linting-tools.sh
       script: |
         scripts/linux/ci/lint.sh || exit 1;
