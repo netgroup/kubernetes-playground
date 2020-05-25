@@ -30,7 +30,7 @@ jobs:
         - if [ -d $HOME/docker ]; then ls $HOME/docker/*.tar.gz | xargs -I {file} sh -c "zcat {file} | docker load"; fi
       install:
         - sudo apt-get update
-        - sudo apt-get install python3 python3-pip
+        - sudo apt-get install coreutils python3 python3-pip
         - curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
         - nvm install
         - NVM_DIR="${HOME}/.nvm" && [ -s $NVM_DIR/nvm.sh ] && . $NVM_DIR/nvm.sh

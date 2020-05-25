@@ -223,6 +223,7 @@ environment:
 1. Docker, 19.03+
 1. Ruby 2.6.0+
 1. Bundler 1.13.0+
+1. [GNU Coreutils](https://www.gnu.org/software/coreutils/)
 
 ### Setting up the development environment
 
