@@ -18,10 +18,11 @@ jobs:
           - vendor/bundle
           - $GOPATH/pkg/mod
           - /var/lib/docker/overlay2
+          - $HOME/.nvm/versions
       language: shell
       before_install:
         - sudo scripts/linux/ci/install-dependencies.sh
-        - sudo scripts/linux/ci/install-node.sh
+        - scripts/linux/ci/install-node.sh
       install:
         - nvm use
         - scripts/linux/ci/install-linting-tools.sh
@@ -47,6 +48,7 @@ jobs:
           - vendor/bundle
           - $GOPATH/pkg/mod
           - /var/lib/docker/overlay2
+          - $HOME/.nvm/versions
       before_install:
         - sudo scripts/linux/ci/install-dependencies.sh
         - scripts/linux/ci/install-node.sh
@@ -125,6 +127,7 @@ jobs:
           - vendor/bundle
           - $GOPATH/pkg/mod
           - /var/lib/docker/overlay2
+          - $HOME/.nvm/versions
       install:
         - sudo scripts/linux/ci/install-dependencies.sh
         - sudo scripts/linux/ci/install-node.sh
