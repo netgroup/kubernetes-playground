@@ -181,30 +181,29 @@ jobs:
       # so the membership to that group is not yet in effect.
       # Set the PATH to make the installed gems accessible.
       script: |
-        sudo \
+        time sudo \
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
         vagrant up "$BASE_BOX_VAGRANT_VM_ID"; \
-        sudo \
+        time sudo \
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
         VAGRANT_SUPPRESS_OUTPUT="true" \
         scripts/linux/ci/run-inspec-against-host.sh "$BASE_BOX_VAGRANT_VM_ID";
-        sudo \
+        time sudo \
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
         vagrant package "$BASE_BOX_VAGRANT_VM_ID" \
             --output kubernetes-playground-base.box;
-        sudo \
+        time sudo \
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
         vagrant destroy --force "$BASE_BOX_VAGRANT_VM_ID";
-        sudo \
+        time sudo \
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
         vagrant box add --force kubernetes-playground-base.box \
             --name ferrarimarco/kubernetes-playground-node;
-
 language: shell
 os: linux
 services:
