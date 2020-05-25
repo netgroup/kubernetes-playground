@@ -48,7 +48,7 @@ jobs:
           - /var/lib/docker/overlay2
       before_install:
         - sudo scripts/linux/ci/install-dependencies.sh
-        - sudo scripts/linux/ci/install-node.sh
+        - scripts/linux/ci/install-node.sh
         - sudo scripts/linux/ci/install-libvirt.sh
         - sudo scripts/linux/ci/install-vagrant.sh
         - sudo scripts/linux/ci/install-vagrant-plugins.sh
