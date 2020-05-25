@@ -155,7 +155,6 @@ jobs:
       before_script:
         # Workaround for https://github.com/hashicorp/vagrant/issues/8279
         - chmod a+rx $HOME
-        - timeout --help
         - |
           sudo \
           PATH="$PATH" \
@@ -166,7 +165,7 @@ jobs:
       # so the membership to that group is not yet in effect.
       # Set the PATH to make the installed gems accessible.
       script: |
-        timeout -v 9m time sudo \
+        timeout 9m time sudo \
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
         vagrant up k8s-master-1.k8s-play.local --no-provision;
