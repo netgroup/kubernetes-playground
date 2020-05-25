@@ -148,5 +148,4 @@ if [ "$verbose" = "enabled" ]; then
     command -v dpkg >/dev/null && echo "Installed debian packages: $(dpkg -l | sort)"
 
     command -v journalctl >/dev/null && echo "journalctl (current boot, warning and above): $(journalctl -xb -p warning --no-pager)"
-    [ -f /var/log/syslog ] && echo "syslog contents: $(cat /var/log/syslog)"
 fi
