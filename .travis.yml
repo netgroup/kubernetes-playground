@@ -31,7 +31,7 @@ jobs:
       after_script:
         - scripts/linux/ci/diagnostics.sh
       after_failure:
-        - scripts/linux/ci/diagnostics.sh
+        - scripts/linux/ci/diagnostics.sh  --verbose
     - name: "Build base box"
       env:
         - VAGRANT_DEFAULT_PROVIDER=libvirt
@@ -54,7 +54,7 @@ jobs:
         - sudo scripts/linux/ci/install-vagrant-plugins.sh
         - sudo scripts/linux/ci/generate-env-for-travis.sh
         # Fix permissions after installing vagrant plugins with sudo
-        - sudo chown -R travis:travis $HOME/.vagrant.d
+        - sudo chown -R "$(id -un)":"$(id -un)" $HOME/.vagrant.d
         # This doesn't have effect if you don't open a new shell
         - sudo adduser "$(id -un)" libvirt
         - sudo adduser "$(id -un)" kvm
@@ -109,7 +109,7 @@ jobs:
           sudo \
           PATH="$PATH" \
           VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-          scripts/linux/ci/diagnostics.sh --vagrant-vm-name "$BASE_BOX_VAGRANT_VM_ID"
+          scripts/linux/ci/diagnostics.sh --vagrant-vm-name "$BASE_BOX_VAGRANT_VM_ID"  --verbose
     - name: "Start the cluster"
       language: ruby
       stage: vagrant-up
@@ -164,7 +164,7 @@ jobs:
           sudo \
           PATH="$PATH" \
           VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-          scripts/linux/ci/diagnostics.sh --vagrant-vm-name k8s-master-1.k8s-play.local
+          scripts/linux/ci/diagnostics.sh --vagrant-vm-name k8s-master-1.k8s-play.local --verbose
 language: shell
 os: linux
 services:
