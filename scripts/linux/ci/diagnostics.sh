@@ -1,7 +1,34 @@
-#!/bin/sh
+#!/bin/bash
+
+set -e
+set -o pipefail
+
+if ! TEMP="$(getopt -o n --long vagrant-vm-name: \
+    -n 'diagnostics' -- "$@")"; then
+    echo "Terminating..." >&2
+    exit 1
+fi
+eval set -- "$TEMP"
+
+vagrant_vm_name=
+
+while true; do
+    case "$1" in
+    -a | --vagrant-vm-name)
+        vagrant_vm_name="$2"
+        shift 2
+        ;;
+    --)
+        shift
+        break
+        ;;
+    *) break ;;
+    esac
+done
 
 echo "Current user: $(whoami)"
 echo "Current working directory: $(pwd)"
+echo "Hostname (FQDN): $(hostname --fqdn)"
 
 echo "Python path: $(command -v python)"
 echo "Python version: $(python --version)"
@@ -50,7 +77,12 @@ command -v kvm-ok >/dev/null && echo "kvm-ok: $(kvm-ok)"
 if command -v vagrant >/dev/null 2>&1; then
     echo "vagrant status: $(VAGRANT_SUPPRESS_OUTPUT="true" vagrant version)"
     echo "vagrant box list: $(VAGRANT_SUPPRESS_OUTPUT="true" vagrant box list -i)"
-    echo "vagrant ssh-config: $(VAGRANT_SUPPRESS_OUTPUT="true" vagrant ssh-config)"
+
+    if [ -z "$vagrant_vm_name" ]; then
+        echo "vagrant ssh-config: $(VAGRANT_SUPPRESS_OUTPUT="true" vagrant ssh-config "$vagrant_vm_name")"
+        echo "vagrant box diagnostics: $(VAGRANT_SUPPRESS_OUTPUT="true" vagrant ssh "$vagrant_vm_name" -C "/vagrant/scripts/linux/ci/diagnostics.sh")"
+    fi
+
 fi
 
 command -v bundle >/dev/null && echo "bundle list: $(bundle list)"
