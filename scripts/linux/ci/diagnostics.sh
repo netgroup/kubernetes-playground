@@ -32,6 +32,36 @@ while true; do
     esac
 done
 
+print_directory_contents() {
+    directory_path="${1}"
+    echo "-------- START $directory_path CONTENTS --------"
+
+    if [ -d "$directory_path" ]; then
+        ls -al "$directory_path"
+    else
+        echo "WARNING: $directory_path not found or it's not a directory"
+    fi
+
+    echo "-------- END $directory_path CONTENTS --------"
+
+    unset directory_path
+}
+
+print_file_contents() {
+    file_path="${1}"
+    echo "-------- START $file_path CONTENTS --------"
+
+    if [ -f "$file_path" ]; then
+        cat "$file_path"
+    else
+        echo "WARNING: $file_path not found"
+    fi
+
+    echo "-------- END $file_path CONTENTS --------"
+
+    unset file_path
+}
+
 bundle_check() {
     echo "bundle list: $(bundle list)"
 }
@@ -40,7 +70,6 @@ docker_check() {
     echo "Docker version: $(docker --version)"
     echo "Docker info: $(docker -D info)"
     echo "Downloaded non-dangling Docker images: $(docker images -a --filter='dangling=false' --format '{{.Repository}}:{{.Tag}} {{.ID}}')"
-    echo "Docker dir contents: $(ls -al /var/lib/docker)"
     echo "Docker info (JSON): $(docker info --format '{{json .}}')"
 }
 
@@ -152,10 +181,14 @@ vagrant_check() {
     echo "vagrant status: $(VAGRANT_SUPPRESS_OUTPUT="true" vagrant version)"
     echo "vagrant global-status: $(vagrant global-status --prune)"
     echo "vagrant box list: $(VAGRANT_SUPPRESS_OUTPUT="true" vagrant box list -i)"
+}
 
-    if [ -z "$vagrant_vm_name" ]; then
-        echo "vagrant ssh-config: $(VAGRANT_SUPPRESS_OUTPUT="true" vagrant ssh-config "$vagrant_vm_name")"
-    fi
+vagrant_verbose_check() {
+    vagrant_vm_name="${1}"
+    echo "vagrant ssh-config: $(VAGRANT_SUPPRESS_OUTPUT="true" vagrant ssh-config "$vagrant_vm_name")"
+    echo "vagrant box diagnostics: $(VAGRANT_SUPPRESS_OUTPUT="true" vagrant ssh "$vagrant_vm_name" -C "/vagrant/scripts/linux/ci/diagnostics.sh")"
+    print_file_contents /var/log/libvirt/qemu/"$vagrant_vm_name".log
+    unset vagrant_vm_name
 }
 
 virsh_check() {
@@ -164,36 +197,6 @@ virsh_check() {
 
 whoami_check() {
     echo "Current user: $(whoami)"
-}
-
-print_directory_contents() {
-    directory_path="${1}"
-    echo "-------- START $directory_path CONTENTS --------"
-
-    if [ -d "$directory_path" ]; then
-        echo "$directory_path contents: $(ls -al "$directory_path")"
-    else
-        echo "WARNING: $directory_path not found or it's not a directory"
-    fi
-
-    echo "-------- END $directory_path CONTENTS --------"
-
-    unset directory_path
-}
-
-print_file_contents() {
-    file_path="${1}"
-    echo "-------- START $file_path CONTENTS --------"
-
-    if [ -f "$file_path" ]; then
-        echo "$file_path contents: $(cat "$file_path")"
-    else
-        echo "WARNING: $file_path not found"
-    fi
-
-    echo "-------- END $file_path CONTENTS --------"
-
-    unset file_path
 }
 
 run_diagnostic_command() {
@@ -252,21 +255,19 @@ print_file_contents /etc/exports
 print_file_contents /etc/hosts
 
 print_directory_contents /var/log/libvirt/qemu
+print_directory_contents /var/lib/docker
 
 if [ "$verbose" = "enabled" ]; then
     run_diagnostic_command "docker" "docker_verbose_check"
-    run_diagnostic_command "vagrant" "vagrant_verbose_check"
-    if [ -z "$vagrant_vm_name" ]; then
-        echo "vagrant box diagnostics: $(VAGRANT_SUPPRESS_OUTPUT="true" vagrant ssh "$vagrant_vm_name" -C "/vagrant/scripts/linux/ci/diagnostics.sh")"
-    fi
+    run_diagnostic_command "vagrant" "vagrant_verbose_check" "$vagrant_vm_name"
 
     run_diagnostic_command "tree" "tree_verbose_check"
     run_diagnostic_command "gem" "gem_verbose_check"
     run_diagnostic_command "inspec" "inspec_verbose_check"
     run_diagnostic_command "npm" "npm_verbose_check"
 
-    [ -f /var/log/libvirt/libvirtd.log ] && echo "libvirtd.log contents: $(cat /var/log/libvirt/libvirtd.log)"
-    [ -f "$HOME"/.virt-manager/virt-manager.log ] && echo "virt-manager.log contents: $(cat "$HOME"/.virt-manager/virt-manager.log)"
+    print_file_contents /var/log/libvirt/libvirtd.log
+    print_file_contents "$HOME"/.virt-manager/virt-manager.log
 
     run_diagnostic_command "dpkg" "dpkg_verbose_check"
     run_diagnostic_command "journalctl" "journalctl_verbose_check"
