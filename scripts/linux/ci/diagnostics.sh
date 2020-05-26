@@ -32,56 +32,123 @@ while true; do
     esac
 done
 
-echo "Current user: $(whoami)"
-echo "Current working directory: $(pwd)"
-echo "Hostname (FQDN): $(hostname --fqdn)"
+bundle_check() {
+    echo "bundle list: $(bundle list)"
+}
 
-echo "Python path: $(command -v python)"
-echo "Python version: $(python --version)"
-echo "pip path: $(command -v pip)"
-echo "pip version: $(pip --version)"
-
-echo "Python 3 path: $(command -v python3)"
-echo "Python 3 version: $(python3 --version)"
-echo "pip 3 path: $(command -v pip3)"
-echo "pip 3 version: $(pip3 --version)"
-
-echo "Gimme version: $(gimme --version)"
-echo "Go version: $(go version)"
-
-echo "Systemd version: $(systemctl --version)"
-
-if command -v docker >/dev/null 2>&1; then
-    echo "-------- Docker --------"
+docker_check() {
     echo "Docker version: $(docker --version)"
     echo "Docker info: $(docker -D info)"
     echo "Downloaded non-dangling Docker images: $(docker images -a --filter='dangling=false' --format '{{.Repository}}:{{.Tag}} {{.ID}}')"
     echo "Docker dir contents: $(ls -al /var/lib/docker)"
     echo "Docker info (JSON): $(docker info --format '{{json .}}')"
-    echo "----------------"
-fi
+}
 
-if command -v git >/dev/null 2>&1; then
-    echo "-------- Git --------"
+docker_verbose_check() {
+    echo "Docker info (JSON): $(docker info --format '{{json .}}')"
+}
+
+dpkg_verbose_check() {
+    echo "Installed debian packages: $(dpkg -l | sort)"
+}
+
+env_check() {
+    echo "environment: $(env | sort)"
+}
+
+gem_check() {
+    echo "gem environment: $(gem environment)"
+}
+
+gem_verbose_check() {
+    echo "Locally installed gems: $(gem query --local)"
+}
+
+gimme_check() {
+    echo "Gimme version: $(gimme --version)"
+}
+
+git_check() {
     echo "git status: $(git status)"
     echo "git branch: $(git branch)"
     echo "git log: $(git log --oneline --graph --all | tail -n 10)"
-    echo "----------------"
-fi
+}
 
-[ -f env.yaml ] && echo "env.yaml contents: $(cat env.yaml)"
+go_check() {
+    echo "Go version: $(go version)"
+}
 
-[ -f /etc/exports ] && echo "/etc/exports contents: $(cat /etc/exports)"
+hostname_check() {
+    echo "Hostname (FQDN): $(hostname --fqdn)"
+}
 
-echo "ip addr: $(ip addr)"
-command -v showmount >/dev/null && echo "showmount localhost: $(showmount -e localhost)"
-echo "etc hosts content: $(cat /etc/hosts)"
-echo "environment: $(env | sort)"
-echo "lsmod: $(lsmod | sort)"
+inspec_verbose_check() {
+    echo "inspec help: $(inspec -h)"
+    echo "inspec check help: $(inspec check -h)"
+}
 
-command -v kvm-ok >/dev/null && echo "kvm-ok: $(kvm-ok)"
+ip_check() {
+    echo "ip addr: $(ip addr)"
+}
 
-if command -v vagrant >/dev/null 2>&1; then
+journalctl_verbose_check() {
+    echo "journalctl (current boot, warning and above): $(journalctl -xb -p warning --no-pager)"
+}
+
+kvm_ok_check() {
+    echo "kvm-ok: $(kvm-ok)"
+}
+
+lsmod_check() {
+    echo "lsmod: $(lsmod | sort)"
+}
+
+npm_check() {
+    echo "npm command: $(command -v npm)"
+    echo "npm version: $(npm --version)"
+}
+
+npm_verbose_check() {
+    echo "Installed npm packages: $(npm list -g --depth=0)"
+}
+
+pip_check() {
+    echo "pip path: $(command -v pip)"
+    echo "pip version: $(pip --version)"
+}
+
+pip3_check() {
+    echo "pip3 path: $(command -v pip3)"
+    echo "pip3 version: $(pip3 --version)"
+}
+
+python_check() {
+    echo "Python path: $(command -v python)"
+    echo "Python version: $(python --version)"
+}
+
+python3_check() {
+    echo "Python 3 path: $(command -v python3)"
+    echo "Python 3 version: $(python3 --version)"
+}
+
+pwd_check() {
+    echo "Current working directory: $(pwd)"
+}
+
+showmount_check() {
+    echo "showmount localhost: $(showmount -e localhost)"
+}
+
+systemctl_check() {
+    echo "Systemd version: $(systemctl --version)"
+}
+
+tree_verbose_check() {
+    echo "Current directory tree: $(tree .)"
+}
+
+vagrant_check() {
     echo "vagrant status: $(VAGRANT_SUPPRESS_OUTPUT="true" vagrant version)"
     echo "vagrant global-status: $(vagrant global-status --prune)"
     echo "vagrant box list: $(VAGRANT_SUPPRESS_OUTPUT="true" vagrant box list -i)"
@@ -89,16 +156,63 @@ if command -v vagrant >/dev/null 2>&1; then
     if [ -z "$vagrant_vm_name" ]; then
         echo "vagrant ssh-config: $(VAGRANT_SUPPRESS_OUTPUT="true" vagrant ssh-config "$vagrant_vm_name")"
     fi
-fi
+}
 
-command -v bundle >/dev/null && echo "bundle list: $(bundle list)"
+virsh_check() {
+    echo "virsh list: $(virsh list)"
+}
 
-echo "/var/log/libvirt/qemu contents: $(ls -al /var/log/libvirt/qemu/)"
-command -v virsh >/dev/null && echo "virsh list: $(virsh list)"
+whoami_check() {
+    echo "Current user: $(whoami)"
+}
 
-if command -v gem >/dev/null 2>&1; then
-    echo "gem environment: $(gem environment)"
-fi
+print_directory_contents() {
+    directory_path="${1}"
+    echo "-------- START $directory_path CONTENTS --------"
+
+    if [ -d "$directory_path" ]; then
+        echo "$directory_path contents: $(ls -al "$directory_path")"
+    else
+        echo "WARNING: $directory_path not found or it's not a directory"
+    fi
+
+    echo "-------- END $directory_path CONTENTS --------"
+
+    unset directory_path
+}
+
+print_file_contents() {
+    file_path="${1}"
+    echo "-------- START $file_path CONTENTS --------"
+
+    if [ -f "$file_path" ]; then
+        echo "$file_path contents: $(cat "$file_path")"
+    else
+        echo "WARNING: $file_path not found"
+    fi
+
+    echo "-------- END $file_path CONTENTS --------"
+
+    unset file_path
+}
+
+run_diagnostic_command() {
+    command_name="${1}"
+    command_function_name="${2}"
+
+    echo "-------- START $command_name --------"
+
+    if command -v "$command_name" >/dev/null 2>&1; then
+        $command_function_name
+    else
+        echo "WARNING: $command_name command not found"
+    fi
+
+    echo "-------- END $command_name --------"
+
+    unset command_name
+    unset command_function_name
+}
 
 if [ -s "$NVM_DIR"/nvm.sh ]; then
     echo "Found nvm. Switching to the default node version (see .nvmrc)"
@@ -110,49 +224,50 @@ if [ -s "$NVM_DIR"/nvm.sh ]; then
     nvm use
 fi
 
-if command -v npm >/dev/null 2>&1; then
-    echo "npm command: $(command -v npm)"
-    echo "npm version: $(npm --version)"
-fi
+run_diagnostic_command "whoami" "whoami_check"
+run_diagnostic_command "pwd" "pwd_check"
+run_diagnostic_command "hostname" "hostname_check"
+run_diagnostic_command "python" "python_check"
+run_diagnostic_command "pip" "pip_check"
+run_diagnostic_command "python3" "python3_check"
+run_diagnostic_command "pip3" "pip3_check"
+run_diagnostic_command "gimme" "gimme_check"
+run_diagnostic_command "go" "go_check"
+run_diagnostic_command "systemctl" "systemctl_check"
+run_diagnostic_command "docker" "docker_check"
+run_diagnostic_command "git" "git_check"
+run_diagnostic_command "ip" "ip_check"
+run_diagnostic_command "showmount" "showmount_check"
+run_diagnostic_command "env" "env_check"
+run_diagnostic_command "lsmod" "lsmod_check"
+run_diagnostic_command "kvm-ok" "kvm_ok_check"
+run_diagnostic_command "vagrant" "vagrant_check"
+run_diagnostic_command "bundle" "bundle_check"
+run_diagnostic_command "virsh" "virsh_check"
+run_diagnostic_command "gem" "gem_check"
+run_diagnostic_command "npm" "npm_check"
+
+print_file_contents env.yaml
+print_file_contents /etc/exports
+print_file_contents /etc/hosts
+
+print_directory_contents /var/log/libvirt/qemu
 
 if [ "$verbose" = "enabled" ]; then
-    echo "-------- Docker --------"
-    if command -v docker >/dev/null 2>&1; then
-        echo "Docker info (JSON): $(docker info --format '{{json .}}')"
-    else
-        echo "WARNING: docker command not found"
-    fi
-    echo "----------------"
-
-    echo "-------- Vagrant --------"
-    if command -v vagrant >/dev/null 2>&1; then
-        if [ -z "$vagrant_vm_name" ]; then
-            echo "vagrant box diagnostics: $(VAGRANT_SUPPRESS_OUTPUT="true" vagrant ssh "$vagrant_vm_name" -C "/vagrant/scripts/linux/ci/diagnostics.sh")"
-        fi
-    else
-        echo "WARNING: vagrant command not found"
-    fi
-    echo "----------------"
-
-    command -v tree >/dev/null && echo "Current directory tree: $(tree .)"
-
-    if command -v gem >/dev/null 2>&1; then
-        echo "Locally installed gems: $(gem query --local)"
+    run_diagnostic_command "docker" "docker_verbose_check"
+    run_diagnostic_command "vagrant" "vagrant_verbose_check"
+    if [ -z "$vagrant_vm_name" ]; then
+        echo "vagrant box diagnostics: $(VAGRANT_SUPPRESS_OUTPUT="true" vagrant ssh "$vagrant_vm_name" -C "/vagrant/scripts/linux/ci/diagnostics.sh")"
     fi
 
-    if command -v inspec >/dev/null 2>&1; then
-        echo "inspec help: $(inspec -h)"
-        echo "inspec check help: $(inspec check -h)"
-    fi
-
-    if command -v npm >/dev/null 2>&1; then
-        echo "Installed npm packages: $(npm list -g --depth=0)"
-    fi
+    run_diagnostic_command "tree" "tree_verbose_check"
+    run_diagnostic_command "gem" "gem_verbose_check"
+    run_diagnostic_command "inspec" "inspec_verbose_check"
+    run_diagnostic_command "npm" "npm_verbose_check"
 
     [ -f /var/log/libvirt/libvirtd.log ] && echo "libvirtd.log contents: $(cat /var/log/libvirt/libvirtd.log)"
     [ -f "$HOME"/.virt-manager/virt-manager.log ] && echo "virt-manager.log contents: $(cat "$HOME"/.virt-manager/virt-manager.log)"
 
-    command -v dpkg >/dev/null && echo "Installed debian packages: $(dpkg -l | sort)"
-
-    command -v journalctl >/dev/null && echo "journalctl (current boot, warning and above): $(journalctl -xb -p warning --no-pager)"
+    run_diagnostic_command "dpkg" "dpkg_verbose_check"
+    run_diagnostic_command "journalctl" "journalctl_verbose_check"
 fi
