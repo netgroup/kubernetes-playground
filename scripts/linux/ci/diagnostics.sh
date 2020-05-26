@@ -1,6 +1,5 @@
 #!/bin/bash
 
-set -e
 set -o pipefail
 
 if ! TEMP="$(getopt -o n:v --long vagrant-vm-name:,verbose \
@@ -68,6 +67,11 @@ bundle_check() {
 }
 
 docker_check() {
+    if ! [ -f /var/run/docker.sock ]; then
+        echo "WARNING: Docker socket not found"
+        return 1
+    fi
+
     echo "Docker version"
     docker --version
 
@@ -82,6 +86,11 @@ docker_check() {
 }
 
 docker_verbose_check() {
+    if ! [ -f /var/run/docker.sock ]; then
+        echo "WARNING: Docker socket not found"
+        return 1
+    fi
+
     echo "Docker info (JSON)"
     docker info --format '{{json .}}'
 }
@@ -211,8 +220,8 @@ pwd_check() {
 }
 
 showmount_check() {
-    echo "showmount localhost"
-    showmount -e localhost
+    echo "showmount localhost (with a timeout)"
+    timeout 15s showmount -e localhost
 }
 
 systemctl_check() {
