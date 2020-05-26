@@ -186,7 +186,7 @@ vagrant_check() {
 vagrant_verbose_check() {
     vagrant_vm_name="${1}"
     echo "vagrant ssh-config: $(VAGRANT_SUPPRESS_OUTPUT="true" vagrant ssh-config "$vagrant_vm_name")"
-    echo "vagrant box diagnostics: $(VAGRANT_SUPPRESS_OUTPUT="true" vagrant ssh "$vagrant_vm_name" -C "/vagrant/scripts/linux/ci/diagnostics.sh")"
+    echo "vagrant box diagnostics: $(VAGRANT_SUPPRESS_OUTPUT="true" vagrant ssh "$vagrant_vm_name" -c "/vagrant/scripts/linux/ci/diagnostics.sh")"
     print_file_contents /var/log/libvirt/qemu/"$vagrant_vm_name".log
     unset vagrant_vm_name
 }
