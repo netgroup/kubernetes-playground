@@ -260,6 +260,9 @@ vagrant_verbose_check() {
     echo "vagrant box diagnostics for the $vagrant_vm_name VM (provider: $VAGRANT_DEFAULT_PROVIDER)"
     VAGRANT_LOG="info" VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" vagrant ssh "$vagrant_vm_name" -c "ls -al /vagrant/scripts/linux/ci/diagnostics.sh"
 
+    echo "vagrant box diagnostics for the $vagrant_vm_name VM (provider: $VAGRANT_DEFAULT_PROVIDER) (dashes)"
+    VAGRANT_LOG="info" VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" vagrant ssh "$vagrant_vm_name" -- -t "/vagrant/scripts/linux/ci/diagnostics.sh"
+
     print_file_contents /var/log/libvirt/qemu/"$vagrant_vm_name".log
 
     unset vagrant_vm_name
