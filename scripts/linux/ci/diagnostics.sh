@@ -116,16 +116,23 @@ if command -v npm >/dev/null 2>&1; then
 fi
 
 if [ "$verbose" = "enabled" ]; then
+    echo "-------- Docker --------"
     if command -v docker >/dev/null 2>&1; then
-        echo "-------- Docker --------"
         echo "Docker info (JSON): $(docker info --format '{{json .}}')"
-        echo "----------------"
+    else
+        echo "WARNING: docker command not found"
     fi
+    echo "----------------"
+
+    echo "-------- Vagrant --------"
     if command -v vagrant >/dev/null 2>&1; then
         if [ -z "$vagrant_vm_name" ]; then
             echo "vagrant box diagnostics: $(VAGRANT_SUPPRESS_OUTPUT="true" vagrant ssh "$vagrant_vm_name" -C "/vagrant/scripts/linux/ci/diagnostics.sh")"
         fi
+    else
+        echo "WARNING: vagrant command not found"
     fi
+    echo "----------------"
 
     command -v tree >/dev/null && echo "Current directory tree: $(tree .)"
 
