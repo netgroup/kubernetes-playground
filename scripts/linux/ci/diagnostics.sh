@@ -248,8 +248,8 @@ vagrant_verbose_check() {
     echo "vagrant ssh-config for $vagrant_vm_name VM"
     VAGRANT_SUPPRESS_OUTPUT="true" vagrant ssh-config "$vagrant_vm_name"
 
-    echo "vagrant box diagnostics for the $vagrant_vm_name VM"
-    VAGRANT_SUPPRESS_OUTPUT="true" vagrant ssh "$vagrant_vm_name" -c "/vagrant/scripts/linux/ci/diagnostics.sh"
+    echo "vagrant box diagnostics for the $vagrant_vm_name VM (provider: $VAGRANT_DEFAULT_PROVIDER)"
+    VAGRANT_LOG="info" VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" vagrant ssh "$vagrant_vm_name" -c "ls -al /vagrant/scripts/linux/ci/diagnostics.sh"
 
     print_file_contents /var/log/libvirt/qemu/"$vagrant_vm_name".log
 
