@@ -63,124 +63,179 @@ print_file_contents() {
 }
 
 bundle_check() {
-    echo "bundle list: $(bundle list)"
+    echo "bundle list"
+    bundle list
 }
 
 docker_check() {
-    echo "Docker version: $(docker --version)"
-    echo "Docker info: $(docker -D info)"
-    echo "Downloaded non-dangling Docker images: $(docker images -a --filter='dangling=false' --format '{{.Repository}}:{{.Tag}} {{.ID}}')"
-    echo "Docker info (JSON): $(docker info --format '{{json .}}')"
+    echo "Docker version"
+    docker --version
+
+    echo "Docker info"
+    docker -D info
+
+    echo "Downloaded non-dangling Docker images"
+    docker images -a --filter='dangling=false' --format '{{.Repository}}:{{.Tag}} {{.ID}}'
+
+    echo "Docker info (JSON)"
+    docker info --format '{{json .}}'
 }
 
 docker_verbose_check() {
-    echo "Docker info (JSON): $(docker info --format '{{json .}}')"
+    echo "Docker info (JSON)"
+    docker info --format '{{json .}}'
 }
 
 dpkg_verbose_check() {
-    echo "Installed debian packages: $(dpkg -l | sort)"
+    echo "Installed debian packages"
+    dpkg -l | sort
 }
 
 env_check() {
-    echo "environment: $(env | sort)"
+    echo "environment"
+    env | sort
 }
 
 gem_check() {
-    echo "gem environment: $(gem environment)"
+    echo "gem environment"
+    gem environment
 }
 
 gem_verbose_check() {
-    echo "Locally installed gems: $(gem query --local)"
+    echo "Locally installed gems"
+    gem query --local
 }
 
 gimme_check() {
-    echo "Gimme version: $(gimme --version)"
+    echo "Gimme version"
+    gimme --version
 }
 
 git_check() {
-    echo "git status: $(git status)"
-    echo "git branch: $(git branch)"
-    echo "git log: $(git log --oneline --graph --all | tail -n 10)"
+    echo "git status"
+    git status
+
+    echo "git branch"
+    git branch
+
+    echo "git log"
+    git log --oneline --graph --all | tail -n 10
 }
 
 go_check() {
-    echo "Go version: $(go version)"
+    echo "Go version"
+    go version
 }
 
 hostname_check() {
-    echo "Hostname (FQDN): $(hostname --fqdn)"
+    echo "Hostname (FQDN)"
+    hostname --fqdn
 }
 
 inspec_verbose_check() {
-    echo "inspec help: $(inspec -h)"
-    echo "inspec check help: $(inspec check -h)"
+    echo "inspec help"
+    inspec -h
+
+    echo "inspec check help"
+    inspec check -h
 }
 
 ip_check() {
-    echo "ip addr: $(ip addr)"
+    echo "ip addr"
+    ip addr
 }
 
 journalctl_verbose_check() {
-    echo "journalctl (current boot, warning and above): $(journalctl -xb -p warning --no-pager)"
+    echo "journalctl (current boot, warning and above)"
+    journalctl -xb -p warning --no-pager
 }
 
 kvm_ok_check() {
-    echo "kvm-ok: $(kvm-ok)"
+    echo "kvm-ok"
+    kvm-ok
 }
 
 lsmod_check() {
-    echo "lsmod: $(lsmod | sort)"
+    echo "lsmod"
+    lsmod | sort
 }
 
 npm_check() {
-    echo "npm command: $(command -v npm)"
-    echo "npm version: $(npm --version)"
+    echo "npm command"
+    command -v npm
+
+    echo "npm version"
+    npm --version
 }
 
 npm_verbose_check() {
-    echo "Installed npm packages: $(npm list -g --depth=0)"
+    echo "Installed npm packages"
+    npm list -g --depth=0
 }
 
 pip_check() {
-    echo "pip path: $(command -v pip)"
-    echo "pip version: $(pip --version)"
+    echo "pip path"
+    command -v pip
+
+    echo "pip version"
+    pip --version
 }
 
 pip3_check() {
-    echo "pip3 path: $(command -v pip3)"
-    echo "pip3 version: $(pip3 --version)"
+    echo "pip3 path"
+    command -v pip3
+
+    echo "pip3 version"
+    pip3 --version
 }
 
 python_check() {
-    echo "Python path: $(command -v python)"
-    echo "Python version: $(python --version)"
+    echo "Python path"
+    command -v python
+
+    echo "Python version"
+    python --version
 }
 
 python3_check() {
-    echo "Python 3 path: $(command -v python3)"
-    echo "Python 3 version: $(python3 --version)"
+    echo "Python 3 path"
+    command -v python3
+
+    echo "Python 3 version"
+    python3 --version
 }
 
 pwd_check() {
-    echo "Current working directory: $(pwd)"
+    echo "Current working directory"
+    pwd
 }
 
 showmount_check() {
-    echo "showmount localhost: $(showmount -e localhost)"
+    echo "showmount localhost"
+    showmount -e localhost
 }
 
 systemctl_check() {
-    echo "Systemd version: $(systemctl --version)"
+    echo "Systemd version"
+    systemctl --version
 }
 
 tree_verbose_check() {
-    echo "Current directory tree: $(tree .)"
+    echo "Current directory tree"
+    tree .
 }
 
 vagrant_check() {
-    echo "vagrant status: $(VAGRANT_SUPPRESS_OUTPUT="true" vagrant version)"
-    echo "vagrant global-status: $(vagrant global-status --prune)"
-    echo "vagrant box list: $(VAGRANT_SUPPRESS_OUTPUT="true" vagrant box list -i)"
+    echo "vagrant version"
+    VAGRANT_SUPPRESS_OUTPUT="true" vagrant version
+
+    echo "vagrant global-status"
+    VAGRANT_SUPPRESS_OUTPUT="true" vagrant global-status --prune
+
+    echo "vagrant box list"
+    VAGRANT_SUPPRESS_OUTPUT="true" vagrant box list -i
+
+    unset VAGRANT_SUPPRESS_OUTPUT
 }
 
 vagrant_verbose_check() {
@@ -189,18 +244,27 @@ vagrant_verbose_check() {
         echo "ERROR: Vagrant VM name is not set."
         exit 1
     fi
-    echo "vagrant ssh-config for $vagrant_vm_name VM: $(VAGRANT_SUPPRESS_OUTPUT="true" vagrant ssh-config "$vagrant_vm_name")"
-    echo "vagrant box diagnostics for the $vagrant_vm_name VM: $(VAGRANT_SUPPRESS_OUTPUT="true" vagrant ssh "$vagrant_vm_name" -c "/vagrant/scripts/linux/ci/diagnostics.sh")"
+
+    echo "vagrant ssh-config for $vagrant_vm_name VM"
+    VAGRANT_SUPPRESS_OUTPUT="true" vagrant ssh-config "$vagrant_vm_name"
+
+    echo "vagrant box diagnostics for the $vagrant_vm_name VM"
+    VAGRANT_SUPPRESS_OUTPUT="true" vagrant ssh "$vagrant_vm_name" -c "/vagrant/scripts/linux/ci/diagnostics.sh"
+
     print_file_contents /var/log/libvirt/qemu/"$vagrant_vm_name".log
+
     unset vagrant_vm_name
+    unset VAGRANT_SUPPRESS_OUTPUT
 }
 
 virsh_check() {
-    echo "virsh list: $(virsh list)"
+    echo "virsh list"
+    virsh list
 }
 
 whoami_check() {
-    echo "Current user: $(whoami)"
+    echo "Current user"
+    whoami
 }
 
 run_diagnostic_command() {
