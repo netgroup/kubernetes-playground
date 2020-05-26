@@ -185,8 +185,12 @@ vagrant_check() {
 
 vagrant_verbose_check() {
     vagrant_vm_name="${1}"
-    echo "vagrant ssh-config: $(VAGRANT_SUPPRESS_OUTPUT="true" vagrant ssh-config "$vagrant_vm_name")"
-    echo "vagrant box diagnostics: $(VAGRANT_SUPPRESS_OUTPUT="true" vagrant ssh "$vagrant_vm_name" -c "/vagrant/scripts/linux/ci/diagnostics.sh")"
+    if [ -z "$vagrant_vm_name" ]; then
+        echo "ERROR: Vagrant VM name is not set."
+        exit 1
+    fi
+    echo "vagrant ssh-config for $vagrant_vm_name VM: $(VAGRANT_SUPPRESS_OUTPUT="true" vagrant ssh-config "$vagrant_vm_name")"
+    echo "vagrant box diagnostics for the $vagrant_vm_name VM: $(VAGRANT_SUPPRESS_OUTPUT="true" vagrant ssh "$vagrant_vm_name" -c "/vagrant/scripts/linux/ci/diagnostics.sh")"
     print_file_contents /var/log/libvirt/qemu/"$vagrant_vm_name".log
     unset vagrant_vm_name
 }
@@ -206,7 +210,7 @@ run_diagnostic_command() {
     echo "-------- START $command_name --------"
 
     if command -v "$command_name" >/dev/null 2>&1; then
-        $command_function_name
+        $command_function_name "${@:3}"
     else
         echo "WARNING: $command_name command not found"
     fi
