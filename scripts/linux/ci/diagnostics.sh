@@ -224,6 +224,15 @@ showmount_check() {
     timeout 15s showmount -e localhost
 }
 
+ssh_check() {
+    print_directory_contents /etc/ssh
+    print_file_contents /etc/ssh/ssh_config
+    print_file_contents /etc/ssh/sshd_config
+
+    echo "current sshd configuration"
+    sshd -T
+}
+
 systemctl_check() {
     echo "Systemd version"
     systemctl --version
@@ -329,6 +338,7 @@ run_diagnostic_command "bundle" "bundle_check"
 run_diagnostic_command "virsh" "virsh_check"
 run_diagnostic_command "gem" "gem_check"
 run_diagnostic_command "npm" "npm_check"
+run_diagnostic_command "ssh" "ssh_check"
 
 print_file_contents env.yaml
 print_file_contents /etc/exports
