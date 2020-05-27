@@ -214,7 +214,7 @@ vagrant_verbose_check() {
     fi
 
     run_diagnostic_command "vagrant" "VAGRANT_SUPPRESS_OUTPUT=true vagrant ssh-config $vagrant_vm_name"
-    run_diagnostic_command "vagrant" "VAGRANT_SUPPRESS_OUTPUT=true VAGRANT_LOG=info VAGRANT_DEFAULT_PROVIDER=$VAGRANT_DEFAULT_PROVIDER vagrant ssh $vagrant_vm_name -- -tt -v sudo /vagrant/scripts/linux/ci/diagnostics.sh --verbose"
+    run_diagnostic_command "vagrant" "VAGRANT_SUPPRESS_OUTPUT=true VAGRANT_LOG=info VAGRANT_DEFAULT_PROVIDER=$VAGRANT_DEFAULT_PROVIDER vagrant ssh $vagrant_vm_name -- -tt -vv sudo /vagrant/scripts/linux/ci/diagnostics.sh --verbose"
 
     print_file_contents /var/log/libvirt/qemu/"$vagrant_vm_name".log
 
@@ -236,7 +236,7 @@ run_diagnostic_command() {
     echo "-------- START $command_name ($command_function_name) --------"
 
     if command -v "$command_name" >/dev/null 2>&1; then
-        $command_function_name "${@:3}"
+        eval "$command_function_name"
     else
         echo "WARNING: $command_name command not found"
     fi
