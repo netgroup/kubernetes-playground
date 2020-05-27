@@ -196,13 +196,13 @@ ssh_check() {
 systemctl_check() {
     run_diagnostic_command "systemctl" "systemctl --version"
 
-    run_diagnostic_command "systemctl" "systemctl status kubelet.service"
-    run_diagnostic_command "systemctl" "systemctl status sshd.service"
+    run_diagnostic_command "systemctl" "systemctl -l status kubelet.service"
+    run_diagnostic_command "systemctl" "systemctl -l status sshd.service"
 }
 
 tree_verbose_check() {
     run_diagnostic_command "tree" "tree ."
-    run_diagnostic_command "tree" "$HOME"/.vagrant.d/boxes
+    run_diagnostic_command "tree" "tree $HOME"/.vagrant.d/boxes
 }
 
 vagrant_check() {
@@ -212,7 +212,7 @@ vagrant_check() {
 }
 
 vagrant_verbose_check() {
-    vagrant_vm_name="${1}"
+    local vagrant_vm_name="${1}"
     if [ -z "$vagrant_vm_name" ]; then
         echo "WARNING: Vagrant VM name is not set."
     else
@@ -227,8 +227,7 @@ vagrant_verbose_check() {
 virsh_check() {
     run_diagnostic_command "virsh" "virsh nodeinfo"
     run_diagnostic_command "virsh" "virsh list --all"
-    run_diagnostic_command "virt-df" "virt-df"
-    run_diagnostic_command "virt-df" "virt-df"
+    run_diagnostic_command "virt-df" "virt-df -h"
 }
 
 virsh_verbose_check() {
