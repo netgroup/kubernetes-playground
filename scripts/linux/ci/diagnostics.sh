@@ -232,6 +232,9 @@ systemctl_check() {
 tree_verbose_check() {
     echo "Current directory tree"
     tree .
+
+    echo "Vagrant boxes directory tree"
+    tree "$HOME"/.vagrant.d/boxes
 }
 
 vagrant_check() {

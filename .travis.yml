@@ -34,10 +34,10 @@ jobs:
         - scripts/linux/ci/diagnostics.sh
       after_failure:
         - scripts/linux/ci/diagnostics.sh  --verbose
-    - name: "Build base box"
+    - name: "Build base box and vagrant up"
       env:
         - VAGRANT_DEFAULT_PROVIDER=libvirt
-      stage: vagrant-base-box
+      stage: vagrant-base-box-up
       language: ruby
       cache:
         directories:
@@ -101,6 +101,10 @@ jobs:
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
         vagrant box add --force kubernetes-playground-base.box \
             --name ferrarimarco/kubernetes-playground-node;
+        timeout 9m time sudo \
+        PATH="$PATH" \
+        VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
+        vagrant up k8s-master-1.k8s-play.local --no-provision;
       after_script:
         - |
           sudo \
@@ -113,57 +117,6 @@ jobs:
           PATH="$PATH" \
           VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
           scripts/linux/ci/diagnostics.sh --vagrant-vm-name "$BASE_BOX_VAGRANT_VM_ID"  --verbose
-    - name: "Start the cluster"
-      language: ruby
-      stage: vagrant-up
-      env:
-        - VAGRANT_DEFAULT_PROVIDER=libvirt
-      cache:
-        directories:
-          - $HOME/.cache/pip
-          - $HOME/.vagrant.d/boxes
-          - $HOME/.vagrant.d/gems
-          - $GEM_HOME
-          - vendor/bundle
-          - $GOPATH/pkg/mod
-          - /var/lib/docker/overlay2
-          - $HOME/.nvm/versions
-      install:
-        - sudo scripts/linux/ci/install-dependencies.sh
-        - sudo scripts/linux/ci/install-node.sh
-        - sudo scripts/linux/ci/install-libvirt.sh
-        - sudo scripts/linux/ci/install-vagrant.sh
-        - sudo scripts/linux/ci/install-vagrant-plugins.sh
-        - sudo scripts/linux/ci/generate-env-for-travis.sh
-        # Fix permissions after installing vagrant plugins with sudo
-        - sudo chown -R travis:travis $HOME/.vagrant.d
-        # This doesn't have effect if you don't open a new shell
-        - sudo adduser "$(id -un)" libvirt
-        - sudo adduser "$(id -un)" kvm
-      before_script:
-        # Workaround for https://github.com/hashicorp/vagrant/issues/8279
-        - chmod a+rx $HOME
-        - |
-          sudo \
-          PATH="$PATH" \
-          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-          scripts/linux/ci/diagnostics.sh
-      # Run with sudo because the libvirt socket is owned by the libvirt group,
-      # and the current user was added to the group in the current session,
-      # so the membership to that group is not yet in effect.
-      # Set the PATH to make the installed gems accessible.
-      script: |
-        timeout 9m time sudo \
-        PATH="$PATH" \
-        VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-        vagrant up k8s-master-1.k8s-play.local --no-provision;
-      after_script:
-        - |
-          sudo \
-          PATH="$PATH" \
-          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-          scripts/linux/ci/diagnostics.sh
-      after_failure:
         - |
           sudo \
           PATH="$PATH" \
