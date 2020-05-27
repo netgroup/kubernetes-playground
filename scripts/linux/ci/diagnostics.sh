@@ -130,6 +130,7 @@ ip_check() {
 }
 
 journalctl_verbose_check() {
+    print_directory_contents /var/log/journal
     run_diagnostic_command "journalctl" "journalctl -xb -p warning --no-pager"
     run_diagnostic_command "journalctl" "journalctl -xb --no-pager -u kubelet.service"
     run_diagnostic_command "journalctl" "journalctl -xb --no-pager -u sshd.service"
@@ -239,6 +240,8 @@ virsh_verbose_check() {
         run_diagnostic_command "virt-cat" "virt-cat -d $virsh_domain_name /etc/ssh/sshd_config"
         run_diagnostic_command "virt-cat" "virt-cat -d $virsh_domain_name /etc/exports"
         run_diagnostic_command "virt-cat" "virt-cat -d $virsh_domain_name /etc/hosts"
+
+        run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -d $virsh_domain_name /var/log/journal"
     fi
     unset virsh_domain_name
 }
@@ -259,7 +262,7 @@ run_diagnostic_command() {
         echo "WARNING: $command_name command not found"
     fi
 
-    echo "-------- END $command_name --------"
+    echo "-------- END $command_name ($command_function_name) --------"
 
     unset command_name
     unset command_function_name
