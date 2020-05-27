@@ -62,166 +62,124 @@ print_file_contents() {
 }
 
 bundle_check() {
-    echo "bundle list"
-    bundle list
+    run_diagnostic_command "bundle" "bundle list"
 }
 
 docker_check() {
-    if ! [ -f /var/run/docker.sock ]; then
+    if [ -f /var/run/docker.sock ]; then
+        run_diagnostic_command "docker" "docker --version"
+        run_diagnostic_command "docker" "docker -D info"
+        run_diagnostic_command "docker" "docker images -a --filter='dangling=false' --format '{{.Repository}}:{{.Tag}} {{.ID}}'"
+        run_diagnostic_command "docker" "docker info --format '{{json .}}'"
+        print_directory_contents /var/lib/docker
+    else
         echo "WARNING: Docker socket not found"
-        return 1
     fi
-
-    echo "Docker version"
-    docker --version
-
-    echo "Docker info"
-    docker -D info
-
-    echo "Downloaded non-dangling Docker images"
-    docker images -a --filter='dangling=false' --format '{{.Repository}}:{{.Tag}} {{.ID}}'
-
-    echo "Docker info (JSON)"
-    docker info --format '{{json .}}'
 }
 
 docker_verbose_check() {
-    if ! [ -f /var/run/docker.sock ]; then
+    if [ -f /var/run/docker.sock ]; then
+        run_diagnostic_command "docker" "docker info --format '{{json .}}'"
+    else
         echo "WARNING: Docker socket not found"
-        return 1
     fi
-
-    echo "Docker info (JSON)"
-    docker info --format '{{json .}}'
 }
 
 dpkg_verbose_check() {
-    echo "Installed debian packages"
-    dpkg -l | sort
+    run_diagnostic_command "dpkg" "dpkg -l | sort"
 }
 
 env_check() {
-    echo "environment"
-    env | sort
+    run_diagnostic_command "env" "env | sort"
 }
 
 gem_check() {
-    echo "gem environment"
-    gem environment
+    run_diagnostic_command "gem" "gem environment"
 }
 
 gem_verbose_check() {
-    echo "Locally installed gems"
-    gem query --local
+    run_diagnostic_command "gem" "gem query --local"
 }
 
 gimme_check() {
-    echo "Gimme version"
-    gimme --version
+    run_diagnostic_command "gimme" "gimme --version"
 }
 
 git_check() {
-    echo "git status"
-    git status
+    run_diagnostic_command "git" "git status"
+    run_diagnostic_command "git" "git branch"
+    run_diagnostic_command "git" "git log --oneline --graph --all | tail -n 10"
+}
 
-    echo "git branch"
-    git branch
-
-    echo "git log"
-    git log --oneline --graph --all | tail -n 10
+git_verbose_check() {
+    run_diagnostic_command "git" "git diff"
 }
 
 go_check() {
-    echo "Go version"
-    go version
+    run_diagnostic_command "go" "go version"
 }
 
 hostname_check() {
-    echo "Hostname (FQDN)"
-    hostname --fqdn
+    run_diagnostic_command "hostname" "hostname --fqdn"
 }
 
 inspec_verbose_check() {
-    echo "inspec help"
-    inspec -h
-
-    echo "inspec check help"
-    inspec check -h
+    run_diagnostic_command "inspec" "inspec -h"
+    run_diagnostic_command "inspec" "inspec check -h"
 }
 
 ip_check() {
-    echo "ip addr"
-    ip addr
+    run_diagnostic_command "ip" "ip addr"
 }
 
 journalctl_verbose_check() {
-    echo "journalctl (current boot, warning and above)"
-    journalctl -xb -p warning --no-pager
+    run_diagnostic_command "journalctl" "journalctl -xb -p warning --no-pager"
 }
 
 kvm_ok_check() {
-    echo "kvm-ok"
-    kvm-ok
+    run_diagnostic_command "kvm-ok" "kvm-ok"
 }
 
 lsmod_check() {
-    echo "lsmod"
-    lsmod | sort
+    run_diagnostic_command "lsmod" "lsmod | sort"
 }
 
 npm_check() {
-    echo "npm command"
-    command -v npm
+    run_diagnostic_command "npm" "command -v npm"
+    run_diagnostic_command "npm" "npm --version"
 
-    echo "npm version"
-    npm --version
 }
 
 npm_verbose_check() {
-    echo "Installed npm packages"
-    npm list -g --depth=0
+    run_diagnostic_command "npm" "npm list -g --depth=0"
 }
 
 pip_check() {
-    echo "pip path"
-    command -v pip
-
-    echo "pip version"
-    pip --version
+    run_diagnostic_command "pip" "command -v pip"
+    run_diagnostic_command "pip" "pip --version"
 }
 
 pip3_check() {
-    echo "pip3 path"
-    command -v pip3
-
-    echo "pip3 version"
-    pip3 --version
+    run_diagnostic_command "pip3" "command -v pip3"
+    run_diagnostic_command "pip3" "pip3 --version"
 }
 
 python_check() {
-    echo "Python path"
-    command -v python
-
-    echo "Python version"
-    python --version
+    run_diagnostic_command "python" "command -v python"
+    run_diagnostic_command "python" "python --version"
 }
 
 python3_check() {
-    echo "Python 3 path"
-    command -v python3
-
-    echo "Python 3 version"
-    python3 --version
+    run_diagnostic_command "python3" "command -v python3"
+    run_diagnostic_command "python3" "python3 --version"
 }
 
 pwd_check() {
-    echo "Current working directory"
-    pwd
+    run_diagnostic_command "pwd" "pwd"
 }
 
 showmount_check() {
-    echo "showmount localhost (with a timeout)"
-    timeout 15s showmount -e localhost
+    run_diagnostic_command "showmount" "timeout 15s showmount -e localhost"
 }
 
 ssh_check() {
@@ -229,34 +187,23 @@ ssh_check() {
     print_file_contents /etc/ssh/ssh_config
     print_file_contents /etc/ssh/sshd_config
 
-    echo "current sshd configuration"
-    sshd -T
+    run_diagnostic_command "sshd" "sshd -T"
+
 }
 
 systemctl_check() {
-    echo "Systemd version"
-    systemctl --version
+    run_diagnostic_command "systemctl" "systemctl --version"
 }
 
 tree_verbose_check() {
-    echo "Current directory tree"
-    tree .
-
-    echo "Vagrant boxes directory tree"
-    tree "$HOME"/.vagrant.d/boxes
+    run_diagnostic_command "tree" "tree ."
+    run_diagnostic_command "tree" "$HOME"/.vagrant.d/boxes
 }
 
 vagrant_check() {
-    echo "vagrant version"
-    VAGRANT_SUPPRESS_OUTPUT="true" vagrant version
-
-    echo "vagrant global-status"
-    VAGRANT_SUPPRESS_OUTPUT="true" vagrant global-status --prune
-
-    echo "vagrant box list"
-    VAGRANT_SUPPRESS_OUTPUT="true" vagrant box list -i
-
-    unset VAGRANT_SUPPRESS_OUTPUT
+    run_diagnostic_command "vagrant" "VAGRANT_SUPPRESS_OUTPUT=true vagrant version"
+    run_diagnostic_command "vagrant" "VAGRANT_SUPPRESS_OUTPUT=true vagrant global-status --prune"
+    run_diagnostic_command "vagrant" "VAGRANT_SUPPRESS_OUTPUT=true vagrant box list -i"
 }
 
 vagrant_verbose_check() {
@@ -266,33 +213,27 @@ vagrant_verbose_check() {
         exit 1
     fi
 
-    echo "vagrant ssh-config for $vagrant_vm_name VM"
-    VAGRANT_SUPPRESS_OUTPUT="true" vagrant ssh-config "$vagrant_vm_name"
-
-    echo "vagrant box diagnostics for the $vagrant_vm_name VM (provider: $VAGRANT_DEFAULT_PROVIDER)"
-    VAGRANT_LOG="info" VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" vagrant ssh "$vagrant_vm_name" -- -t "sudo /vagrant/scripts/linux/ci/diagnostics.sh --verbose"
+    run_diagnostic_command "vagrant" "VAGRANT_SUPPRESS_OUTPUT=true vagrant ssh-config $vagrant_vm_name"
+    run_diagnostic_command "vagrant" "VAGRANT_SUPPRESS_OUTPUT=true VAGRANT_LOG=info VAGRANT_DEFAULT_PROVIDER=$VAGRANT_DEFAULT_PROVIDER vagrant ssh $vagrant_vm_name -- -tt -v sudo /vagrant/scripts/linux/ci/diagnostics.sh --verbose"
 
     print_file_contents /var/log/libvirt/qemu/"$vagrant_vm_name".log
 
     unset vagrant_vm_name
-    unset VAGRANT_SUPPRESS_OUTPUT
 }
 
 virsh_check() {
-    echo "virsh list"
-    virsh list
+    run_diagnostic_command "virsh" "virsh list"
 }
 
 whoami_check() {
-    echo "Current user"
-    whoami
+    run_diagnostic_command "whoami" "whoami"
 }
 
 run_diagnostic_command() {
     command_name="${1}"
     command_function_name="${2}"
 
-    echo "-------- START $command_name --------"
+    echo "-------- START $command_name ($command_function_name) --------"
 
     if command -v "$command_name" >/dev/null 2>&1; then
         $command_function_name "${@:3}"
@@ -316,49 +257,52 @@ if [ -s "$NVM_DIR"/nvm.sh ]; then
     nvm use
 fi
 
-run_diagnostic_command "whoami" "whoami_check"
-run_diagnostic_command "pwd" "pwd_check"
-run_diagnostic_command "hostname" "hostname_check"
-run_diagnostic_command "python" "python_check"
-run_diagnostic_command "pip" "pip_check"
-run_diagnostic_command "python3" "python3_check"
-run_diagnostic_command "pip3" "pip3_check"
-run_diagnostic_command "gimme" "gimme_check"
-run_diagnostic_command "go" "go_check"
-run_diagnostic_command "systemctl" "systemctl_check"
-run_diagnostic_command "docker" "docker_check"
-run_diagnostic_command "git" "git_check"
-run_diagnostic_command "ip" "ip_check"
-run_diagnostic_command "showmount" "showmount_check"
-run_diagnostic_command "env" "env_check"
-run_diagnostic_command "lsmod" "lsmod_check"
-run_diagnostic_command "kvm-ok" "kvm_ok_check"
-run_diagnostic_command "vagrant" "vagrant_check"
-run_diagnostic_command "bundle" "bundle_check"
-run_diagnostic_command "virsh" "virsh_check"
-run_diagnostic_command "gem" "gem_check"
-run_diagnostic_command "npm" "npm_check"
-run_diagnostic_command "ssh" "ssh_check"
+whoami_check
+pwd_check
+hostname_check
+python_check
+pip_check
+python3_check
+pip3_check
+gimme_check
+go_check
+systemctl_check
+docker_check
+git_check
+ip_check
+showmount_check
+env_check
+lsmod_check
+kvm_ok_check
+vagrant_check
+bundle_check
+virsh_check
+gem_check
+npm_check
+ssh_check
 
 print_file_contents env.yaml
 print_file_contents /etc/exports
 print_file_contents /etc/hosts
 
 print_directory_contents /var/log/libvirt/qemu
-print_directory_contents /var/lib/docker
 
+echo "VERBOSE: $verbose"
 if [ "$verbose" = "enabled" ]; then
-    run_diagnostic_command "docker" "docker_verbose_check"
-    run_diagnostic_command "vagrant" "vagrant_verbose_check" "$vagrant_vm_name"
+    echo "-------- START VERBOSE OUTPUT --------"
+    docker_verbose_check
+    vagrant_verbose_check "$vagrant_vm_name"
 
-    run_diagnostic_command "tree" "tree_verbose_check"
-    run_diagnostic_command "gem" "gem_verbose_check"
-    run_diagnostic_command "inspec" "inspec_verbose_check"
-    run_diagnostic_command "npm" "npm_verbose_check"
+    tree_verbose_check
+    gem_verbose_check
+    inspec_verbose_check
+    npm_verbose_check
 
     print_file_contents /var/log/libvirt/libvirtd.log
     print_file_contents "$HOME"/.virt-manager/virt-manager.log
 
-    run_diagnostic_command "dpkg" "dpkg_verbose_check"
-    run_diagnostic_command "journalctl" "journalctl_verbose_check"
+    dpkg_verbose_check
+    journalctl_verbose_check
+    git_verbose_check
+    echo "-------- END VERBOSE OUTPUT --------"
 fi
