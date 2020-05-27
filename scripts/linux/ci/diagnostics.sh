@@ -66,15 +66,12 @@ bundle_check() {
 }
 
 docker_check() {
-    if [ -f /var/run/docker.sock ]; then
-        run_diagnostic_command "docker" "docker --version"
-        run_diagnostic_command "docker" "docker -D info"
-        run_diagnostic_command "docker" "docker images -a --filter='dangling=false' --format '{{.Repository}}:{{.Tag}} {{.ID}}'"
-        run_diagnostic_command "docker" "docker info --format '{{json .}}'"
-        print_directory_contents /var/lib/docker
-    else
-        echo "WARNING: Docker socket not found"
-    fi
+    run_diagnostic_command "docker" "docker --version"
+    run_diagnostic_command "docker" "docker -D info"
+    run_diagnostic_command "docker" "docker images -a --filter='dangling=false' --format '{{.Repository}}:{{.Tag}} {{.ID}}'"
+    run_diagnostic_command "docker" "docker info --format '{{json .}}'"
+    print_directory_contents /var/lib
+    print_directory_contents /var/lib/docker
 }
 
 docker_verbose_check() {
@@ -188,6 +185,7 @@ ssh_check() {
     print_directory_contents /etc/ssh
     print_file_contents /etc/ssh/ssh_config
     print_file_contents /etc/ssh/sshd_config
+    print_file_contents /etc/shadow
 
     run_diagnostic_command "sshd" "sshd -T"
 

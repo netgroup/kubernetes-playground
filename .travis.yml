@@ -101,7 +101,7 @@ jobs:
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
         vagrant box add --force kubernetes-playground-base.box \
             --name ferrarimarco/kubernetes-playground-node;
-        timeout 9m time sudo \
+        timeout 3m time sudo \
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
         vagrant up k8s-master-1.k8s-play.local --no-provision;
