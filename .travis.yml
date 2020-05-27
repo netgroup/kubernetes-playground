@@ -95,6 +95,11 @@ jobs:
         time sudo \
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
+        vagrant provision "$BASE_BOX_VAGRANT_VM_ID" \
+            --provision-with diagnostics-verbose;
+        time sudo \
+        PATH="$PATH" \
+        VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
         vagrant destroy --force "$BASE_BOX_VAGRANT_VM_ID"; \
         time sudo \
         PATH="$PATH" \
