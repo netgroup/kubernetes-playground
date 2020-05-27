@@ -134,6 +134,8 @@ ip_check() {
 
 journalctl_verbose_check() {
     run_diagnostic_command "journalctl" "journalctl -xb -p warning --no-pager"
+    run_diagnostic_command "journalctl" "journalctl -xb --no-pager -u kubelet.service"
+    run_diagnostic_command "journalctl" "journalctl -xb --no-pager -u sshd.service"
 }
 
 kvm_ok_check() {
@@ -193,6 +195,9 @@ ssh_check() {
 
 systemctl_check() {
     run_diagnostic_command "systemctl" "systemctl --version"
+
+    run_diagnostic_command "systemctl" "systemctl status kubelet.service"
+    run_diagnostic_command "systemctl" "systemctl status sshd.service"
 }
 
 tree_verbose_check() {
@@ -209,12 +214,10 @@ vagrant_check() {
 vagrant_verbose_check() {
     vagrant_vm_name="${1}"
     if [ -z "$vagrant_vm_name" ]; then
-        echo "ERROR: Vagrant VM name is not set."
-        exit 1
+        echo "WARNING: Vagrant VM name is not set."
+    else
+        run_diagnostic_command "vagrant" "VAGRANT_SUPPRESS_OUTPUT=true vagrant ssh-config $vagrant_vm_name"
     fi
-
-    run_diagnostic_command "vagrant" "VAGRANT_SUPPRESS_OUTPUT=true vagrant ssh-config $vagrant_vm_name"
-    run_diagnostic_command "vagrant" "VAGRANT_SUPPRESS_OUTPUT=true VAGRANT_LOG=info VAGRANT_DEFAULT_PROVIDER=$VAGRANT_DEFAULT_PROVIDER vagrant ssh $vagrant_vm_name -- -tt -vv sudo /vagrant/scripts/linux/ci/diagnostics.sh --verbose"
 
     print_file_contents /var/log/libvirt/qemu/"$vagrant_vm_name".log
 
@@ -222,7 +225,25 @@ vagrant_verbose_check() {
 }
 
 virsh_check() {
-    run_diagnostic_command "virsh" "virsh list"
+    run_diagnostic_command "virsh" "virsh nodeinfo"
+    run_diagnostic_command "virsh" "virsh list --all"
+    run_diagnostic_command "virt-df" "virt-df"
+    run_diagnostic_command "virt-df" "virt-df"
+}
+
+virsh_verbose_check() {
+    virsh_domain_name="${1}"
+    if [ -z "$virsh_domain_name" ]; then
+        echo "WARNING: virsh domain name is not set."
+    else
+        run_diagnostic_command "virt-filesystems" "virt-filesystems --all -d $virsh_domain_name"
+        run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -d $virsh_domain_name /etc/ssh"
+        run_diagnostic_command "virt-cat" "virt-cat -d $virsh_domain_name /etc/ssh/ssh_config"
+        run_diagnostic_command "virt-cat" "virt-cat -d $virsh_domain_name /etc/ssh/sshd_config"
+        run_diagnostic_command "virt-cat" "virt-cat -d $virsh_domain_name /etc/exports"
+        run_diagnostic_command "virt-cat" "virt-cat -d $virsh_domain_name /etc/hosts"
+    fi
+    unset virsh_domain_name
 }
 
 whoami_check() {
@@ -292,6 +313,7 @@ if [ "$verbose" = "enabled" ]; then
     echo "-------- START VERBOSE OUTPUT --------"
     docker_verbose_check
     vagrant_verbose_check "$vagrant_vm_name"
+    virsh_verbose_check "$vagrant_vm_name"
 
     tree_verbose_check
     gem_verbose_check
