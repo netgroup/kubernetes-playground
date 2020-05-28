@@ -5,6 +5,7 @@ env:
     # When changing this, ensure that the Vagrantfile is updated as well
     - VAGRANT_VERSION="2.2.9"
     - BASE_BOX_VAGRANT_VM_ID="base-box-builder.k8s-play.local"
+    - MASTER_1_VAGRANT_VM_ID="k8s-master-1.k8s-play.local"
 jobs:
   fast_finish: true
   include:
@@ -61,18 +62,11 @@ jobs:
         # This doesn't have effect if you don't open a new shell
         - sudo adduser "$(id -un)" libvirt
         - sudo adduser "$(id -un)" kvm
+        # Workaround for https://github.com/hashicorp/vagrant/issues/8279
+        - chmod a+rx $HOME
       install:
         - gem install bundler
         - bundle install
-      before_script:
-        - inspec check --chef-license=accept test/inspec/kubernetes-playground
-        # Workaround for https://github.com/hashicorp/vagrant/issues/8279
-        - chmod a+rx $HOME
-        - |
-          sudo \
-          PATH="$PATH" \
-          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-          scripts/linux/ci/diagnostics.sh
       # Run with sudo because the libvirt socket is owned by the libvirt group,
       # and the current user was added to the group in the current session,
       # so the membership to that group is not yet in effect.
@@ -95,13 +89,11 @@ jobs:
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
         VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS="defaults,-ssh-userdir,-ssh-hostkeys,-lvm-uuids" \
-        vagrant package "$BASE_BOX_VAGRANT_VM_ID" \
-            --output kubernetes-playground-base.box;
+        vagrant package "$BASE_BOX_VAGRANT_VM_ID" --output kubernetes-playground-base.box;
         time sudo \
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-        vagrant provision "$BASE_BOX_VAGRANT_VM_ID" \
-            --provision-with diagnostics-verbose;
+        vagrant provision "$BASE_BOX_VAGRANT_VM_ID" --provision-with diagnostics-verbose;
         time sudo \
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
@@ -109,25 +101,18 @@ jobs:
         time sudo \
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-        vagrant box add --force kubernetes-playground-base.box \
-            --name ferrarimarco/kubernetes-playground-node;
+        vagrant box add --force kubernetes-playground-base.box --name ferrarimarco/kubernetes-playground-node;
         timeout 3m time sudo \
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-        vagrant up k8s-master-1.k8s-play.local --no-provision;
+        vagrant up;
       after_script:
         - |
           sudo \
           PATH="$PATH" \
           VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-          scripts/linux/ci/diagnostics.sh --vagrant-vm-name "$BASE_BOX_VAGRANT_VM_ID"
-      after_failure:
-        - |
-          sudo \
-          PATH="$PATH" \
-          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
           scripts/linux/ci/diagnostics.sh \
-            --vagrant-vm-name "$BASE_BOX_VAGRANT_VM_ID"  \
+            --vagrant-vm-name "$BASE_BOX_VAGRANT_VM_ID" \
             --vagrant-libvirt-img-path \
               "$HOME"/.vagrant.d/boxes/ferrarimarco-VAGRANTSLASH-kubernetes-playground-node/0/libvirt/box.img \
             --verbose
@@ -135,7 +120,10 @@ jobs:
           sudo \
           PATH="$PATH" \
           VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-          scripts/linux/ci/diagnostics.sh --vagrant-vm-name k8s-master-1.k8s-play.local --verbose
+          scripts/linux/ci/diagnostics.sh --vagrant-vm-name "$MASTER_1_VAGRANT_VM_ID" \
+            --vagrant-libvirt-img-path \
+              "$HOME"/.vagrant.d/boxes/ferrarimarco-VAGRANTSLASH-kubernetes-playground-node/0/libvirt/box.img \
+            --verbose
 language: shell
 os: linux
 services:

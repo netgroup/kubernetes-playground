@@ -58,3 +58,5 @@ cd ansible || exit 1
 ansible-lint -v kubernetes.yml openssl-self-signed-certificate.yml || exit 1
 echo "Setting the working directory back to $INITIAL_PWD"
 cd "$INITIAL_PWD" || exit 1
+
+inspec check --chef-license=accept test/inspec/kubernetes-playground
