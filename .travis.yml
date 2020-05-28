@@ -121,7 +121,11 @@ jobs:
           sudo \
           PATH="$PATH" \
           VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-          scripts/linux/ci/diagnostics.sh --vagrant-vm-name "$BASE_BOX_VAGRANT_VM_ID"  --verbose
+          scripts/linux/ci/diagnostics.sh \
+            --vagrant-vm-name "$BASE_BOX_VAGRANT_VM_ID"  \
+            --vagrant-libvirt-img-path \
+              "$HOME"/.vagrant.d/boxes/ferrarimarco-VAGRANTSLASH-kubernetes-playground-node/0/libvirt/box.img \
+            --verbose
         - |
           sudo \
           PATH="$PATH" \

@@ -2,7 +2,7 @@
 
 set -o pipefail
 
-if ! TEMP="$(getopt -o n:v --long vagrant-vm-name:,verbose \
+if ! TEMP="$(getopt -o n:l:v --long vagrant-vm-name:,vagrant-libvirt-img-path:,verbose \
     -n 'diagnostics' -- "$@")"; then
     echo "Terminating..." >&2
     exit 1
@@ -11,11 +11,16 @@ eval set -- "$TEMP"
 
 vagrant_vm_name=
 verbose=
+vagrant_libvirt_img_path=
 
 while true; do
     case "$1" in
     -n | --vagrant-vm-name)
         vagrant_vm_name="$2"
+        shift 2
+        ;;
+    -l | --vagrant-libvirt-img-path)
+        vagrant_libvirt_img_path=
         shift 2
         ;;
     -v | --verbose)
@@ -230,7 +235,7 @@ virsh_check() {
 }
 
 virsh_verbose_check() {
-    virsh_domain_name="${1}"
+    local virsh_domain_name="${1}"
     if [ -z "$virsh_domain_name" ]; then
         echo "WARNING: virsh domain name is not set."
     else
@@ -244,6 +249,22 @@ virsh_verbose_check() {
         run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -d $virsh_domain_name /var/log/journal"
     fi
     unset virsh_domain_name
+
+    local vagrant_libvirt_img_path="${1}"
+    if [ -z "$vagrant_libvirt_img_path" ]; then
+        echo "WARNING: virsh img path is not set."
+    else
+        run_diagnostic_command "virt-filesystems" "virt-filesystems --all -a $vagrant_libvirt_img_path"
+        run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -a $vagrant_libvirt_img_path /etc/ssh"
+        run_diagnostic_command "virt-cat" "virt-cat -a $vagrant_libvirt_img_path /etc/ssh/ssh_config"
+        run_diagnostic_command "virt-cat" "virt-cat -a $vagrant_libvirt_img_path /etc/ssh/sshd_config"
+        run_diagnostic_command "virt-cat" "virt-cat -a $vagrant_libvirt_img_path /etc/exports"
+        run_diagnostic_command "virt-cat" "virt-cat -a $vagrant_libvirt_img_path /etc/hosts"
+
+        run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -a $vagrant_libvirt_img_path /var/log/journal"
+    fi
+
+    unset vagrant_libvirt_img_path
 }
 
 whoami_check() {
@@ -313,7 +334,7 @@ if [ "$verbose" = "enabled" ]; then
     echo "-------- START VERBOSE OUTPUT --------"
     docker_verbose_check
     vagrant_verbose_check "$vagrant_vm_name"
-    virsh_verbose_check "$vagrant_vm_name"
+    virsh_verbose_check "$vagrant_vm_name" "$vagrant_libvirt_img_path"
 
     tree_verbose_check
     gem_verbose_check

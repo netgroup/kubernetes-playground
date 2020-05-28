@@ -315,10 +315,11 @@ it.
     ```
 
     The script has a `--verbose` mode, and you can also specify a
-    `--vagrant-vm-name <guest-name>` to gather information about a VM, from the
-    point of view of the host. For example, you can query the hypervisor
-    directly, without going through Vagrant. This is useful when you've issues
-    connecting with `vagrant ssh`.
+    `--vagrant-vm-name <guest-name>` to gather information about a VM and a
+    `--vagrant-libvirt-img-path <path-to-img>` to gather information about a
+    libvirt `.img` file, from the point of view of the host. For example, you
+    can query the hypervisor directly, without going through Vagrant. This is
+    useful when you've issues connecting with `vagrant ssh`.
 
 1. Multiple load balanced nginx server instances: `kubernetes/nginx-stateless`
 1. A busybox instance, useful for debugging and troubleshooting (run commands
