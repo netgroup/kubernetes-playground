@@ -306,7 +306,20 @@ it.
 ### Debugging and troubleshooting utilities
 
 1. A script that gathers information about the host:
-    [scripts/linux/ci/diagnostics.sh](scripts/linux/ci/diagnostics.sh)
+    [scripts/linux/ci/diagnostics.sh](scripts/linux/ci/diagnostics.sh). You can
+    run this script against a host by running it directly, or against a Vagrant
+    VM, by executing the `diagnostics-verbose` provisioner:
+
+    ```shell
+    vagrant provision <guest-name> --provision-with diagnostics-verbose
+    ```
+
+    The script has a `--verbose` mode, and you can also specify a
+    `--vagrant-vm-name <guest-name>` to gather information about a VM, from the
+    point of view of the host. For example, you can query the hypervisor
+    directly, without going through Vagrant. This is useful when you've issues
+    connecting with `vagrant ssh`.
+
 1. Multiple load balanced nginx server instances: `kubernetes/nginx-stateless`
 1. A busybox instance, useful for debugging and troubleshooting (run commands
     with `kubectl exec`.
