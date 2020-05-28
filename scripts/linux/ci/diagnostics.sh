@@ -192,6 +192,7 @@ ssh_check() {
     print_file_contents /etc/ssh/ssh_config
     print_file_contents /etc/ssh/sshd_config
     print_file_contents /etc/shadow
+    print_file_contents /var/log/auth.log
 
     run_diagnostic_command "sshd" "sshd -T"
 
@@ -245,7 +246,9 @@ virsh_verbose_check() {
         run_diagnostic_command "virt-cat" "virt-cat -d $virsh_domain_name /etc/ssh/sshd_config"
         run_diagnostic_command "virt-cat" "virt-cat -d $virsh_domain_name /etc/exports"
         run_diagnostic_command "virt-cat" "virt-cat -d $virsh_domain_name /etc/hosts"
+        run_diagnostic_command "virt-cat" "virt-cat -d $virsh_domain_name /var/log/auth.log"
 
+        run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -d $virsh_domain_name /var/log"
         run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -d $virsh_domain_name /var/log/journal"
     fi
     unset virsh_domain_name
@@ -260,7 +263,9 @@ virsh_verbose_check() {
         run_diagnostic_command "virt-cat" "virt-cat -a $vagrant_libvirt_img_path /etc/ssh/sshd_config"
         run_diagnostic_command "virt-cat" "virt-cat -a $vagrant_libvirt_img_path /etc/exports"
         run_diagnostic_command "virt-cat" "virt-cat -a $vagrant_libvirt_img_path /etc/hosts"
+        run_diagnostic_command "virt-cat" "virt-cat -a $vagrant_libvirt_img_path /var/log/auth.log"
 
+        run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -a $vagrant_libvirt_img_path /var/log"
         run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -a $vagrant_libvirt_img_path /var/log/journal"
     fi
 
