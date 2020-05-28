@@ -20,7 +20,7 @@ while true; do
         shift 2
         ;;
     -l | --vagrant-libvirt-img-path)
-        vagrant_libvirt_img_path=
+        vagrant_libvirt_img_path="$2"
         shift 2
         ;;
     -v | --verbose)
