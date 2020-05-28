@@ -275,7 +275,7 @@ run_diagnostic_command() {
     command_name="${1}"
     command_function_name="${2}"
 
-    echo "-------- START $command_name ($command_function_name) --------"
+    echo "-------- START $command_name ($command_function_name), pwd: $(pwd) --------"
 
     if command -v "$command_name" >/dev/null 2>&1; then
         eval "$command_function_name"
@@ -283,7 +283,7 @@ run_diagnostic_command() {
         echo "WARNING: $command_name command not found"
     fi
 
-    echo "-------- END $command_name ($command_function_name) --------"
+    echo "-------- END $command_name ($command_function_name), pwd: $(pwd) --------"
 
     unset command_name
     unset command_function_name
