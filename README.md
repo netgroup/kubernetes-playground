@@ -46,22 +46,33 @@ install the needed Vagrant plugins:
 To provision and configure the environment as described, run the following
 commands from the root of the repository:
 
-1. Prepare a Vagrant box (`base-box-builder.k8s-play.local`) that will be used
+1. Prepare a Vagrant box (`base-box-builder`) that will be used
     as a base for other VMs:
-    1. Provision and configure `base-box-builder.k8s-play.local`:
+    1. Provision and configure `base-box-builder`:
 
         ```shell
         vagrant up base-box-builder.k8s-play.local
         ```
 
-    1. Export a Vagrant box based on `vagrant base-box-builder.k8s-play.local`:
+    1. Halt `vagrant base-box-builder`:
 
         ```shell
+        vagrant halt base-box-builder.k8s-play.local
+        ```
+
+    1. Export a Vagrant box based on `vagrant base-box-builder`:
+
+        ```shell
+        VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS="defaults"
+        VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS="$VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS,-ssh-userdir"
+        VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS="$VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS,-ssh-hostkeys"
+        VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS="$VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS,-lvm-uuids"
+        export VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS
         vagrant package base-box-builder.k8s-play.local \
             --output kubernetes-playground-base.box
         ```
 
-    1. Destroy `base-box-builder.k8s-play.local` to spare resources:
+    1. Destroy `base-box-builder` to spare resources:
 
         ```shell
         vagrant destroy --force base-box-builder.k8s-play.local
