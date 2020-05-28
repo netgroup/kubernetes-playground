@@ -250,7 +250,7 @@ virsh_verbose_check() {
     fi
     unset virsh_domain_name
 
-    local vagrant_libvirt_img_path="${1}"
+    local vagrant_libvirt_img_path="${2}"
     if [ -z "$vagrant_libvirt_img_path" ]; then
         echo "WARNING: virsh img path is not set."
     else
