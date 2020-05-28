@@ -10,6 +10,7 @@ jobs:
   fast_finish: true
   include:
     - name: "Linting"
+      stage: linting_and_docker
       cache:
         directories:
           - $HOME/.cache/pip
@@ -21,20 +22,16 @@ jobs:
           - /var/lib/docker/overlay2
           - $HOME/.nvm/versions
       language: shell
-      before_install:
+      install:
         - sudo scripts/linux/ci/install-dependencies.sh
         - scripts/linux/ci/install-node.sh
-      install:
         - nvm use
         - scripts/linux/ci/install-linting-tools.sh
       script: |
         scripts/linux/ci/lint.sh || exit 1;
         scripts/linux/ci/build-docker-images.sh || exit 1;
-      stage: linting_and_docker
       after_script:
-        - scripts/linux/ci/diagnostics.sh
-      after_failure:
-        - scripts/linux/ci/diagnostics.sh  --verbose
+        - scripts/linux/ci/diagnostics.sh --verbose
     - name: "Build base box and vagrant up"
       env:
         - VAGRANT_DEFAULT_PROVIDER=libvirt
@@ -50,9 +47,11 @@ jobs:
           - $GOPATH/pkg/mod
           - /var/lib/docker/overlay2
           - $HOME/.nvm/versions
-      before_install:
+      install:
         - sudo scripts/linux/ci/install-dependencies.sh
         - scripts/linux/ci/install-node.sh
+        - nvm use
+        - scripts/linux/ci/install-linting-tools.sh
         - sudo scripts/linux/ci/install-libvirt.sh
         - sudo scripts/linux/ci/install-vagrant.sh
         - sudo scripts/linux/ci/install-vagrant-plugins.sh
@@ -64,9 +63,6 @@ jobs:
         - sudo adduser "$(id -un)" kvm
         # Workaround for https://github.com/hashicorp/vagrant/issues/8279
         - chmod a+rx $HOME
-      install:
-        - gem install bundler
-        - bundle install
       # Run with sudo because the libvirt socket is owned by the libvirt group,
       # and the current user was added to the group in the current session,
       # so the membership to that group is not yet in effect.

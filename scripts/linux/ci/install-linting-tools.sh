@@ -19,3 +19,7 @@ GO111MODULE=on go get mvdan.cc/sh/v3/cmd/shfmt
 
 echo "Installing npm packages..."
 npm install -g markdownlint-cli
+
+echo "Installing bundler and gems..."
+gem install bundler
+bundle install
