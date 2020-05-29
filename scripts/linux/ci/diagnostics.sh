@@ -245,6 +245,7 @@ virsh_verbose_check() {
         run_diagnostic_command "virt-cat" "virt-cat -d $virsh_domain_name /etc/exports"
         run_diagnostic_command "virt-cat" "virt-cat -d $virsh_domain_name /etc/hosts"
         run_diagnostic_command "virt-cat" "virt-cat -d $virsh_domain_name /var/log/auth.log"
+        run_diagnostic_command "virt-cat" "virt-cat -d $virsh_domain_name /var/log/syslog"
 
         run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -d $virsh_domain_name /etc/ssh"
         run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -d $virsh_domain_name /var/log"
