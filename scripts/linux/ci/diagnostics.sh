@@ -2,21 +2,42 @@
 
 set -o pipefail
 
-if ! TEMP="$(getopt -o n:l: --long vagrant-vm-name:,vagrant-libvirt-img-path: \
+if ! TEMP="$(getopt -o ahino:l: --long disk-image,help,host,libvirt-guest,vagrant-vm-name:,vagrant-libvirt-img-path: \
     -n 'diagnostics' -- "$@")"; then
     echo "Terminating..." >&2
     exit 1
 fi
 eval set -- "$TEMP"
 
+cmd=
 vagrant_vm_name=
 vagrant_libvirt_img_path=
 
 while true; do
     case "$1" in
+    -d | --disk-image)
+        cmd="host"
+        shift
+        break
+        ;;
+    -i | --libvirt-guest)
+        cmd="libvirt_guest"
+        shift
+        break
+        ;;
+    -h | --help)
+        cmd="help"
+        shift
+        break
+        ;;
     -n | --vagrant-vm-name)
         vagrant_vm_name="$2"
         shift 2
+        ;;
+    -o | --host)
+        cmd="host"
+        shift
+        break
         ;;
     -l | --vagrant-libvirt-img-path)
         vagrant_libvirt_img_path="$2"
@@ -314,9 +335,10 @@ fi
 
 usage() {
     echo "Usage:"
-    echo "  host                                        - run diagnostics against the host system."
-    echo "  libvirt-guest                               - run diagnostics against a libvirt guest. Set the path to the guest name with -n, --vagrant-vm-name."
-    echo "  disk-image                                  - run diagnostics against a disk image. Set the path to the image with -l, --vagrant-libvirt-img-path."
+    echo "  -a, --disk-image                                  - run diagnostics against a disk image. Set the path to the image with -l, --vagrant-libvirt-img-path."
+    echo "  -h, --help                                        - show this help."
+    echo "  -o, --host                                        - run diagnostics against the host system."
+    echo "  -i, --libvirt-guest                               - run diagnostics against a libvirt guest. Set the guest name with -n, --vagrant-vm-name."
 }
 
 main() {
@@ -371,9 +393,13 @@ main() {
         virsh_verbose_check "$vagrant_vm_name" ""
     elif [[ $cmd == "disk_image" ]]; then
         virsh_verbose_check "" "$vagrant_libvirt_img_path"
+    elif [[ $cmd == "help" ]]; then
+        usage
     else
         usage
     fi
 }
+
+echo "This script has been invoked with: $0 $*"
 
 main "$@"
