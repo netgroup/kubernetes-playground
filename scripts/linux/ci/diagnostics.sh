@@ -223,7 +223,13 @@ vagrant_verbose_check() {
 virsh_check() {
     run_diagnostic_command "virsh" "virsh nodeinfo"
     run_diagnostic_command "virsh" "virsh list --all"
+
     run_diagnostic_command "virt-df" "virt-df -h"
+
+    run_diagnostic_command "virsh" "net-list"
+    run_diagnostic_command "virsh" "virsh net-dhcp-leases vagrant-libvirt"
+
+    print_file_contents /var/lib/libvirt/dnsmasq/vagrant-libvirt.leases
 
     print_file_contents /var/log/libvirt/libvirtd.log
     print_file_contents "$HOME"/.virt-manager/virt-manager.log
@@ -246,6 +252,10 @@ virsh_verbose_check() {
         run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -d $virsh_domain_name /etc/ssh"
         run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -d $virsh_domain_name /var/log"
         run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -d $virsh_domain_name /var/log/journal"
+
+        run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -d $virsh_domain_name /var/log/journal"
+        run_diagnostic_command "virsh" "virsh domifaddr $virsh_domain_name"
+        run_diagnostic_command "virsh" "virsh domifaddr $virsh_domain_name --source arp"
     fi
     unset virsh_domain_name
 
