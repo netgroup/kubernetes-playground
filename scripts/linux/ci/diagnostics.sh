@@ -2,6 +2,8 @@
 
 set -o pipefail
 
+echo "This script has been invoked with: $0 $*"
+
 if ! TEMP="$(getopt -o ahino:l: --long disk-image,help,host,libvirt-guest,vagrant-vm-name:,vagrant-libvirt-img-path: \
     -n 'diagnostics' -- "$@")"; then
     echo "Terminating..." >&2
@@ -50,6 +52,8 @@ while true; do
     *) break ;;
     esac
 done
+
+echo "Computed command: $cmd"
 
 print_directory_contents() {
     directory_path="${1}"
@@ -127,7 +131,7 @@ git_check() {
 }
 
 git_verbose_check() {
-    run_diagnostic_command "git" "git diff"
+    run_diagnostic_command "git" "git --no-pager diff"
 }
 
 go_check() {
@@ -345,9 +349,12 @@ main() {
     local cmd=$1
 
     if [[ -z "$cmd" ]]; then
+        echo "ERROR: no command selected. Exiting..."
         usage
         exit 1
     fi
+
+    echo "Selected command: $cmd"
 
     if [[ $cmd == "host" ]]; then
         whoami_check
@@ -400,6 +407,4 @@ main() {
     fi
 }
 
-echo "This script has been invoked with: $0 $*"
-
-main "$@"
+main "$cmd"
