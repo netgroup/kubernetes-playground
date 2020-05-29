@@ -6,11 +6,13 @@ env:
     - VAGRANT_VERSION="2.2.9"
     - BASE_BOX_VAGRANT_VM_ID="base-box-builder.k8s-play.local"
     - MASTER_1_VAGRANT_VM_ID="k8s-master-1.k8s-play.local"
+    - WORKER_1_VAGRANT_VM_ID="k8s-minion-1.k8s-play.local"
+    - WORKER_2_VAGRANT_VM_ID="k8s-minion-2.k8s-play.local"
 jobs:
   fast_finish: true
   include:
     - name: "Linting"
-      stage: linting_and_docker
+      stage: linting-and-docker
       cache:
         directories:
           - $HOME/.cache/pip
@@ -120,6 +122,24 @@ jobs:
           sudo \
           PATH="$PATH" \
           VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
+          scripts/linux/ci/diagnostics.sh --libvirt-guest \
+            --vagrant-vm-name "$MASTER_1_VAGRANT_VM_ID"
+        - |
+          sudo \
+          PATH="$PATH" \
+          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
+          scripts/linux/ci/diagnostics.sh --libvirt-guest \
+            --vagrant-vm-name "$WORKER_1_VAGRANT_VM_ID"
+        - |
+          sudo \
+          PATH="$PATH" \
+          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
+          scripts/linux/ci/diagnostics.sh --libvirt-guest \
+            --vagrant-vm-name "$WORKER_2_VAGRANT_VM_ID"
+        - |
+          sudo \
+          PATH="$PATH" \
+          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
           scripts/linux/ci/diagnostics.sh --disk-image \
             --vagrant-libvirt-img-path \
               "$HOME"/.vagrant.d/boxes/ferrarimarco-VAGRANTSLASH-kubernetes-playground-node/0/libvirt/box.img
@@ -128,6 +148,5 @@ os: linux
 services:
   - docker
 stages:
-  - linting_and_docker
-  - vagrant-base-box
-  - vagrant-up
+  - linting-and-docker
+  - vagrant-base-box-up
