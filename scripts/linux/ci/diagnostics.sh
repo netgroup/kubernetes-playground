@@ -2,7 +2,7 @@
 
 set -o pipefail
 
-if ! TEMP="$(getopt -o n:l:v --long vagrant-vm-name:,vagrant-libvirt-img-path:,verbose \
+if ! TEMP="$(getopt -o n:l: --long vagrant-vm-name:,vagrant-libvirt-img-path: \
     -n 'diagnostics' -- "$@")"; then
     echo "Terminating..." >&2
     exit 1
@@ -10,7 +10,6 @@ fi
 eval set -- "$TEMP"
 
 vagrant_vm_name=
-verbose=
 vagrant_libvirt_img_path=
 
 while true; do
@@ -22,11 +21,6 @@ while true; do
     -l | --vagrant-libvirt-img-path)
         vagrant_libvirt_img_path="$2"
         shift 2
-        ;;
-    -v | --verbose)
-        verbose=enabled
-        shift
-        break
         ;;
     --)
         shift
@@ -77,9 +71,7 @@ docker_check() {
     run_diagnostic_command "docker" "docker info --format '{{json .}}'"
     print_directory_contents /var/lib
     print_directory_contents /var/lib/docker
-}
 
-docker_verbose_check() {
     if [ -f /var/run/docker.sock ]; then
         run_diagnostic_command "docker" "docker info --format '{{json .}}'"
     else
@@ -232,6 +224,9 @@ virsh_check() {
     run_diagnostic_command "virsh" "virsh nodeinfo"
     run_diagnostic_command "virsh" "virsh list --all"
     run_diagnostic_command "virt-df" "virt-df -h"
+
+    print_file_contents /var/log/libvirt/libvirtd.log
+    print_file_contents "$HOME"/.virt-manager/virt-manager.log
 }
 
 virsh_verbose_check() {
@@ -244,6 +239,7 @@ virsh_verbose_check() {
         run_diagnostic_command "virt-cat" "virt-cat -d $virsh_domain_name /etc/ssh/sshd_config"
         run_diagnostic_command "virt-cat" "virt-cat -d $virsh_domain_name /etc/exports"
         run_diagnostic_command "virt-cat" "virt-cat -d $virsh_domain_name /etc/hosts"
+        run_diagnostic_command "virt-cat" "virt-cat -d $virsh_domain_name /etc/machine-id"
         run_diagnostic_command "virt-cat" "virt-cat -d $virsh_domain_name /var/log/auth.log"
         run_diagnostic_command "virt-cat" "virt-cat -d $virsh_domain_name /var/log/syslog"
 
@@ -262,7 +258,9 @@ virsh_verbose_check() {
         run_diagnostic_command "virt-cat" "virt-cat -a $vagrant_libvirt_img_path /etc/ssh/sshd_config"
         run_diagnostic_command "virt-cat" "virt-cat -a $vagrant_libvirt_img_path /etc/exports"
         run_diagnostic_command "virt-cat" "virt-cat -a $vagrant_libvirt_img_path /etc/hosts"
+        run_diagnostic_command "virt-cat" "virt-cat -a $vagrant_libvirt_img_path /etc/machine-id"
         run_diagnostic_command "virt-cat" "virt-cat -a $vagrant_libvirt_img_path /var/log/auth.log"
+        run_diagnostic_command "virt-cat" "virt-cat -a $vagrant_libvirt_img_path /var/log/syslog"
 
         run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -a $vagrant_libvirt_img_path /etc/ssh"
         run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -a $vagrant_libvirt_img_path /var/log"
@@ -304,53 +302,68 @@ if [ -s "$NVM_DIR"/nvm.sh ]; then
     nvm use
 fi
 
-whoami_check
-pwd_check
-hostname_check
-python_check
-pip_check
-python3_check
-pip3_check
-gimme_check
-go_check
-systemctl_check
-docker_check
-git_check
-ip_check
-showmount_check
-env_check
-lsmod_check
-kvm_ok_check
-vagrant_check
-bundle_check
-virsh_check
-gem_check
-npm_check
-ssh_check
+usage() {
+    echo "Usage:"
+    echo "  host                                        - run diagnostics against the host system."
+    echo "  libvirt-guest                               - run diagnostics against a libvirt guest. Set the path to the guest name with -n, --vagrant-vm-name."
+    echo "  disk-image                                  - run diagnostics against a disk image. Set the path to the image with -l, --vagrant-libvirt-img-path."
+}
 
-print_file_contents env.yaml
-print_file_contents /etc/exports
-print_file_contents /etc/hosts
+main() {
+    local cmd=$1
 
-print_directory_contents /var/log/libvirt/qemu
+    if [[ -z "$cmd" ]]; then
+        usage
+        exit 1
+    fi
 
-echo "VERBOSE: $verbose"
-if [ "$verbose" = "enabled" ]; then
-    echo "-------- START VERBOSE OUTPUT --------"
-    docker_verbose_check
-    vagrant_verbose_check "$vagrant_vm_name"
-    virsh_verbose_check "$vagrant_vm_name" "$vagrant_libvirt_img_path"
+    if [[ $cmd == "host" ]]; then
+        whoami_check
+        pwd_check
+        hostname_check
+        python_check
+        pip_check
+        python3_check
+        pip3_check
+        gimme_check
+        go_check
+        systemctl_check
+        docker_check
+        git_check
+        ip_check
+        showmount_check
+        env_check
+        lsmod_check
+        kvm_ok_check
+        vagrant_check
+        bundle_check
+        virsh_check
+        gem_check
+        npm_check
+        ssh_check
 
-    tree_verbose_check
-    gem_verbose_check
-    inspec_verbose_check
-    npm_verbose_check
+        print_file_contents env.yaml
+        print_file_contents /etc/exports
+        print_file_contents /etc/hosts
 
-    print_file_contents /var/log/libvirt/libvirtd.log
-    print_file_contents "$HOME"/.virt-manager/virt-manager.log
+        print_directory_contents /var/log/libvirt/qemu
 
-    dpkg_verbose_check
-    journalctl_verbose_check
-    git_verbose_check
-    echo "-------- END VERBOSE OUTPUT --------"
-fi
+        tree_verbose_check
+        gem_verbose_check
+        inspec_verbose_check
+        npm_verbose_check
+
+        dpkg_verbose_check
+        journalctl_verbose_check
+        git_verbose_check
+    elif [[ $cmd == "libvirt_guest" ]]; then
+        vagrant_verbose_check "$vagrant_vm_name"
+        virsh_verbose_check "$vagrant_vm_name" ""
+    elif [[ $cmd == "disk_image" ]]; then
+        virsh_verbose_check "" "$vagrant_libvirt_img_path"
+    else
+        usage
+    fi
+}
+
+main "$@"
