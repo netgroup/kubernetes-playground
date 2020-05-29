@@ -251,12 +251,14 @@
       when:
         - base_box | default(false) | bool
     - name: remove /etc/machine-id
+      become: true
       file:
         path: /etc/machine-id
         state: absent
       when:
         - base_box | default(false) | bool
     - name: remove /var/lib/dbus/machine-id
+      become: true
       file:
         path: /var/lib/dbus/machine-id
         state: absent
