@@ -27,7 +27,6 @@ while true; do
     -q | --quick-setup)
         quick_setup=enabled
         shift
-        break
         ;;
     --)
         shift

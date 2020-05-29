@@ -4,7 +4,7 @@ set -o pipefail
 
 echo "This script has been invoked with: $0 $*"
 
-if ! TEMP="$(getopt -o ahino:l: --long disk-image,help,host,libvirt-guest,vagrant-vm-name:,vagrant-libvirt-img-path: \
+if ! TEMP="$(getopt -o dhoin:l: --long disk-image,help,host,libvirt-guest,vagrant-vm-name:,vagrant-libvirt-img-path: \
     -n 'diagnostics' -- "$@")"; then
     echo "Terminating..." >&2
     exit 1
@@ -16,32 +16,35 @@ vagrant_vm_name=
 vagrant_libvirt_img_path=
 
 while true; do
+    echo "Decoding parameter $1"
     case "$1" in
     -d | --disk-image)
-        cmd="host"
+        echo "Found disk image"
+        cmd="disk_image"
         shift
-        break
         ;;
     -i | --libvirt-guest)
+        echo "Found libvirt guest"
         cmd="libvirt_guest"
         shift
-        break
         ;;
     -h | --help)
+        echo "Found help parameter"
         cmd="help"
         shift
-        break
         ;;
     -n | --vagrant-vm-name)
+        echo "Found vagrant VM name parameter"
         vagrant_vm_name="$2"
         shift 2
         ;;
     -o | --host)
+        echo "Found host parameter"
         cmd="host"
         shift
-        break
         ;;
     -l | --vagrant-libvirt-img-path)
+        echo "Found disk image path parameter"
         vagrant_libvirt_img_path="$2"
         shift 2
         ;;
@@ -53,7 +56,9 @@ while true; do
     esac
 done
 
-echo "Computed command: $cmd"
+echo "Decoded command: $cmd"
+echo "Decoded VM name: $vagrant_vm_name"
+echo "Decoded disk image path: $vagrant_libvirt_img_path"
 
 print_directory_contents() {
     directory_path="${1}"
@@ -235,7 +240,7 @@ vagrant_check() {
 vagrant_verbose_check() {
     local vagrant_vm_name="${1}"
     if [ -z "$vagrant_vm_name" ]; then
-        echo "WARNING: Vagrant VM name is not set."
+        echo "Vagrant VM name is not set."
     else
         run_diagnostic_command "vagrant" "VAGRANT_SUPPRESS_OUTPUT=true vagrant ssh-config $vagrant_vm_name"
     fi
@@ -396,9 +401,11 @@ main() {
         journalctl_verbose_check
         git_verbose_check
     elif [[ $cmd == "libvirt_guest" ]]; then
+        echo "Selected VM name: $vagrant_vm_name"
         vagrant_verbose_check "$vagrant_vm_name"
         virsh_verbose_check "$vagrant_vm_name" ""
     elif [[ $cmd == "disk_image" ]]; then
+        echo "Selected disk image path: $vagrant_libvirt_img_path"
         virsh_verbose_check "" "$vagrant_libvirt_img_path"
     elif [[ $cmd == "help" ]]; then
         usage
