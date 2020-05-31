@@ -259,6 +259,8 @@ virsh_check() {
     run_diagnostic_command "virsh" "virsh net-list"
     run_diagnostic_command "virsh" "virsh net-dhcp-leases vagrant-libvirt"
 
+    print_directory_contents /var/lib/libvirt/dnsmasq
+
     print_file_contents /var/lib/libvirt/dnsmasq/vagrant-libvirt.leases
 
     print_file_contents /var/log/libvirt/libvirtd.log
