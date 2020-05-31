@@ -82,7 +82,7 @@ jobs:
         time sudo \
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-        vagrant provision "$BASE_BOX_VAGRANT_VM_ID" --provision-with diagnostics-verbose;
+        vagrant provision "$BASE_BOX_VAGRANT_VM_ID" --provision-with diagnostics;
         time sudo \
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \

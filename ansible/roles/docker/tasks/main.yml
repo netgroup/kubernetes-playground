@@ -15,6 +15,17 @@
       paths:
         - ../vars
 
+- name: Generate Docker daemon configuration file
+  become: true
+  template:
+    backup: false
+    dest: /etc/docker/daemon.json
+    group: root
+    mode: 0755
+    owner: root
+    src: templates/docker.json.j2
+  when: inventory_hostname == kubernetes_master_1_hostname and additional_network_interface_name is defined
+
 - name: Enable docker service
   service:
     enabled: true
