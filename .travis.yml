@@ -82,11 +82,16 @@ jobs:
         time sudo \
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
+        vagrant provision "$BASE_BOX_VAGRANT_VM_ID" --provision-with diagnostics-verbose;
+        time sudo \
+        PATH="$PATH" \
+        VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
         vagrant halt "$BASE_BOX_VAGRANT_VM_ID";
         time sudo \
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
         VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS="defaults,-ssh-userdir,-ssh-hostkeys,-lvm-uuids" \
+        VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="--firstboot-command 'sudo systemd-machine-id-setup'" \
         vagrant package "$BASE_BOX_VAGRANT_VM_ID" --output kubernetes-playground-base.box;
         time sudo \
         PATH="$PATH" \
@@ -103,11 +108,6 @@ jobs:
           PATH="$PATH" \
           VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
           scripts/linux/ci/diagnostics.sh --host
-        - |
-          time sudo \
-          PATH="$PATH" \
-          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-          vagrant provision "$BASE_BOX_VAGRANT_VM_ID" --provision-with diagnostics-verbose
         - |
           time sudo \
           PATH="$PATH" \

@@ -621,10 +621,7 @@ Vagrant.configure("2") do |config|
       end
         host.vm.provision "diagnostics", type: "shell", run: "never" do |s|
             s.path = "scripts/linux/ci/diagnostics.sh"
-        end
-        host.vm.provision "diagnostics-verbose", type: "shell", run: "never" do |s|
-            s.path = "scripts/linux/ci/diagnostics.sh"
-            s.args = ["--vagrant-vm-name", hostname, "--verbose" ]
+            s.args = ["--vagrant-vm-name", hostname, "--host" ]
         end
     end
   end

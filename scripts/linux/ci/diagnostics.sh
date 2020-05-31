@@ -284,11 +284,15 @@ virsh_verbose_check() {
         run_diagnostic_command "virt-cat" "virt-cat -d $virsh_domain_name /etc/machine-id"
         run_diagnostic_command "virt-cat" "virt-cat -d $virsh_domain_name /var/log/auth.log"
         run_diagnostic_command "virt-cat" "virt-cat -d $virsh_domain_name /var/log/syslog"
+        run_diagnostic_command "virt-cat" "virt-cat -d $virsh_domain_name /var/log/messages"
 
         run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -d $virsh_domain_name /etc/ssh"
         run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -d $virsh_domain_name /var/log"
         run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -d $virsh_domain_name /var/log/journal"
         run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -d $virsh_domain_name /etc/udev/rules.d"
+        run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -d $virsh_domain_name /var/lib/NetworkManager"
+        run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -d $virsh_domain_name /etc/netplan"
+        run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -d $virsh_domain_name /etc/systemd/network"
 
         run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -d $virsh_domain_name /home/vagrant/.ssh"
 
@@ -312,11 +316,15 @@ virsh_verbose_check() {
         run_diagnostic_command "virt-cat" "virt-cat -a $vagrant_libvirt_img_path /etc/machine-id"
         run_diagnostic_command "virt-cat" "virt-cat -a $vagrant_libvirt_img_path /var/log/auth.log"
         run_diagnostic_command "virt-cat" "virt-cat -a $vagrant_libvirt_img_path /var/log/syslog"
+        run_diagnostic_command "virt-cat" "virt-cat -a $vagrant_libvirt_img_path /var/log/messages"
 
         run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -a $vagrant_libvirt_img_path /etc/ssh"
         run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -a $vagrant_libvirt_img_path /var/log"
         run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -a $vagrant_libvirt_img_path /var/log/journal"
         run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -a $vagrant_libvirt_img_path /etc/udev/rules.d"
+        run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -a $vagrant_libvirt_img_path /var/lib/NetworkManager"
+        run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -a $vagrant_libvirt_img_path /etc/netplan"
+        run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -a $vagrant_libvirt_img_path /etc/systemd/network"
     fi
 
     unset vagrant_libvirt_img_path

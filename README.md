@@ -68,6 +68,8 @@ commands from the root of the repository:
         VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS="$VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS,-ssh-hostkeys"
         VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS="$VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS,-lvm-uuids"
         export VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS
+        VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="--firstboot-command 'sudo systemd-machine-id-setup'"
+        export VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS
         vagrant package base-box-builder.k8s-play.local \
             --output kubernetes-playground-base.box
         ```
@@ -319,18 +321,16 @@ it.
 1. A script that gathers information about the host:
     [scripts/linux/ci/diagnostics.sh](scripts/linux/ci/diagnostics.sh). You can
     run this script against a host by running it directly, or against a Vagrant
-    VM, by executing the `diagnostics-verbose` provisioner:
+    VM, by executing the `diagnostics` provisioner:
 
     ```shell
-    vagrant provision <guest-name> --provision-with diagnostics-verbose
+    vagrant provision <guest-name> --provision-with diagnostics
     ```
 
-    The script has a `--verbose` mode, and you can also specify a
-    `--vagrant-vm-name <guest-name>` to gather information about a VM and a
-    `--vagrant-libvirt-img-path <path-to-img>` to gather information about a
-    libvirt `.img` file, from the point of view of the host. For example, you
-    can query the hypervisor directly, without going through Vagrant. This is
-    useful when you've issues connecting with `vagrant ssh`.
+    The script has a `--help` option that explains how to run it. Additionally,
+    the diagnostis script can query the hypervisor directly, without going
+    through Vagrant. This is useful when you've issues connecting with
+    `vagrant ssh`.
 
 1. Multiple load balanced nginx server instances: `kubernetes/nginx-stateless`
 1. A busybox instance, useful for debugging and troubleshooting (run commands
