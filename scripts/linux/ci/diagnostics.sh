@@ -256,7 +256,7 @@ virsh_check() {
 
     run_diagnostic_command "virt-df" "virt-df -h"
 
-    run_diagnostic_command "virsh" "net-list"
+    run_diagnostic_command "virsh" "virsh net-list"
     run_diagnostic_command "virsh" "virsh net-dhcp-leases vagrant-libvirt"
 
     print_file_contents /var/lib/libvirt/dnsmasq/vagrant-libvirt.leases
@@ -273,6 +273,8 @@ virsh_verbose_check() {
         run_diagnostic_command "virsh" "virsh dumpxml $virsh_domain_name"
         run_diagnostic_command "virt-filesystems" "virt-filesystems --all -d $virsh_domain_name"
 
+        run_diagnostic_command "virt-log" "virt-log -d $virsh_domain_name"
+
         run_diagnostic_command "virt-cat" "virt-cat -d $virsh_domain_name /etc/ssh/ssh_config"
         run_diagnostic_command "virt-cat" "virt-cat -d $virsh_domain_name /etc/ssh/sshd_config"
         run_diagnostic_command "virt-cat" "virt-cat -d $virsh_domain_name /etc/exports"
@@ -280,12 +282,13 @@ virsh_verbose_check() {
         run_diagnostic_command "virt-cat" "virt-cat -d $virsh_domain_name /etc/machine-id"
         run_diagnostic_command "virt-cat" "virt-cat -d $virsh_domain_name /var/log/auth.log"
         run_diagnostic_command "virt-cat" "virt-cat -d $virsh_domain_name /var/log/syslog"
-        run_diagnostic_command "virt-cat" "virt-cat -d $virsh_domain_name /etc/udev/rules.d/70-persistent-net.rules"
 
         run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -d $virsh_domain_name /etc/ssh"
         run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -d $virsh_domain_name /var/log"
         run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -d $virsh_domain_name /var/log/journal"
         run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -d $virsh_domain_name /etc/udev/rules.d"
+
+        run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -d $virsh_domain_name /home/vagrant/.ssh"
 
         run_diagnostic_command "virsh" "virsh domifaddr $virsh_domain_name"
         run_diagnostic_command "virsh" "virsh domifaddr $virsh_domain_name --source arp"
@@ -297,6 +300,9 @@ virsh_verbose_check() {
         echo "WARNING: virsh img path is not set."
     else
         run_diagnostic_command "virt-filesystems" "virt-filesystems --all -a $vagrant_libvirt_img_path"
+
+        run_diagnostic_command "virt-log" "virt-log -a $vagrant_libvirt_img_path"
+
         run_diagnostic_command "virt-cat" "virt-cat -a $vagrant_libvirt_img_path /etc/ssh/ssh_config"
         run_diagnostic_command "virt-cat" "virt-cat -a $vagrant_libvirt_img_path /etc/ssh/sshd_config"
         run_diagnostic_command "virt-cat" "virt-cat -a $vagrant_libvirt_img_path /etc/exports"
@@ -308,6 +314,7 @@ virsh_verbose_check() {
         run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -a $vagrant_libvirt_img_path /etc/ssh"
         run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -a $vagrant_libvirt_img_path /var/log"
         run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -a $vagrant_libvirt_img_path /var/log/journal"
+        run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -a $vagrant_libvirt_img_path /etc/udev/rules.d"
     fi
 
     unset vagrant_libvirt_img_path
