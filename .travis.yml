@@ -159,6 +159,11 @@ jobs:
           scripts/linux/ci/diagnostics.sh --disk-image \
             --vagrant-libvirt-img-path \
               "$HOME"/.vagrant.d/boxes/ferrarimarco-VAGRANTSLASH-kubernetes-playground-node/0/libvirt/box.img
+        - |
+          time sudo \
+          PATH="$PATH" \
+          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
+          vagrant destroy --force
 language: shell
 os: linux
 services:
