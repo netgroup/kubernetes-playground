@@ -270,7 +270,9 @@ virsh_verbose_check() {
     if [ -z "$virsh_domain_name" ]; then
         echo "WARNING: virsh domain name is not set."
     else
+        run_diagnostic_command "virsh" "virsh dumpxml $virsh_domain_name"
         run_diagnostic_command "virt-filesystems" "virt-filesystems --all -d $virsh_domain_name"
+
         run_diagnostic_command "virt-cat" "virt-cat -d $virsh_domain_name /etc/ssh/ssh_config"
         run_diagnostic_command "virt-cat" "virt-cat -d $virsh_domain_name /etc/ssh/sshd_config"
         run_diagnostic_command "virt-cat" "virt-cat -d $virsh_domain_name /etc/exports"
@@ -278,12 +280,13 @@ virsh_verbose_check() {
         run_diagnostic_command "virt-cat" "virt-cat -d $virsh_domain_name /etc/machine-id"
         run_diagnostic_command "virt-cat" "virt-cat -d $virsh_domain_name /var/log/auth.log"
         run_diagnostic_command "virt-cat" "virt-cat -d $virsh_domain_name /var/log/syslog"
+        run_diagnostic_command "virt-cat" "virt-cat -d $virsh_domain_name /etc/udev/rules.d/70-persistent-net.rules"
 
         run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -d $virsh_domain_name /etc/ssh"
         run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -d $virsh_domain_name /var/log"
         run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -d $virsh_domain_name /var/log/journal"
+        run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -d $virsh_domain_name /etc/udev/rules.d"
 
-        run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -d $virsh_domain_name /var/log/journal"
         run_diagnostic_command "virsh" "virsh domifaddr $virsh_domain_name"
         run_diagnostic_command "virsh" "virsh domifaddr $virsh_domain_name --source arp"
     fi
