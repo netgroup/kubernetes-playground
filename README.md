@@ -68,7 +68,7 @@ commands from the root of the repository:
         VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS="$VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS,-ssh-hostkeys"
         VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS="$VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS,-lvm-uuids"
         export VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS
-        VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="--firstboot-command 'sudo systemd-machine-id-setup'"
+        VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="--firstboot /vagrant/scripts/linux/libvirt-init.sh"
         export VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS
         vagrant package base-box-builder.k8s-play.local \
             --output kubernetes-playground-base.box

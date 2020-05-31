@@ -216,11 +216,12 @@ ssh_check() {
     print_file_contents /etc/shadow
 
     run_diagnostic_command "sshd" "sshd -T"
-
 }
 
 systemctl_check() {
     run_diagnostic_command "systemctl" "systemctl --version"
+
+    run_diagnostic_command "systemctl" "systemctl list-unit-files | sort"
 
     run_diagnostic_command "systemctl" "systemctl -l status kubelet.service"
     run_diagnostic_command "systemctl" "systemctl -l status sshd.service"
@@ -285,6 +286,7 @@ virsh_verbose_check() {
         run_diagnostic_command "virt-cat" "virt-cat -d $virsh_domain_name /var/log/auth.log"
         run_diagnostic_command "virt-cat" "virt-cat -d $virsh_domain_name /var/log/syslog"
         run_diagnostic_command "virt-cat" "virt-cat -d $virsh_domain_name /var/log/messages"
+        run_diagnostic_command "virt-cat" "virt-cat -d $virsh_domain_name ~root/virt-sysprep-firstboot.log"
 
         run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -d $virsh_domain_name /etc/ssh"
         run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -d $virsh_domain_name /var/log"
@@ -317,6 +319,7 @@ virsh_verbose_check() {
         run_diagnostic_command "virt-cat" "virt-cat -a $vagrant_libvirt_img_path /var/log/auth.log"
         run_diagnostic_command "virt-cat" "virt-cat -a $vagrant_libvirt_img_path /var/log/syslog"
         run_diagnostic_command "virt-cat" "virt-cat -a $vagrant_libvirt_img_path /var/log/messages"
+        run_diagnostic_command "virt-cat" "virt-cat -a $vagrant_libvirt_img_path ~root/virt-sysprep-firstboot.log"
 
         run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -a $vagrant_libvirt_img_path /etc/ssh"
         run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -a $vagrant_libvirt_img_path /var/log"

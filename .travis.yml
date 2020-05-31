@@ -91,7 +91,7 @@ jobs:
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
         VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS="defaults,-ssh-userdir,-ssh-hostkeys,-lvm-uuids" \
-        VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="--firstboot-command 'sudo systemd-machine-id-setup'" \
+        VAGRANT_LIBVIRT_VIRT_SYSPREP_OPTIONS="--firstboot /vagrant/scripts/linux/libvirt-init.sh" \
         vagrant package "$BASE_BOX_VAGRANT_VM_ID" --output kubernetes-playground-base.box;
         time sudo \
         PATH="$PATH" \
