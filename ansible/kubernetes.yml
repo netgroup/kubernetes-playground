@@ -17,7 +17,6 @@
         upgrade: dist
       when:
         - base_box | default(false) | bool
-    - name: Upgrade APT packages
   post_tasks:
     - name: Display all variables/facts known for {{ inventory_hostname }} after applying roles
       debug:
