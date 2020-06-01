@@ -278,6 +278,19 @@
         state: absent
       when:
         - base_box | default(false) | bool
+    - name: Search for DHCP lease files to remove
+      find:
+        paths: /var/lib/dhcp
+        patterns: "*"
+      register: dhcp_lease_files_to_delete
+    - name: Delete DHCP lease files
+      become: true
+      file:
+        path: "{{ item.path }}"
+        state: absent
+      with_items: "{{ dhcp_lease_files_to_delete.files }}"
+      when:
+        - base_box | default(false) | bool
   roles:
     - role: docker
       become: true

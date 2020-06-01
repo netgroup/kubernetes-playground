@@ -299,6 +299,8 @@ virsh_verbose_check() {
         run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -d $virsh_domain_name /home/vagrant/.ssh"
 
         run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -d $virsh_domain_name /etc/modules-load.d"
+        run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -d $virsh_domain_name /dev/.udev"
+        run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -d $virsh_domain_name /var/lib/dhcp"
 
         run_diagnostic_command "virsh" "virsh domifaddr $virsh_domain_name"
         run_diagnostic_command "virsh" "virsh domifaddr $virsh_domain_name --source arp"
@@ -333,9 +335,11 @@ virsh_verbose_check() {
         run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -a $vagrant_libvirt_img_path /etc/netplan"
         run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -a $vagrant_libvirt_img_path /etc/systemd/network"
 
-        run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -d $virsh_domain_name /home/vagrant/.ssh"
+        run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -a $vagrant_libvirt_img_path /home/vagrant/.ssh"
 
-        run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -d $virsh_domain_name /etc/modules-load.d"
+        run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -a $vagrant_libvirt_img_path /etc/modules-load.d"
+        run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -a $vagrant_libvirt_img_path /dev/.udev"
+        run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -a $vagrant_libvirt_img_path /var/lib/dhcp"
     fi
 
     unset vagrant_libvirt_img_path
