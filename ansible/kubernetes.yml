@@ -10,11 +10,16 @@
       listen:
         - systemd_read_configs
   pre_tasks:
-    - name: Update all APT packages to the latest version
+    - name: Update APT cache if needed
       become: true
       apt:
         cache_valid_time: 3600
         update_cache: true
+      when:
+        - base_box | default(false) | bool
+    - name: Update all APT packages to the latest version
+      become: true
+      apt:
         upgrade: dist
       when:
         - base_box | default(false) | bool
