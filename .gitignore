@@ -73,3 +73,5 @@ Gemfile.lock
 
 node_modules
 tmp
+
+inspec.lock

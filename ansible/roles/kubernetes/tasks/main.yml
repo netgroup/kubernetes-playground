@@ -59,6 +59,15 @@
     - kubeadm
     - kubectl
 
+- name: Enable br_netfilter kernel module autoload
+  template:
+    backup: false
+    dest: /etc/modules-load.d/br_netfilter.conf
+    group: root
+    mode: 0755
+    owner: root
+    src: templates/br_netfilter.conf.j2
+
 - name: Configure forwarding and bridging for IPv6 and IPv4
   sysctl:
     name: "{{ item }}"

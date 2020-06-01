@@ -17,5 +17,7 @@
     state: present
   vars:
     packages:
+      - libsystemd0
+      - libudev1
       - python-selinux
       - selinux-policy-default
