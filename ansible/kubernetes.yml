@@ -9,6 +9,19 @@
         daemon_reload: true
       listen:
         - systemd_read_configs
+  pre_tasks:
+    - name: Only run "update_cache=yes" if the last one is more than 3600 seconds ago
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+      when:
+        - base_box | default(false) | bool
+    - name: Update all APT packages to the latest version
+      apt:
+        upgrade: dist
+      when:
+        - base_box | default(false) | bool
+    - name: Upgrade APT packages
   post_tasks:
     - name: Display all variables/facts known for {{ inventory_hostname }} after applying roles
       debug:

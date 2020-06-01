@@ -24,7 +24,6 @@
     mode: 0755
     owner: root
     src: templates/docker.json.j2
-  when: inventory_hostname == kubernetes_master_1_hostname and additional_network_interface_name is defined
 
 - name: Enable docker service
   service:
