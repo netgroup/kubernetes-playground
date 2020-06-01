@@ -9,6 +9,11 @@
     name: none
     state: absent
 
+- name: Add the br_netfilter module
+  modprobe:
+    name: br_netfilter
+    state: present
+
 - include_tasks: preflight-checks.yml
 
 - name: Load OS specific variables
