@@ -18,7 +18,7 @@
 
 - name: Restart the Docker service
   service:
-    name: httpd
+    name: docker
     state: restarted
   listen:
     - docker_service_restart
