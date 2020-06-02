@@ -60,9 +60,14 @@ echo "Decoded command: $cmd"
 echo "Decoded VM name: $vagrant_vm_name"
 echo "Decoded disk image path: $vagrant_libvirt_img_path"
 
+declare -A file_content_exclusions=(
+    ["/var/log/auth.log"]="debug1|debug2"
+)
+
 directories_to_print=(
     /dev/.udev
     /etc/modules-load.d
+    /etc/update-motd.d
     /etc/netplan
     /etc/ssh
     /etc/systemd/network
@@ -97,7 +102,7 @@ files_to_print=(
 
 print_directory_contents() {
     directory_path="${1}"
-    echo "-------- START $directory_path CONTENTS --------"
+    echo "-------- START $directory_path DIRECTORY CONTENTS --------"
 
     if [ -d "$directory_path" ]; then
         ls -al "$directory_path"
@@ -105,22 +110,30 @@ print_directory_contents() {
         echo "WARNING: $directory_path not found or it's not a directory"
     fi
 
-    echo "-------- END $directory_path CONTENTS --------"
+    echo "-------- END $directory_path DIRECTORY CONTENTS --------"
 
     unset directory_path
 }
 
 print_file_contents() {
     file_path="${1}"
-    echo "-------- START $file_path CONTENTS --------"
+    grep_pattern_to_exclude="${file_content_exclusions[$file_path]}"
+    echo "-------- START $file_path FILE CONTENTS --------"
 
     if [ -f "$file_path" ]; then
-        cat "$file_path"
+        if [ -z "$grep_pattern_to_exclude" ]; then
+            echo "No exclusions configured for $file_path. Showing the full contents."
+            cat "$file_path"
+        else
+            echo "Excluding $grep_pattern_to_exclude from the output of the contents of this file."
+            grep -Ev "$grep_pattern_to_exclude" "$file_path"
+        fi
+
     else
         echo "WARNING: $file_path not found"
     fi
 
-    echo "-------- END $file_path CONTENTS --------"
+    echo "-------- END $file_path FILE CONTENTS --------"
 
     unset file_path
 }
@@ -204,6 +217,7 @@ host_diagnostics() {
     run_diagnostic_command "systemctl" "systemctl list-unit-files | sort"
     run_diagnostic_command "systemctl" "systemctl -l status kubelet.service"
     run_diagnostic_command "systemctl" "systemctl -l status sshd.service"
+    run_diagnostic_command "systemctl" "systemctl --failed"
 
     run_diagnostic_command "vagrant" "vagrant version"
     run_diagnostic_command "vagrant" "vagrant global-status --prune"
