@@ -18,6 +18,7 @@
   vars:
     packages:
       - bridge-utils
+      - conntrack-tools
       - libpam-systemd
       - libsystemd0
       - libudev1

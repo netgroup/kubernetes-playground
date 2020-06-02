@@ -269,7 +269,7 @@ virsh_domain_check() {
         run_diagnostic_command "virt-log" "virt-log -d $virsh_domain_name"
 
         for i in "${directories_to_print[@]}"; do
-            run_diagnostic_command "virt-ls" "virt-ls -hl --uids --times --extra-stats -d $virsh_domain_name $i"
+            run_diagnostic_command "virt-ls" "virt-ls -hlR --uids --times --extra-stats -d $virsh_domain_name $i"
         done
 
         for i in "${files_to_print[@]}"; do
