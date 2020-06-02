@@ -24,17 +24,14 @@
     mode: 0755
     owner: root
     src: templates/docker.json.j2
+  notify:
+    - docker_service_restart
 
-- name: Enable docker service
+- name: Enable and start docker service
   service:
     enabled: true
     name: docker
     state: started
-
-- name: Setup the Docker service
-  service:
-    name: docker
-    state: "{{ docker_service_status|default('started') }}"
 
 - name: Ensure that the Docker group has been created
   group:
