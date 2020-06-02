@@ -228,7 +228,7 @@ development environment dependencies.
 These are the dependencies that you need to install in your development
 environment:
 
-1. Python 3, with pip.
+1. Python 3, with pip and python3-apt.
 1. NodeJS, with npm. If you use [nvm](https://github.com/nvm-sh/nvm), you can
     point it at the [.nvmrc](.nvmrc) in this repository.
 1. Docker, 19.03+
