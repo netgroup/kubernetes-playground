@@ -74,7 +74,6 @@ jobs:
         time sudo \
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-        VAGRANT_SUPPRESS_OUTPUT="true" \
         scripts/linux/ci/run-inspec-against-host.sh "$BASE_BOX_VAGRANT_VM_ID";
         time sudo \
         PATH="$PATH" \
