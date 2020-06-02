@@ -16,6 +16,8 @@
   listen:
     - systemd_daemon_reload
 
+# Careful with this, because we run Ansible via Docker, so we should not
+# restart the docker service while we run Ansible in a Docker container
 - name: Restart the Docker service
   service:
     name: docker
