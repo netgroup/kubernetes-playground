@@ -55,7 +55,9 @@ unset ANSIBLE_DOCKER_IMAGE_DIRECTORY_PATH
 
 echo "Installing python3-apt..."
 apt-get -y update
-apt-get -y install python3-apt
+apt-get -y install \
+    python-apt \
+    python3-apt
 
 echo ""
 echo "Running Ansible $playbooks playbooks against $inventory inventory, with additional arguments: $additional_ansible_arguments"

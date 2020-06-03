@@ -144,6 +144,8 @@
         group: root
         mode: 0644
       loop: "{{ ip_to_host_mappings }}"
+      when:
+        - not base_box|default(false)|bool
     - name: Generate Kubeadm configuration file
       become: true
       template:
@@ -244,7 +246,7 @@
     - role: base-box
       become: true
       when:
-        - base_box | default(false) | bool
+        - base_box|default(false)|bool
   vars:
     kubernetes_helm_platform: '{{ kubernetes_helm_os }}-{{ kubernetes_helm_arch }}'
     kubernetes_helm_name: helm-{{ kubernetes_helm_ver }}-{{ kubernetes_helm_platform }}
