@@ -1,6 +1,6 @@
 require 'yaml'
 
-control "kubernetes" do
+control "kubernetes-tags" do
   title "kubernetes tags check"
   desc "This control checks that the kubernetes labels have been correctly applied"
 
