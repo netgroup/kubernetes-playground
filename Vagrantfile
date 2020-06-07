@@ -381,6 +381,12 @@ ip_to_host_mappings.push(
     "hostname" => "#{docker_registry_alias}"
 )
 
+hosts_file_entries=""
+
+ip_to_host_mappings.each do |(ip_to_host_mapping)|
+    hosts_file_entries += "#{ip_to_host_mapping['hostname']},#{ip_to_host_mapping['ip_v4_address']};"
+end
+
 ansible_master_group_name = "kubernetes-masters"
 ansible_minion_group_name = "kubernetes-minions"
 ansible_inventory_path = "ansible/hosts"
@@ -572,6 +578,11 @@ Vagrant.configure("2") do |config|
       else
         if(hostname.include?(ansible_controller_vm_name))
           host.vm.provision "shell" do |s|
+            s.path = "scripts/linux/update-hosts.sh"
+            s.args = ["#{hosts_file_entries}"]
+          end
+
+        host.vm.provision "shell" do |s|
             s.path = "scripts/linux/install-kubernetes.sh"
             s.args = ["--inventory", ansible_inventory_path, "--additional-ansible-arguments", additional_ansible_arguments]
           end
