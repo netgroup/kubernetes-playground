@@ -201,7 +201,7 @@
         set -e ; \
         /vagrant/scripts/linux/bootstrap-kubernetes-{{ kubernetes_classifier }}.sh \
         /tmp/kubeadm-config.yaml \
-        {{ kubernetes_network_plugin }}
+        {{ kubernetes_network_plugin }} \
         {{ allow_workloads_on_masters }}
       args:
         creates: /home/vagrant/.kube/config
