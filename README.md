@@ -46,22 +46,33 @@ install the needed Vagrant plugins:
 To provision and configure the environment as described, run the following
 commands from the root of the repository:
 
-1. Prepare a Vagrant box (`base-box-builder.k8s-play.local`) that will be used
+1. Prepare a Vagrant box (`base-box-builder`) that will be used
     as a base for other VMs:
-    1. Provision and configure `base-box-builder.k8s-play.local`:
+    1. Provision and configure `base-box-builder`:
 
         ```shell
         vagrant up base-box-builder.k8s-play.local
         ```
 
-    1. Export a Vagrant box based on `vagrant base-box-builder.k8s-play.local`:
+    1. Halt `vagrant base-box-builder`:
 
         ```shell
+        vagrant halt base-box-builder.k8s-play.local
+        ```
+
+    1. Export a Vagrant box based on `vagrant base-box-builder`:
+
+        ```shell
+        VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS="defaults"
+        VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS="$VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS,-ssh-userdir"
+        VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS="$VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS,-ssh-hostkeys"
+        VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS="$VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS,-lvm-uuids"
+        export VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS
         vagrant package base-box-builder.k8s-play.local \
             --output kubernetes-playground-base.box
         ```
 
-    1. Destroy `base-box-builder.k8s-play.local` to spare resources:
+    1. Destroy `base-box-builder` to spare resources:
 
         ```shell
         vagrant destroy --force base-box-builder.k8s-play.local
@@ -79,6 +90,12 @@ commands from the root of the repository:
     ```shell
     vagrant up
     ```
+
+### Automatic Ansible Inventory Creation
+
+When you run any vagrant command, an Ansible inventory (and related group_vars)
+will be generated in the ansible directory.
+Note that the contents of those file will be overidden on each run.
 
 ### Running in Windows Subsystem for Linux (WSL)
 
@@ -148,11 +165,6 @@ script:
 The Traefik monitoring UI is accessible at
 `http://kubernetes-master-1.kubernetes-playground.local/monitoring/ingress`
 
-#### Secure Communication
-
-We generate a self-signed wildcard certificate to use for all the ingress
-controllers.
-
 ### Helm
 
 To initialize Helm, SSH into the master and run the configuration script:
@@ -211,6 +223,29 @@ You can also run the same test suite locally. To bootstrap a development
 environment, you need to install the runtime dependencies listed above, plus the
 development environment dependencies.
 
+### Development dependencies
+
+These are the dependencies that you need to install in your development
+environment:
+
+1. Python 3, with pip.
+1. NodeJS, with npm. If you use [nvm](https://github.com/nvm-sh/nvm), you can
+    point it at the [.nvmrc](.nvmrc) in this repository.
+1. Docker, 19.03+
+1. Ruby 2.6.0+
+1. Bundler 1.13.0+
+1. [GNU Coreutils](https://www.gnu.org/software/coreutils/)
+
+### Setting up the development environment
+
+After installing the dependencies, run the following scripts to install the
+necessary packages:
+
+1. Install Vagrant: [scripts/linux/ci/install-vagrant.sh](scripts/linux/ci/install-vagrant.sh)
+1. (only for headless environments) Manually install Vagrant plugins:
+    [scripts/linux/ci/install-vagrant.sh](scripts/linux/ci/install-vagrant.sh)
+1. Install linting tools: [scripts/linux/ci/install-linting-tools.sh](scripts/linux/ci/install-linting-tools.sh)
+
 ### Travis CI environment customization
 
 The `scripts/linux/ci/generate-env-for-travis.sh` script creates and populates
@@ -228,12 +263,6 @@ conf:
   additional_ansible_arguments: "-vv"
 ```
 
-### Automatic Ansible Inventory Creation
-
-When you run any vagrant command, an Ansible inventory (and related group_vars)
-will be generated in the ansible directory.
-Note that the contents of those file will be overidden on each run.
-
 ### Running the tests
 
 This section explains how to run linters and the compliance test suites. The
@@ -243,12 +272,8 @@ same linters and test suites run automatically on each commit.
 
 The codebase is checked with linters and against common formatting rules.
 
-##### Linters and formatters dependencies
-
-1. Python 3, with pip.
-1. NodeJS, with npm.
-1. See [requirements.txt](requirements.txt).
-1. See [package.json](package.json).
+To run the same linting that the CI builds run, execute the
+[scripts/linux/ci/lint.sh](scripts/linux/ci/lint.sh) script.
 
 ##### Linting and formatting rules
 
@@ -266,15 +291,16 @@ We currently check the following file types, and enforce the following rules:
 | Dockerfiles                  | See [.editorconfig](.editorconfig) | [hadolint](https://github.com/hadolint/hadolint) |
 | All text files               | See [.editorconfig](.editorconfig) | N/A |
 
+#### Build the Docker images
+
+To build all the Docker images that the CI builds run, execute the
+[scripts/linux/ci/build-docker-images.sh](scripts/linux/ci/build-docker-images.sh)
+script.
+
 #### Compliance test suite
 
 The test suite checks the whole environment for compliance using a verifier
 ([InSpec](https://www.inspec.io/) in this case).
-
-##### Compliance test suites dependencies
-
-1. Ruby 2.6.0+
-1. Bundler 1.13.0+
 
 ##### How to run the compliance test suites
 
@@ -289,6 +315,20 @@ it.
 1. Run the tests: `scripts/linux/ci/run-inspec-against-host.sh <guest-name>`
 
 ### Debugging and troubleshooting utilities
+
+1. A script that gathers information about the host:
+    [scripts/linux/ci/diagnostics.sh](scripts/linux/ci/diagnostics.sh). You can
+    run this script against a host by running it directly, or against a Vagrant
+    VM, by executing the `diagnostics` provisioner:
+
+    ```shell
+    vagrant provision <guest-name> --provision-with diagnostics
+    ```
+
+    The script has a `--help` option that explains how to run it. Additionally,
+    the diagnostis script can query the hypervisor directly, without going
+    through Vagrant. This is useful when you've issues connecting with
+    `vagrant ssh`.
 
 1. Multiple load balanced nginx server instances: `kubernetes/nginx-stateless`
 1. A busybox instance, useful for debugging and troubleshooting (run commands

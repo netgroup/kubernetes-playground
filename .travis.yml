@@ -4,178 +4,64 @@ env:
   global:
     # When changing this, ensure that the Vagrantfile is updated as well
     - VAGRANT_VERSION="2.2.9"
+    - VAGRANT_DEFAULT_PROVIDER=libvirt
     - BASE_BOX_VAGRANT_VM_ID="base-box-builder.k8s-play.local"
+    - MASTER_1_VAGRANT_VM_ID="k8s-master-1.k8s-play.local"
+    - WORKER_1_VAGRANT_VM_ID="k8s-minion-1.k8s-play.local"
+    - WORKER_2_VAGRANT_VM_ID="k8s-minion-2.k8s-play.local"
 jobs:
   fast_finish: true
   include:
-    - name: "Whitespace error check"
+    - name: "Linting"
+      stage: linting-and-docker
+      cache:
+        directories:
+          - $HOME/.cache/pip
+          - $HOME/.vagrant.d/boxes
+          - $HOME/.vagrant.d/gems
+          - $GEM_HOME
+          - vendor/bundle
+          - $GOPATH/pkg/mod
+          - $HOME/.nvm/versions
       language: shell
-      script: git diff-tree --check $(git hash-object -t tree /dev/null) HEAD
-      stage: linting
-    - name: "Missing EOF newlines check"
-      language: shell
+      install:
+        - sudo scripts/linux/ci/install-dependencies.sh
+        - scripts/linux/ci/install-node.sh
+        - nvm use
+        - scripts/linux/ci/install-linting-tools.sh
       script: |
-        find "$(pwd)" -type f -not -path "*/\.git/*" >tmp; \
-        while IFS= read -r file; do \
-          case "$(git diff --no-index --numstat /dev/null "$file")" in \
-            "$(printf '%s\t-\t' -)"*) echo "skipping newline check for $file because it's a binary"; continue ;; \
-            *) echo "Checking $file"; [ -z "$(tail -c1 "$file")" ] || exit 1 ;; \
-          esac; \
-        done <tmp; \
-        rm tmp;
-    - name: "hadolint"
-      language: shell
-      script: |
-        find . -name "Dockerfile" -type f -print0 \
-        | xargs -0 -I file sh -c 'docker run --rm -i hadolint/hadolint:v1.17.5-8-gc8bf307-alpine < "file"' \
-        || exit 1
-    - name: kubeval
-      language: shell
-      script: |
-        docker run -t \
-          -v "$(pwd)":/kubernetes-playground:ro \
-          garethr/kubeval:0.14.0 \
-          --strict  -d /kubernetes-playground/kubernetes
-    # Disabling travis lint for now, the client is too buggy (complains about missing tokens)
-    # - before_install: gem install travis --no-document
-    #   install: echo "Overriding the default install, to avoid installing gems from the Gemfile"
-    #   name: "Travis lint"
-    #   script: travis lint --skip-completion-check -x
-    - name: "Shellcheck"
-      language: shell
-      script: |
-        for file in $(find "$(pwd)" \
-          -type f \
-          -not -path "*/\.git/*" \
-          -not -name "*.md" \
-          -exec grep -Eq '^#!(.*/|.*env +)(sh|bash|ksh)' {} \; -print); do \
-            f="${file#$(pwd)}"; \
-            f="${f/\//}"; \
-            echo "Linting $f"; \
-            if [ ! -x "$f" ]; then echo "Error: $f is not executable!"; exit 1; fi; \
-            docker run -v "$(pwd)":/mnt:ro --rm -t koalaman/shellcheck:v0.7.1 \
-              "$f" || exit 1; \
-        done;
-    - name: "YAMLlint"
-      cache: pip
-      language: python
-      install: pip install -r requirements.txt
-      python: "3.8"
-      script: yamllint --strict $(git ls-files '*.yaml' '*.yml') || exit 1
-    - name: "Markdownlint"
-      cache: npm
-      install: npm install
-      language: node_js
-      node_js: node
-      script: |
-        find -name "*.md" -not -path "*/node_modules/*" \
-        | xargs markdownlint || exit 1
-    - name: "shfmt"
-      language: go
-      before_install: GO111MODULE=on go get mvdan.cc/sh/v3/cmd/shfmt
-      go: "1.14.1"
-      script: shfmt -d . || exit 1;
-    - name: "ansible-lint"
-      before_script: cd ansible || exit 1
-      cache: pip
-      install: pip install -r requirements.txt
-      language: python
-      python: "3.8"
-      script: |
-        ansible-lint \
-          -v \
-          kubernetes.yml \
-          openssl-self-signed-certificate.yml \
-        || exit 1
-    - name: "Build kitesproject/net-tests container image (final)"
-      stage: build_container_images
-      language: shell
-      before_script: cd docker/kites/net-tests || exit 1
-      script: |
-        docker build --target final -t kitesproject/net-test .
-    - name: "Build kitesproject/net-tests container image (dev)"
-      language: shell
-      before_script: cd docker/kites/net-tests || exit 1
-      script: |
-        docker build --target dev -t kitesproject/net-test:latest-dev .
-    - name: "Build ferrarimarco/kubernetes-playground-ansible container image"
-      language: shell
-      before_script: cd docker/ansible || exit 1
-      script: |
-        docker build -t ferrarimarco/kubernetes-playground-ansible .
-    - name: "Build base box"
-      after_failure:
-        - sudo cat /var/log/syslog
-        - sudo journalctl --no-pager
+        scripts/linux/ci/lint.sh || exit 1;
+        scripts/linux/ci/build-docker-images.sh || exit 1;
       after_script:
-        - tree .
-        - cat /etc/exports
-        - ip addr
-        - |
-          sudo \
-          PATH="$PATH" \
-          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-          VAGRANT_SUPPRESS_OUTPUT="true" \
-          vagrant status
-        - |
-          sudo \
-          PATH="$PATH" \
-          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-          VAGRANT_SUPPRESS_OUTPUT="true" \
-          vagrant ssh-config "$BASE_BOX_VAGRANT_VM_ID"
-        - |
-          sudo \
-          PATH="$PATH" \
-          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-          vagrant box list -i
-        - showmount -e localhost
-        - sudo dpkg -l | sort
-      env:
-        - VAGRANT_DEFAULT_PROVIDER=libvirt
-      stage: vagrant
-      before_install:
+        - scripts/linux/ci/diagnostics.sh --verbose
+    - name: "Build base box"
+      stage: vagrant-base-box
+      language: ruby
+      cache:
+        directories:
+          - $HOME/.cache/pip
+          - $HOME/.vagrant.d/boxes
+          - $HOME/.vagrant.d/gems
+          - $GEM_HOME
+          - vendor/bundle
+          - $GOPATH/pkg/mod
+          - $HOME/.nvm/versions
+      install:
+        - sudo scripts/linux/ci/install-dependencies.sh
+        - scripts/linux/ci/install-node.sh
+        - nvm use
+        - scripts/linux/ci/install-linting-tools.sh
         - sudo scripts/linux/ci/install-libvirt.sh
         - sudo scripts/linux/ci/install-vagrant.sh
         - sudo scripts/linux/ci/install-vagrant-plugins.sh
         - sudo scripts/linux/ci/generate-env-for-travis.sh
         # Fix permissions after installing vagrant plugins with sudo
-        - sudo chown -R travis:travis $HOME/.vagrant.d
+        - sudo chown -R "$(id -un)":"$(id -un)" $HOME/.vagrant.d
         # This doesn't have effect if you don't open a new shell
         - sudo adduser "$(id -un)" libvirt
         - sudo adduser "$(id -un)" kvm
-      before_script:
-        - ls -al /home
-        - cat /etc/hosts
-        - env | sort
-        - sudo lsmod | sort
-        - ip addr
-        - kvm-ok
-        - gem environment
-        # List all installed gems
-        - gem query --local
-        - bundle list
-        - tree .
-        - vagrant version
-        - vagrant validate
-        - vagrant status
-        - vagrant box list -i
-        - inspec -h
-        - inspec exec -h
-        - inspec check -h
-        - inspec check --chef-license=accept test/inspec/kubernetes-playground
         # Workaround for https://github.com/hashicorp/vagrant/issues/8279
         - chmod a+rx $HOME
-        - ls -al /home
-      cache:
-        bundler: true
-        directories:
-          - $HOME/.vagrant.d/boxes
-          - $HOME/.vagrant.d/gems
-          - $GEM_HOME
-      install:
-        - gem install bundler
-        - bundle install || exit 1
-      language: ruby
       # Run with sudo because the libvirt socket is owned by the libvirt group,
       # and the current user was added to the group in the current session,
       # so the membership to that group is not yet in effect.
@@ -184,31 +70,140 @@ jobs:
         time sudo \
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-        vagrant up "$BASE_BOX_VAGRANT_VM_ID"; \
+        vagrant up "$BASE_BOX_VAGRANT_VM_ID" --no-destroy-on-error;
         time sudo \
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-        VAGRANT_SUPPRESS_OUTPUT="true" \
         scripts/linux/ci/run-inspec-against-host.sh "$BASE_BOX_VAGRANT_VM_ID";
         time sudo \
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-        vagrant package "$BASE_BOX_VAGRANT_VM_ID" \
-            --output kubernetes-playground-base.box;
+        vagrant provision "$BASE_BOX_VAGRANT_VM_ID" --provision-with diagnostics;
         time sudo \
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-        vagrant destroy --force "$BASE_BOX_VAGRANT_VM_ID";
+        vagrant halt "$BASE_BOX_VAGRANT_VM_ID";
         time sudo \
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-        vagrant box add --force kubernetes-playground-base.box \
-            --name ferrarimarco/kubernetes-playground-node;
+        VAGRANT_LIBVIRT_VIRT_SYSPREP_OPERATIONS="defaults,-ssh-userdir,-ssh-hostkeys,-lvm-uuids" \
+        vagrant package "$BASE_BOX_VAGRANT_VM_ID" --output kubernetes-playground-base.box;
+        time sudo \
+        PATH="$PATH" \
+        VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
+        vagrant box add --force kubernetes-playground-base.box --name ferrarimarco/kubernetes-playground-node;
+      after_script:
+        - scripts/linux/ci/diagnostics.sh
+        - |
+          time sudo \
+          PATH="$PATH" \
+          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
+          scripts/linux/ci/diagnostics.sh --host
+        - |
+          time sudo \
+          PATH="$PATH" \
+          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
+          scripts/linux/ci/diagnostics.sh --libvirt-guest \
+            --vagrant-vm-name "$BASE_BOX_VAGRANT_VM_ID"
+        - |
+          time sudo \
+          PATH="$PATH" \
+          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
+          scripts/linux/ci/diagnostics.sh --disk-image \
+            --vagrant-libvirt-img-path \
+              "$HOME"/.vagrant.d/boxes/ferrarimarco-VAGRANTSLASH-kubernetes-playground-node/0/libvirt/box.img
+    - name: "Vagrant up"
+      stage: vagrant-up
+      language: ruby
+      cache:
+        directories:
+          - $HOME/.cache/pip
+          - $HOME/.vagrant.d/boxes
+          - $HOME/.vagrant.d/gems
+          - $GEM_HOME
+          - vendor/bundle
+          - $GOPATH/pkg/mod
+          - $HOME/.nvm/versions
+      install:
+        - sudo scripts/linux/ci/install-dependencies.sh
+        - scripts/linux/ci/install-node.sh
+        - nvm use
+        - scripts/linux/ci/install-linting-tools.sh
+        - sudo scripts/linux/ci/install-libvirt.sh
+        - sudo scripts/linux/ci/install-vagrant.sh
+        - sudo scripts/linux/ci/install-vagrant-plugins.sh
+        - sudo scripts/linux/ci/generate-env-for-travis.sh
+        # Fix permissions after installing vagrant plugins with sudo
+        - sudo chown -R "$(id -un)":"$(id -un)" $HOME/.vagrant.d
+        # This doesn't have effect if you don't open a new shell
+        - sudo adduser "$(id -un)" libvirt
+        - sudo adduser "$(id -un)" kvm
+        # Workaround for https://github.com/hashicorp/vagrant/issues/8279
+        - chmod a+rx $HOME
+      # Run with sudo because the libvirt socket is owned by the libvirt group,
+      # and the current user was added to the group in the current session,
+      # so the membership to that group is not yet in effect.
+      # Set the PATH to make the installed gems accessible.
+      script: |
+        travis_wait time sudo \
+        PATH="$PATH" \
+        VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
+        vagrant up --no-destroy-on-error;
+      after_script:
+        - |
+          time sudo \
+          PATH="$PATH" \
+          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
+          scripts/linux/ci/diagnostics.sh --host
+        - |
+          time sudo \
+          PATH="$PATH" \
+          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
+          vagrant provision "$MASTER_1_VAGRANT_VM_ID" --provision-with diagnostics-verbose
+        - |
+          time sudo \
+          PATH="$PATH" \
+          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
+          scripts/linux/ci/diagnostics.sh --libvirt-guest \
+            --vagrant-vm-name "$MASTER_1_VAGRANT_VM_ID"
+        - |
+          time sudo \
+          PATH="$PATH" \
+          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
+          vagrant provision "$WORKER_1_VAGRANT_VM_ID" --provision-with diagnostics-verbose
+        - |
+          time sudo \
+          PATH="$PATH" \
+          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
+          scripts/linux/ci/diagnostics.sh --libvirt-guest \
+            --vagrant-vm-name "$WORKER_1_VAGRANT_VM_ID"
+        - |
+          time sudo \
+          PATH="$PATH" \
+          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
+          vagrant provision "$WORKER_2_VAGRANT_VM_ID" --provision-with diagnostics-verbose
+        - |
+          time sudo \
+          PATH="$PATH" \
+          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
+          scripts/linux/ci/diagnostics.sh --libvirt-guest \
+            --vagrant-vm-name "$WORKER_2_VAGRANT_VM_ID"
+        - |
+          time sudo \
+          PATH="$PATH" \
+          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
+          scripts/linux/ci/diagnostics.sh --disk-image \
+            --vagrant-libvirt-img-path \
+              "$HOME"/.vagrant.d/boxes/ferrarimarco-VAGRANTSLASH-kubernetes-playground-node/0/libvirt/box.img
+        - |
+          time sudo \
+          PATH="$PATH" \
+          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
+          vagrant destroy --force
 language: shell
 os: linux
 services:
   - docker
 stages:
-  - linting
-  - build_container_images
-  - vagrant
+  - linting-and-docker
+  - vagrant-base-box-up

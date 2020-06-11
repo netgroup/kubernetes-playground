@@ -6,6 +6,3 @@ docker_apt_repository_section_name: stable
 # that must be present in the docker APT repository.
 # Example: docker-ce=version.to.install
 docker_apt_package_name: "docker-ce"
-
-# Whether or not the docker service should be started
-docker_service_status: "started"

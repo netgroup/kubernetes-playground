@@ -18,7 +18,7 @@ RUN apk add --no-cache \
 RUN python3 -m ensurepip
 
 RUN pip3 install --no-cache-dir --upgrade \
-    pip==20.1 \
+    pip==20.1.1 \
     pyopenssl==19.1.0 \
     wheel==0.34.2
 

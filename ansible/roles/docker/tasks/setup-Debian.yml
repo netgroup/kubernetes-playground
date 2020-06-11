@@ -19,7 +19,7 @@
 - name: Add Docker APT repository
   apt_repository:
     repo: |
-      deb https://download.docker.com/linux/debian
+      deb [arch=amd64] https://download.docker.com/linux/debian
       {{ ansible_distribution_release }}
       {{ docker_apt_repository_section_name }}
     # Set the filename because the docker installation scripts adds the same
