@@ -17,5 +17,9 @@
     state: present
   vars:
     packages:
+      - bridge-utils
+      - libpam-systemd
+      - libsystemd0
+      - libudev1
       - python-selinux
       - selinux-policy-default

@@ -30,6 +30,12 @@ else
     wget -qO- https://get.docker.com | sh
     usermod -aG docker "$user"
 
+    echo "Copying the Docker daemon configuration files to their destination..."
+    mkdir -p /etc/docker
+    cp /vagrant/ansible/templates/docker.json.j2 /etc/docker/daemon.json
+    chmod 0755 /etc/docker/daemon.json
+    chown root:root /etc/docker/daemon.json
+
     echo "Ensure the Docker service is enabled and running"
     systemctl enable docker
     if ! systemctl is-active --quiet docker; then

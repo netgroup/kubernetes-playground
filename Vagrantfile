@@ -23,12 +23,6 @@ def log_info_or_debug(message)
   end
 end
 
-def ui_info_if_enabled(message)
-  unless ENV['VAGRANT_SUPPRESS_OUTPUT'] == 'true' || ENV['VAGRANT_SUPPRESS_OUTPUT'] == 1
-    @ui.info message
-  end
-end
-
 # Load the required Vagrant version from the CI configuration.
 # This forces us to be consistent with the CI environment.
 
@@ -167,8 +161,8 @@ if File.exist?(env_specific_config_path)
 end
 
 # Display the main current configuration parameters
-ui_info_if_enabled "Welcome to Kubernetes playground!"
-ui_info_if_enabled "Vagrant provider: #{settings["conf"]["vagrant_provider"]}"
+log_info_or_debug "Welcome to Kubernetes playground!"
+log_info_or_debug "Vagrant provider: #{settings["conf"]["vagrant_provider"]}"
 log_info_or_debug "Active settings (from defaults.yaml and env.yaml): #{settings.to_yaml}"
 
 # Check that at least one and only one plugin is selected
@@ -176,7 +170,7 @@ check_and_select_conf_options(settings["ansible"]["group_vars"]["all"],
                               "kubernetes_network_plugin",
                               ["no-cni-plugin", "weavenet", "calico", "flannel"],
                               ERR_NET_PLUGIN_CONF)
-ui_info_if_enabled "Networking plugin: #{settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"]}"
+log_info_or_debug "Networking plugin: #{settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"]}"
 # if calico, check that at least one and only one env_var and env_var_value is selected
 if settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"] == "calico"
   check_and_select_conf_options(settings["ansible"]["group_vars"]["all"]["calico_config"],
@@ -187,7 +181,7 @@ if settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"] == "cal
                               "calico_env_var_value",
                               ["Always","CrossSubnet","Never"],
                               ERR_CALICO_ENV_VAR_VALUE_CONF)
-  ui_info_if_enabled "Calico environment variable: #{settings["ansible"]["group_vars"]["all"]["calico_config"]["calico_env_var"]} = #{settings["ansible"]["group_vars"]["all"]["calico_config"]["calico_env_var_value"]}"
+  log_info_or_debug "Calico environment variable: #{settings["ansible"]["group_vars"]["all"]["calico_config"]["calico_env_var"]} = #{settings["ansible"]["group_vars"]["all"]["calico_config"]["calico_env_var_value"]}"
 end
 
 # Check that the provider is supported
@@ -387,6 +381,12 @@ ip_to_host_mappings.push(
     "hostname" => "#{docker_registry_alias}"
 )
 
+hosts_file_entries=""
+
+ip_to_host_mappings.each do |(ip_to_host_mapping)|
+    hosts_file_entries += "#{ip_to_host_mapping['hostname']},#{ip_to_host_mapping['ip_v4_address']};"
+end
+
 ansible_master_group_name = "kubernetes-masters"
 ansible_minion_group_name = "kubernetes-minions"
 ansible_inventory_path = "ansible/hosts"
@@ -578,6 +578,11 @@ Vagrant.configure("2") do |config|
       else
         if(hostname.include?(ansible_controller_vm_name))
           host.vm.provision "shell" do |s|
+            s.path = "scripts/linux/update-hosts.sh"
+            s.args = ["#{hosts_file_entries}"]
+          end
+
+        host.vm.provision "shell" do |s|
             s.path = "scripts/linux/install-kubernetes.sh"
             s.args = ["--inventory", ansible_inventory_path, "--additional-ansible-arguments", additional_ansible_arguments]
           end
@@ -619,6 +624,10 @@ Vagrant.configure("2") do |config|
         end
         host.vm.provision "mount-shared", type: "shell", run: "never", inline: $mountNfsShare
       end
+        host.vm.provision "diagnostics", type: "shell", run: "never" do |s|
+            s.path = "scripts/linux/ci/diagnostics.sh"
+            s.args = [ "--host" ]
+        end
     end
   end
 end
