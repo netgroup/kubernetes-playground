@@ -15,7 +15,8 @@ control "kubernetes" do
     'kubectl',
     'kubelet',
     'python-selinux',
-    'selinux-policy-default'
+    'selinux-policy-default',
+    'snapd'
   ]
 
   packages.each do |item|
@@ -23,6 +24,14 @@ control "kubernetes" do
       it { should be_installed }
     end
   end
+
+    describe command('snap list') do
+        its('stdout') { should match (/helm/) }
+    end
+
+    describe command('/snap/bin/helm') do
+        it { should exist }
+    end
 
   describe service('kubelet') do
     it { should be_installed }

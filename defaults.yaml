@@ -106,30 +106,11 @@ ansible:
           Always: true
           CrossSubnet: false
           Never: false
+      # Helm version to install.
+      kubernetes_helm_snap_channel: "2.16/stable"
       # If this is true, each Kubernetes node will have a label with a key set to
       # node_name and a value set to the name of the node
       kubernetes_add_node_name_as_label: true
-      # Mirror where to download helm. Configurable to allow for an eventual
-      # air gapped environment.
-      kubernetes_helm_mirror: https://get.helm.sh
-      # Helm version to install.
-      kubernetes_helm_ver: v2.16.3
-      # Helm OS build to install.
-      kubernetes_helm_os: linux
-      # Helm architecture to install.
-      kubernetes_helm_arch: amd64
-      # Helm archive extension.
-      kubernetes_helm_archive_type: tar.gz
-      # Helm binary destination directory.
-      kubernetes_helm_bin_dir: "/usr/local/bin"
-      # Checksums for Helm packages.
-      kubernetes_helm_checksums:
-        v2.16.3:
-          # https://get.helm.sh/helm-v2.16.3-linux-amd64.tar.gz.sha256
-          linux-amd64: sha256:9678eb726d6870e8eded204190357a0f494ed9d1803781b4bb80dde6427b086e
-        v3.1.2:
-          # https://get.helm.sh/helm-v3.1.2-linux-amd64.tar.gz.sha256
-          linux-amd64: sha256:e6be589df85076108c33e12e60cfb85dcd82c5d756a6f6ebc8de0ee505c9fd4c
       # List of labels to apply to all nodes
       all_nodes_kubernetes_labels:
         # Example label that will be applied to all nodes
