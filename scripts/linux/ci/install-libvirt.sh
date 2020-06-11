@@ -13,7 +13,6 @@ apt-get install -y --no-install-recommends \
     libguestfs-tools \
     libvirt-clients \
     libvirt-daemon-system \
-    libvirt-bin \
     libvirt-dev \
     libxml2-dev \
     libxslt1-dev \
