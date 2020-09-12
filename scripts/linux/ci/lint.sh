@@ -1,14 +1,15 @@
-#!/bin/bash
+#!/bin/sh
 
 docker run -t \
     -v "$(pwd)":/kubernetes-playground:ro \
-    garethr/kubeval:0.14.0 \
+    garethr/kubeval:0.15.0 \
     --strict -d /kubernetes-playground/kubernetes || exit 1
 
 docker run --rm -it \
     -v "$(pwd)":/workspace \
     -w="/workspace" \
     -e ACTIONS_RUNNER_DEBUG=true \
+    -e ANSIBLE_DIRECTORY=./ansible \
     -e DEFAULT_WORKSPACE=/workspace \
     -e DISABLE_ERRORS=false \
     -e LINTER_RULES_PATH=. \

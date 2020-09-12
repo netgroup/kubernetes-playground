@@ -9,11 +9,11 @@ This project is a playground to play with Kubernetes.
 1. 1x Kubernetes Master VM.
 1. 3x Kubernetes Minions VMs.
 1. "Controller": a Docker container where we run an Ansible instance to
-   configure the whole environment.
+    configure the whole environment.
 1. A monitoring solution based on [Prometheus](https://prometheus.io/) and [Grafana](https://grafana.com/).
 1. [Traefik](https://traefik.io/)
-   [Ingress Controller](https://kubernetes.io/docs/concepts/services-networking/ingress/)
-   to map requests to services.
+    [Ingress Controller](https://kubernetes.io/docs/concepts/services-networking/ingress/)
+    to map requests to services.
 1. A [Docker Registry](https://docs.docker.com/registry/).
 
 ## Dependencies
@@ -257,7 +257,7 @@ For debbugging and development purposes, you can add the verbosity flags in your
 
 ```yaml
 conf:
-  additional_ansible_arguments: "-vv"
+    additional_ansible_arguments: "-vv"
 ```
 
 ### Running the tests

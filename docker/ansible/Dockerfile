@@ -1,6 +1,6 @@
 FROM alpine:3.11.6
 
-LABEL maintainer "ferrari.marco@gmail.com"
+LABEL maintainer="ferrari.marco@gmail.com"
 
 RUN apk add --no-cache \
     build-base=0.5-r1 \
