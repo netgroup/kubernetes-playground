@@ -20,14 +20,10 @@ trim_trailing_whitespace = true
 spaces_around_operators = true
 spaces_around_brackets = false
 
-[*.{ansible-lint,json,json.j2,rb,yml,yml.j2,yaml,yaml.j2}]
+[*.{ansible-lint,dockerfilelintrc,json,json.j2,rb,yml,yml.j2,yaml,yaml.j2}]
 indent_style = space
 indent_size = 2
 
 [Vagrantfile]
-indent_style = space
-indent_size = 2
-
-[Gemfile.lock]
 indent_style = space
 indent_size = 2

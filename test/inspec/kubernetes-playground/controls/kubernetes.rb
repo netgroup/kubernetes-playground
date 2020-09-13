@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require "yaml"
 
 control "kubernetes" do
@@ -50,7 +51,7 @@ control "kubernetes" do
 
     sysctl_configuration_file_path = "/etc/sysctl.conf"
 
-    kernel_parameters.each do |key,value|
+    kernel_parameters.each do |key, value|
         describe kernel_parameter(key) do
             its("value") { should eq value }
         end
