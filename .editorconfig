@@ -24,6 +24,6 @@ spaces_around_brackets = false
 indent_style = space
 indent_size = 2
 
-[Vagrantfile]
+[{Vagrantfile,Gemfile.lock}]
 indent_style = space
 indent_size = 2
