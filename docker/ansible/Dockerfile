@@ -11,16 +11,13 @@ RUN apk add --no-cache \
     openssh-client=8.1_p1-r0 \
     openssl=1.1.1g-r0 \
     openssl-dev=1.1.1g-r0 \
-    python3=3.8.2-r0 \
-    python3-dev=3.8.2-r0 \
+    python3=3.8.2-r1 \
+    python3-dev=3.8.2-r1 \
     sshpass=1.06-r0
 
 RUN python3 -m ensurepip
 
-RUN pip3 install --no-cache-dir --upgrade \
-    pip==20.1.1 \
-    pyopenssl==19.1.0 \
-    wheel==0.34.2
+RUN pip3 install --no-cache-dir --upgrade -r pre-requirements.txt
 
 # Install Ansible
 # We use a requirements.txt file so that we can watch it for dependency updates
