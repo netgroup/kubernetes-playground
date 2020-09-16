@@ -16,18 +16,12 @@ jobs:
       stage: linting-and-docker
       cache:
         directories:
-          - $HOME/.cache/pip
           - $HOME/.vagrant.d/boxes
           - $HOME/.vagrant.d/gems
           - $GEM_HOME
-          - vendor/bundle
-          - $GOPATH/pkg/mod
-          - $HOME/.nvm/versions
       language: shell
       install:
         - sudo scripts/linux/ci/install-dependencies.sh
-        - scripts/linux/ci/install-node.sh
-        - nvm use
         - scripts/linux/ci/install-linting-tools.sh
       script: |
         scripts/linux/ci/lint.sh || exit 1;
@@ -39,17 +33,11 @@ jobs:
       language: ruby
       cache:
         directories:
-          - $HOME/.cache/pip
           - $HOME/.vagrant.d/boxes
           - $HOME/.vagrant.d/gems
           - $GEM_HOME
-          - vendor/bundle
-          - $GOPATH/pkg/mod
-          - $HOME/.nvm/versions
       install:
         - sudo scripts/linux/ci/install-dependencies.sh
-        - scripts/linux/ci/install-node.sh
-        - nvm use
         - scripts/linux/ci/install-linting-tools.sh
         - sudo scripts/linux/ci/install-libvirt.sh
         - sudo scripts/linux/ci/install-vagrant.sh
@@ -117,17 +105,11 @@ jobs:
       language: ruby
       cache:
         directories:
-          - $HOME/.cache/pip
           - $HOME/.vagrant.d/boxes
           - $HOME/.vagrant.d/gems
           - $GEM_HOME
-          - vendor/bundle
-          - $GOPATH/pkg/mod
-          - $HOME/.nvm/versions
       install:
         - sudo scripts/linux/ci/install-dependencies.sh
-        - scripts/linux/ci/install-node.sh
-        - nvm use
         - scripts/linux/ci/install-linting-tools.sh
         - sudo scripts/linux/ci/install-libvirt.sh
         - sudo scripts/linux/ci/install-vagrant.sh
