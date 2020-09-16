@@ -282,8 +282,7 @@ kubernetes_worker_nodes_count.times { |i|
     node_id = node_name + domain
     node_ipv4_address = network_prefix + (minion_ipv4_base+i).to_s
     node_ipv6_address = get_ipv6_address(network_prefix_ipv6,node_suffix_ipv6,i,delta_ipv6,default_ipv6_host_part)
-    node_mac_address = minion_base_mac_address[0,10] +
-                       "%02x" % (Integer("0x" + minion_base_mac_address[10,2])+i)
+    node_mac_address = minion_base_mac_address[0,10] + "%02x" % (Integer("0x" + minion_base_mac_address[10,2])+i)
     kubernetes_worker_nodes[node_id] = {
         :autostart => true,
         :box => vagrant_x64_kubernetes_nodes_box_id,

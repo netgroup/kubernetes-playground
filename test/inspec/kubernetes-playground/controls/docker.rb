@@ -1,21 +1,22 @@
-require 'yaml'
+# frozen_string_literal: true
+require "yaml"
 
 control "docker" do
   title "docker role check"
   desc "This control checks that the docker role has been correctly applied"
 
-    describe apt('https://download.docker.com/linux/debian') do
+    describe apt("https://download.docker.com/linux/debian") do
         it { should exist }
         it { should be_enabled }
     end
 
     packages = [
-        'apt-transport-https',
-        'ca-certificates',
-        'curl',
-        'gnupg-agent',
-        'docker-ce',
-        'software-properties-common',
+        "apt-transport-https",
+        "ca-certificates",
+        "curl",
+        "gnupg-agent",
+        "docker-ce",
+        "software-properties-common",
     ]
 
     packages.each do |item|
@@ -24,17 +25,17 @@ control "docker" do
         end
     end
 
-    describe service('docker') do
+    describe service("docker") do
         it { should be_installed }
         it { should be_enabled }
         it { should be_running }
     end
 
-    describe group('docker') do
+    describe group("docker") do
         it { should exist }
     end
 
-    describe command('docker') do
+    describe command("docker") do
         it { should exist }
     end
 end

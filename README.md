@@ -9,11 +9,11 @@ This project is a playground to play with Kubernetes.
 1. 1x Kubernetes Master VM.
 1. 3x Kubernetes Minions VMs.
 1. "Controller": a Docker container where we run an Ansible instance to
-   configure the whole environment.
+    configure the whole environment.
 1. A monitoring solution based on [Prometheus](https://prometheus.io/) and [Grafana](https://grafana.com/).
 1. [Traefik](https://traefik.io/)
-   [Ingress Controller](https://kubernetes.io/docs/concepts/services-networking/ingress/)
-   to map requests to services.
+    [Ingress Controller](https://kubernetes.io/docs/concepts/services-networking/ingress/)
+    to map requests to services.
 1. A [Docker Registry](https://docs.docker.com/registry/).
 
 ## Dependencies
@@ -228,9 +228,6 @@ development environment dependencies.
 These are the dependencies that you need to install in your development
 environment:
 
-1. Python 3, with pip.
-1. NodeJS, with npm. If you use [nvm](https://github.com/nvm-sh/nvm), you can
-    point it at the [.nvmrc](.nvmrc) in this repository.
 1. Docker, 19.03+
 1. Ruby 2.6.0+
 1. Bundler 1.13.0+
@@ -260,7 +257,7 @@ For debbugging and development purposes, you can add the verbosity flags in your
 
 ```yaml
 conf:
-  additional_ansible_arguments: "-vv"
+    additional_ansible_arguments: "-vv"
 ```
 
 ### Running the tests
@@ -277,19 +274,7 @@ To run the same linting that the CI builds run, execute the
 
 ##### Linting and formatting rules
 
-We currently check the following file types, and enforce the following rules:
-
-| File type      | Formatting rules | Linters and validators |
-|----------------|------------------|------------------------|
-| Travis CI configuration file | See [.editorconfig](.editorconfig) | [travis lint](https://github.com/travis-ci/travis.rb#lint) |
-| Shell scripts                | See [.editorconfig](.editorconfig), [shfmt](https://github.com/mvdan/sh) | [Shellcheck](https://github.com/koalaman/shellcheck) |
-| All YAML files               | See [.editorconfig](.editorconfig) | [YAMLlint (strict mode)](https://github.com/adrienverge/yamllint) |
-| Markdown files               | See [.editorconfig](.editorconfig) | [markdownlint](https://github.com/DavidAnson/markdownlint) |
-| Vagrantfile                  | See [.editorconfig](.editorconfig) | [vagrant validate](https://www.vagrantup.com/docs/cli/validate.html) |
-| Kubernetes descriptors       | See [.editorconfig](.editorconfig) | [kubeval](https://github.com/instrumenta/kubeval) |
-| Ansible playbooks and roles  | See [.editorconfig](.editorconfig) | [ansible-lint](https://docs.ansible.com/ansible-lint/) |
-| Dockerfiles                  | See [.editorconfig](.editorconfig) | [hadolint](https://github.com/hadolint/hadolint) |
-| All text files               | See [.editorconfig](.editorconfig) | N/A |
+We currently check and lint the codebase with [super-linter](https://github.com/github/super-linter).
 
 #### Build the Docker images
 
@@ -307,9 +292,6 @@ The test suite checks the whole environment for compliance using a verifier
 You can run the test suite against any guest, after provisioning and configuring
 it.
 
-1. Install the dependencies (you need to have a working Ruby environment):
-    1. Install bundler: `gem install bundler`
-    1. Install required gems: `bundle install`
 1. Provision and configure the desired guest: `vagrant up <guest-name>`, or
 `vagrant provision <guest-name>` if the guest is already up.
 1. Run the tests: `scripts/linux/ci/run-inspec-against-host.sh <guest-name>`
