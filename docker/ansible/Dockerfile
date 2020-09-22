@@ -17,7 +17,10 @@ RUN apk add --no-cache \
 
 RUN python3 -m ensurepip
 
-COPY pre-requirements.txt pre-requirements.txt
+# We use a requirements.txt file so that we can watch it for dependency updates.
+# It's in a separate directory because we can't customize the requirements file
+# name that dependabot watches.
+COPY pre-requisites/requirements.txt pre-requirements.txt
 RUN pip3 install --no-cache-dir --upgrade -r pre-requirements.txt
 
 # Install Ansible
