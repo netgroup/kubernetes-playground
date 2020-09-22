@@ -17,7 +17,7 @@ RUN apk add --no-cache \
 
 RUN python3 -m ensurepip
 
-COPY pre-requisites/requirements.txt pre-requirements.txt
+COPY pre-requirements.txt pre-requirements.txt
 RUN pip3 install --no-cache-dir --upgrade -r pre-requirements.txt
 
 # Install Ansible
