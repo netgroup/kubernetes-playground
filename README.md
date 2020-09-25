@@ -2,18 +2,26 @@
 
 [![Build Status Master Branch](https://travis-ci.com/ferrarimarco/kubernetes-playground.svg?branch=master)](https://travis-ci.com/ferrarimarco/kubernetes-playground)
 
-This project is a playground to play with Kubernetes.
+This project is a playground where you can work with Kubernetes in a safe
+sandbox. It provides:
+
+1. A fully automated installation of Kubernetes over a cluster virtual machines (VMs).
+1. The VMs of the cluster are managed with Vagrant.
+1. Kubernetes Playground is compatible with the major operating systems
+    (Windows, Linux, and macOS) and major hypervisors, such as Virtualbox
+        and Libvirt/KVM.
+1. You can choose among a number of CNI network plugins and quickly re-provision
+    the cluster on the fly.
 
 ## Components
 
-1. 1x Kubernetes Master VM.
-1. 3x Kubernetes Minions VMs.
-1. "Controller": a Docker container where we run an Ansible instance to
-    configure the whole environment.
-1. A monitoring solution based on [Prometheus](https://prometheus.io/) and [Grafana](https://grafana.com/).
+1. Kubernetes master. Defaults to 1.
+1. Kubernetes workers. Defaults to 3
+1. A monitoring solution based on [Prometheus](https://prometheus.io/) and
+    [Grafana](https://grafana.com/).
 1. [Traefik](https://traefik.io/)
     [Ingress Controller](https://kubernetes.io/docs/concepts/services-networking/ingress/)
-    to map requests to services.
+    .
 1. A [Docker Registry](https://docs.docker.com/registry/).
 
 ## Dependencies
