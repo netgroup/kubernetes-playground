@@ -3,16 +3,16 @@ FROM alpine:3.12.0
 LABEL maintainer="ferrari.marco@gmail.com"
 
 RUN apk add --no-cache \
-    build-base=0.5-r1 \
-    git=2.24.3-r0 \
-    libffi=3.2.1-r6 \
-    libffi-dev=3.2.1-r6 \
-    musl=1.1.24-r2 \
-    openssh-client=8.1_p1-r0 \
+    build-base=0.5-r2 \
+    git=2.26.2-r0 \
+    libffi=3.3-r2 \
+    libffi-dev=3.3-r2 \
+    musl=1.1.24-r9 \
+    openssh-client=8.3_p1-r0 \
     openssl=1.1.1g-r0 \
     openssl-dev=1.1.1g-r0 \
-    python3=3.8.2-r1 \
-    python3-dev=3.8.2-r1 \
+    python3=3.8.5-r0 \
+    python3-dev=3.8.5-r0 \
     sshpass=1.06-r0
 
 RUN python3 -m ensurepip
