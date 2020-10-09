@@ -1,6 +1,8 @@
 ---
 - hosts: all
   any_errors_fatal: true
+  environment:
+    DEBIAN_FRONTEND: "noninteractive"
   gather_facts: true
   post_tasks:
     - name: Display all variables/facts known for {{ inventory_hostname }} after applying roles
