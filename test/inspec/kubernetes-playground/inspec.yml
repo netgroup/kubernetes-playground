@@ -8,4 +8,4 @@ summary: Verify that the Kubernetes playground is correctly configured
 version: 1.0.0
 supports:
   - os-family: linux
-inspec_version: "~> 4.20.10"
+inspec_version: ">= 4.20.10"
