@@ -22,4 +22,4 @@ modprobe -- ip_vs_rr
 modprobe -- ip_vs_wrr
 modprobe -- ip_vs_sh
 
-yum -y install ipvsadm
+# yum -y install ipvsadm
