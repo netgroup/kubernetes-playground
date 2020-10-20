@@ -1,0 +1,9 @@
+[Unit]
+Before=network-pre.target
+Wants=network-pre.target
+
+[Service]
+ExecStart=/usr/local/bin/fix-box.sh
+
+[Install]
+WantedBy=default.target

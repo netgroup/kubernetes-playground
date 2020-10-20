@@ -1,0 +1,3 @@
+rules:
+  # disable the missing tags rule because dockerfilelint does not support multistage builds
+  missing_tag: off

@@ -1,7 +1,21 @@
 require 'yaml'
 require 'ipaddr'
 
+# When changing this, ensure that the CI environment is updated as well
+Vagrant.require_version "= 2.2.9"
+
 @ui = Vagrant::UI::Colored.new
+
+# Definition of constants
+MAX_NUMBER_OF_MASTER_NODES ||= 1
+ERR_NET_PLUGIN_CONF ||= 1
+ERR_PROVIDER_CONF ||= 2
+ERR_LIBVIRT_MGT_NET_CONF ||= 3
+ERR_CALICO_ENV_VAR_CONF ||= 4
+ERR_CALICO_ENV_VAR_VALUE_CONF ||= 5
+ERR_BAD_IPV6_SUFFIX ||= 6
+ERR_MASTER_NODE_COUNT ||= 7
+
 
 def log_info_or_debug(message)
   if ENV['VAGRANT_LOG']=='debug' or ENV['VAGRANT_LOG']=='info'
@@ -92,6 +106,48 @@ settings_merger = proc {
     end
 }
 
+# set a 'target_key' in settings, parsing a dictionary of options 'selected_dict'
+# extracted from the .yaml
+# 'option_array' is the list of all the possible options
+# if there is a problem in the .yaml the Vagrantfile exits
+# with 'error' as error code
+# see for example 'kubernetes_network_plugin_options' dictionary in defaults.yaml,
+# used to set the key 'kubernetes_network_plugin' in settings
+def check_and_select_conf_options(selected_dict,target_key,option_array,error)
+  counter=0
+  return_value = ""
+  option_array.each do |choice|
+    if selected_dict[target_key+"_options"][choice]
+      counter = counter + 1
+      return_value = choice
+    end
+  end
+  if counter == 1
+    selected_dict[target_key]=return_value
+    return return_value
+  else
+    @ui.error 'select exactly one option in defaults.yaml/env.yaml, allowed options:'
+    option_array.each {|valid| @ui.error valid }
+    @ui.error 'current selection: ' + selected_dict.to_s
+    exit(error)
+  end
+end
+
+# returns the string representation of the IPv6 address to be used
+# for a node
+def get_ipv6_address(base_addr,base_suffix,order,delta,final_part)
+  output = base_addr
+  suffix_num = Integer("0x"+base_suffix[0,4])
+  if base_suffix[4,2] != "::"
+    @ui.error 'Malformed IPv6 suffix (must be a string with 4 hex digits followed by "::")'
+    @ui.error 'Value: ' + base_suffix
+    exit(ERR_BAD_IPV6_SUFFIX)
+  end
+  suffix_num = suffix_num + order * delta
+  output = output + "%04x" % suffix_num + "::" + final_part
+  return output
+end
+
 # Load default settings
 settings = YAML::load_file("defaults.yaml")
 
@@ -105,17 +161,27 @@ if File.exist?(env_specific_config_path)
 end
 
 # Display the main current configuration parameters
-@ui.info "Welcome to Kubernetes playground!"
-@ui.info "Vagrant provider: " + settings["conf"]["vagrant_provider"]
-@ui.info "Networking plugin: " + settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"]
+log_info_or_debug "Welcome to Kubernetes playground!"
+log_info_or_debug "Vagrant provider: #{settings["conf"]["vagrant_provider"]}"
 log_info_or_debug "Active settings (from defaults.yaml and env.yaml): #{settings.to_yaml}"
 
-# Check that an allowed networking plugin is provided
-allowed_cni_plugins=["weavenet","calico","flannel","no-cni-plugin"]
-if not allowed_cni_plugins.include? settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"]
-  @ui.error 'kubernetes_network_plugin is not valid in defaults.yaml or env.yaml, allowed values are:'
-  allowed_cni_plugins.each {|valid| @ui.error valid }
-  exit(1)
+# Check that at least one and only one plugin is selected
+check_and_select_conf_options(settings["ansible"]["group_vars"]["all"],
+                              "kubernetes_network_plugin",
+                              ["no-cni-plugin", "weavenet", "calico", "flannel"],
+                              ERR_NET_PLUGIN_CONF)
+log_info_or_debug "Networking plugin: #{settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"]}"
+# if calico, check that at least one and only one env_var and env_var_value is selected
+if settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"] == "calico"
+  check_and_select_conf_options(settings["ansible"]["group_vars"]["all"]["calico_config"],
+                              "calico_env_var",
+                              ["CALICO_IPV4POOL_IPIP", "CALICO_IPV4POOL_VXLAN"],
+                              ERR_CALICO_ENV_VAR_CONF)
+  check_and_select_conf_options(settings["ansible"]["group_vars"]["all"]["calico_config"],
+                              "calico_env_var_value",
+                              ["Always","CrossSubnet","Never"],
+                              ERR_CALICO_ENV_VAR_VALUE_CONF)
+  log_info_or_debug "Calico environment variable: #{settings["ansible"]["group_vars"]["all"]["calico_config"]["calico_env_var"]} = #{settings["ansible"]["group_vars"]["all"]["calico_config"]["calico_env_var_value"]}"
 end
 
 # Check that the provider is supported
@@ -124,14 +190,14 @@ vagrant_provider = settings["conf"]["vagrant_provider"]
 if not allowed_vagrant_providers.include? vagrant_provider
   @ui.error 'vagrant_provider is not valid in defaults.yaml or env.yaml, allowed values are:'
   allowed_vagrant_providers.each {|valid| @ui.error valid }
-  exit(2)
+  exit(ERR_PROVIDER_CONF)
 end
 
 libvirt_management_network_address = settings["net"]["libvirt_management_network_address"]
 netmask=libvirt_management_network_address.split('/')
 if netmask[1].to_i > 24
   @ui.error 'only netmasks <= 24 in libvirt_management_network_address are safely supported'
-  exit(3)
+  exit(ERR_LIBVIRT_MGT_NET_CONF)
 end
 ip_split=libvirt_management_network_address.split('.')
 libvirt_management_host_address = ip_split[0]+'.'+ip_split[1]+'.'+ip_split[2]+'.1'
@@ -140,15 +206,20 @@ additional_ansible_arguments = settings["conf"]["additional_ansible_arguments"]
 
 network_prefix = settings["net"]["network_prefix"]
 network_prefix_ipv6 = settings["net"]["network_prefix_ipv6"]
+node_suffix_ipv6 = settings["net"]["minion_ipv6_part"]
+default_ipv6_host_part = settings["net"]["default_ipv6_host_part"]
+delta_ipv6 = settings["net"]["delta_ipv6"]
 subnet_mask = settings["net"]["subnet_mask"]
 subnet_mask_ipv6 = settings["net"]["subnet_mask_ipv6"]
+master_ipv4_base = settings["net"]["master_ipv4_base"]
+minion_ipv4_base = settings["net"]["minion_ipv4_base"]
+
+master_base_mac_address = settings["net"]["master_base_mac_address"]
+minion_base_mac_address = settings["net"]["minion_base_mac_address"]
 
 kubeadm_token = "0y5van.5qxccw2ewiarl68v"
-kubernetes_master_1_ip = network_prefix + "10"
-kubernetes_master_1_ipv6 = network_prefix_ipv6 + settings["net"]["master_ipv6_part"]
-kubernetes_minion_1_ipv6 = network_prefix_ipv6 + settings["net"]["minion_1_ipv6_part"]
-kubernetes_minion_2_ipv6 = network_prefix_ipv6 + settings["net"]["minion_2_ipv6_part"]
-kubernetes_minion_3_ipv6 = network_prefix_ipv6 + settings["net"]["minion_3_ipv6_part"]
+kubernetes_master_1_ip = network_prefix + master_ipv4_base.to_s
+kubernetes_master_1_ipv6 = network_prefix_ipv6 + settings["net"]["master_ipv6_part"]+ settings["net"]["default_ipv6_host_part"]
 
 playground_name = settings["conf"]["playground_name"]
 domain = "." + playground_name + ".local"
@@ -167,6 +238,9 @@ broadcast_address = n | (~n.instance_variable_get(:@mask_addr) & IPAddr::IN4MASK
 cluster_ip_cidr = settings["pod_network"]["cluster_ip_cidr"]
 service_ip_cidr = settings["pod_network"]["service_ip_cidr"]
 
+calico_env_var = settings["ansible"]["group_vars"]["all"]["calico_config"]["calico_env_var"]
+calico_env_var_value = settings["ansible"]["group_vars"]["all"]["calico_config"]["calico_env_var_value"]
+
 # Vagrant boxes
 vagrant_x64_kubernetes_nodes_base_box_id = settings["conf"]["kubernetes_nodes_base_box_id"][vagrant_provider]
 vagrant_x64_kubernetes_nodes_box_id = "ferrarimarco/kubernetes-playground-node"
@@ -174,21 +248,10 @@ vagrant_x64_kubernetes_nodes_box_id = "ferrarimarco/kubernetes-playground-node"
 # VM Names
 $base_box_builder_vm_name = settings["conf"]["base_box_builder_name"]
 kubernetes_master_1_vm_name = settings["conf"]["master_name"]
-kubernetes_minion_1_vm_name = settings["conf"]["minion_1_name"]
-kubernetes_minion_2_vm_name = settings["conf"]["minion_2_name"]
-kubernetes_minion_3_vm_name = settings["conf"]["minion_3_name"]
-
-# Defines where to run the Ansible container during the provisioning phase.
-# This must be the last machine to be created, because the other ones have to be
-# available before attempting any provisioning.
-ansible_controller_vm_name = kubernetes_minion_3_vm_name
 
 # VM IDs
 base_box_builder_vm_id = $base_box_builder_vm_name + domain
 kubernetes_master_1_vm_id = kubernetes_master_1_vm_name + domain
-kubernetes_minion_1_vm_id = kubernetes_minion_1_vm_name + domain
-kubernetes_minion_2_vm_id = kubernetes_minion_2_vm_name + domain
-kubernetes_minion_3_vm_id = kubernetes_minion_3_vm_name + domain
 
 # memory for each host
 base_box_builder_mem = settings["conf"]["base_box_builder_mem"]
@@ -197,8 +260,54 @@ minion_mem = settings["conf"]["minion_mem"]
 
 additional_disk_size = settings["conf"]["additional_disk_size"]
 
+allow_workloads_on_masters = settings["kubernetes"]["allow_workloads_on_masters"]
+
 # path to the shared folder with the VMs
 vagrant_root = File.dirname(__FILE__)
+
+kubernetes_master_nodes_count=settings["kubernetes"]["master_nodes_count"]
+if kubernetes_master_nodes_count > MAX_NUMBER_OF_MASTER_NODES
+  @ui.error "The maximum number of master nodes is " + MAX_NUMBER_OF_MASTER_NODES.to_s
+  exit(ERR_MASTER_NODE_COUNT)
+end
+
+kubernetes_worker_nodes_count = settings["kubernetes"]["worker_nodes_count"]
+kubernetes_worker_nodes = {}
+
+ansible_controller_vm_name = nil
+
+kubernetes_worker_nodes_count.times { |i|
+    # Count from 1, to maintain the same behaviour of the static configuration
+    node_name = "k8s-minion-#{i + 1}"
+    node_id = node_name + domain
+    node_ipv4_address = network_prefix + (minion_ipv4_base+i).to_s
+    node_ipv6_address = get_ipv6_address(network_prefix_ipv6,node_suffix_ipv6,i,delta_ipv6,default_ipv6_host_part)
+    node_mac_address = minion_base_mac_address[0,10] + "%02x" % (Integer("0x" + minion_base_mac_address[10,2])+i)
+    kubernetes_worker_nodes[node_id] = {
+        :autostart => true,
+        :box => vagrant_x64_kubernetes_nodes_box_id,
+        :cpus => 1,
+        :mac_address => node_mac_address,
+        :mem => minion_mem,
+        :ip => node_ipv4_address,
+        :net_auto_config => true,
+        :net_type => network_type_static_ip,
+        :subnet_mask => subnet_mask,
+        :show_gui => false,
+        :host_vars => {
+            "ipv4_address" => node_ipv4_address,
+            "ipv6_address" => node_ipv6_address,
+            assigned_hostname_key => node_id
+        }
+    }
+
+    # Defines where to run the Ansible container during the provisioning phase.
+    # This must be the last machine to be created, because the other ones have to be
+    # available before attempting any provisioning.
+    # Assign it on every loop round, so at the end of the loop it will be assigned
+    # to the last worker node to be added to the pool.
+    ansible_controller_vm_name = node_name
+}
 
 playground = {
   base_box_builder_vm_id => {
@@ -218,7 +327,7 @@ playground = {
     :autostart => true,
     :box => vagrant_x64_kubernetes_nodes_box_id,
     :cpus => 2,
-    :mac_address => "0800271F9D02",
+    :mac_address => master_base_mac_address,
     :mem => master_mem,
     :ip => kubernetes_master_1_ip,
     :net_auto_config => true,
@@ -226,70 +335,34 @@ playground = {
     :subnet_mask => subnet_mask,
     :show_gui => false,
     :host_vars => {
+      "ipv4_address" => kubernetes_master_1_ip,
       "ipv6_address" => kubernetes_master_1_ipv6,
       assigned_hostname_key => kubernetes_master_1_vm_id
     }
   },
-  kubernetes_minion_1_vm_id => {
-    :autostart => true,
-    :box => vagrant_x64_kubernetes_nodes_box_id,
-    :cpus => 1,
-    :mac_address => "0800271F9D03",
-    :mem => minion_mem,
-    :ip => network_prefix + "30",
-    :net_auto_config => true,
-    :net_type => network_type_static_ip,
-    :subnet_mask => subnet_mask,
-    :show_gui => false,
-    :host_vars => {
-      "ipv6_address" => kubernetes_minion_1_ipv6,
-      assigned_hostname_key => kubernetes_minion_1_vm_id
-    }
-  },
-  kubernetes_minion_2_vm_id => {
-    :autostart => true,
-    :box => vagrant_x64_kubernetes_nodes_box_id,
-    :cpus => 1,
-    :mac_address => "0800271F9D04",
-    :mem => minion_mem,
-    :ip => network_prefix + "31",
-    :net_auto_config => true,
-    :net_type => network_type_static_ip,
-    :subnet_mask => subnet_mask,
-    :show_gui => false,
-    :host_vars => {
-      "ipv6_address" => kubernetes_minion_2_ipv6,
-      assigned_hostname_key => kubernetes_minion_2_vm_id
-    }
-  },
-  kubernetes_minion_3_vm_id => {
-    :autostart => true,
-    :box => vagrant_x64_kubernetes_nodes_box_id,
-    :cpus => 1,
-    :mac_address => "0800271F9D05",
-    :mem => minion_mem,
-    :ip => network_prefix + "32",
-    :net_auto_config => true,
-    :net_type => network_type_static_ip,
-    :subnet_mask => subnet_mask,
-    :show_gui => false,
-    :host_vars => {
-      "ipv6_address" => kubernetes_minion_3_ipv6,
-      assigned_hostname_key => kubernetes_minion_3_vm_id
-    }
-  }
 }
+
+playground.merge!(kubernetes_worker_nodes)
 
 # Generate an inventory file
 
 masters = {}
 minions = {}
+ip_to_host_mappings = []
 playground.each do |(hostname, info)|
   if(hostname.include? "master")
     masters[hostname] = nil
   elsif(hostname.include? "minion")
     minions[hostname] = nil
   end
+
+  if info.key?(:ip)
+    ip_to_host_mappings.push(
+        "ip_v4_address" => "#{info[:ip]}",
+        "hostname" => "#{hostname}"
+    )
+  end
+
   host_var_filename = "#{hostname}"
   host_var_path = "ansible/host_vars/#{host_var_filename}.yaml"
   if info.key?(:host_vars)
@@ -300,6 +373,19 @@ playground.each do |(hostname, info)|
     end
   end
 end
+
+# Add the docker registry host alias
+ip_to_host_mappings.push(
+    "ip_v4_address" => "#{kubernetes_master_1_ip}",
+    "hostname" => "#{docker_registry_alias}"
+)
+
+hosts_file_entries=""
+
+ip_to_host_mappings.each do |(ip_to_host_mapping)|
+    hosts_file_entries += "#{ip_to_host_mapping['hostname']},#{ip_to_host_mapping['ip_v4_address']};"
+end
+
 ansible_master_group_name = "kubernetes-masters"
 ansible_minion_group_name = "kubernetes-minions"
 ansible_inventory_path = "ansible/hosts"
@@ -331,6 +417,7 @@ inventory = {
 IO.write(ansible_inventory_path, inventory.to_yaml)
 
 default_group_vars = {
+  "allow_workloads_on_masters" => "#{allow_workloads_on_masters}",
   "ansible_ssh_extra_args" => "-o StrictHostKeyChecking=no",
   "ansible_ssh_pass" => "vagrant",
   "ansible_user" => "vagrant",
@@ -344,6 +431,9 @@ default_group_vars = {
   "playground_name" => "#{playground_name}",
   "cluster_ip_cidr"  => "#{cluster_ip_cidr}",
   "service_ip_cidr"  => "#{service_ip_cidr}",
+  "calico_env_var"  => "#{calico_env_var}",
+  "calico_env_var_value"  => "#{calico_env_var_value}",
+  "ip_to_host_mappings" => ip_to_host_mappings
 }
 custom_all_group_vars = settings["ansible"]["group_vars"]["all"]
 if !custom_all_group_vars.nil?
@@ -399,9 +489,7 @@ Vagrant.configure("2") do |config|
 
   # Install the required Vagrant plugins.
   # Populate this hash with the plugins that don't depend on specific provisioners or providers.
-  config.vagrant.plugins = {
-    "vagrant-hostsupdater" => {"version" => "1.1.1"}
-  }
+  config.vagrant.plugins = {}
 
   playground.each do |(hostname, info)|
     config.vm.define hostname, autostart: info[:autostart] do |host|
@@ -410,10 +498,6 @@ Vagrant.configure("2") do |config|
         host.vm.network :private_network, auto_config: info[:net_auto_config], :mac => "#{info[:mac_address]}", type: info[:net_type]
       elsif(network_type_static_ip == info[:net_type])
         host.vm.network :private_network, auto_config: info[:net_auto_config], :mac => "#{info[:mac_address]}", ip: "#{info[:ip]}", :netmask => "#{info[:subnet_mask]}"
-      end
-
-      if info.key?(:alias)
-        host.hostsupdater.aliases = info[:alias]
       end
 
       if(vagrant_provider == 'virtualbox')
@@ -428,8 +512,7 @@ Vagrant.configure("2") do |config|
           vb.customize ["modifyvm", :id, "--hwvirtex", "on"]
           vb.customize ["modifyvm", :id, "--memory", info[:mem]]
           vb.customize ["modifyvm", :id, "--name", hostname]
-          vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
-          vb.customize ["modifyvm", :id, "--natdnshostresolver2", "on"]
+
           if (additional_disk_size > 0 && (minions.has_key? hostname))
             disk_file = vm_directory + "/#{hostname}-disk-2.vmdk"
             log_info_or_debug "Adding a disk of #{additional_disk_size} MB to the #{hostname} VM. Disk file path: #{disk_file}."
@@ -487,7 +570,6 @@ Vagrant.configure("2") do |config|
         # for now it's enough.
         host.vm.provision "shell", path: "scripts/linux/enable-ssh-password-authentication.sh"
 
-        host.vm.provision "shell", path: "scripts/linux/check-kubeadm-requirements.sh"
         host.vm.provision "shell" do |s|
           s.path = "scripts/linux/install-kubernetes.sh"
           s.args = ["--inventory", ansible_base_inventory_path, "--additional-ansible-arguments", additional_ansible_arguments]
@@ -495,6 +577,11 @@ Vagrant.configure("2") do |config|
       else
         if(hostname.include?(ansible_controller_vm_name))
           host.vm.provision "shell" do |s|
+            s.path = "scripts/linux/update-hosts.sh"
+            s.args = ["#{hosts_file_entries}"]
+          end
+
+        host.vm.provision "shell" do |s|
             s.path = "scripts/linux/install-kubernetes.sh"
             s.args = ["--inventory", ansible_inventory_path, "--additional-ansible-arguments", additional_ansible_arguments]
           end
@@ -518,8 +605,10 @@ Vagrant.configure("2") do |config|
             SCRIPT
         elsif(vagrant_provider == 'libvirt')
             # Vagrant plugins for the libvirt provider
+            # When updating this, ensure that the versions you specify here match
+            # with scripts/linux/ci/install-vagrant-plugins.sh
             config.vagrant.plugins.merge!({
-                "vagrant-libvirt" => {"version" => "0.0.45"}
+                "vagrant-libvirt" => {"version" => "0.1.2"}
             })
 
             $mountNfsShare = <<-'SCRIPT'
@@ -534,6 +623,10 @@ Vagrant.configure("2") do |config|
         end
         host.vm.provision "mount-shared", type: "shell", run: "never", inline: $mountNfsShare
       end
+        host.vm.provision "diagnostics", type: "shell", run: "never" do |s|
+            s.path = "scripts/linux/ci/diagnostics.sh"
+            s.args = [ "--host" ]
+        end
     end
   end
 end

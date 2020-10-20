@@ -4,7 +4,9 @@ set -e
 
 configuration_file_path="$1"
 
-echo "Initializing Kubernetes master with configuration file: $configuration_file_path. Contents: $(cat "$configuration_file_path")"
+_HOSTNAME="$(hostname)"
+
+echo "Initializing this node, ($_HOSTNAME) which is a master with configuration file: $configuration_file_path. Contents: $(cat "$configuration_file_path")"
 kubeadm init --config "$configuration_file_path"
 
 # Setup root user environment
@@ -37,4 +39,13 @@ elif [ "$network_plugin_id" = 'flannel' ]; then
     # which is based on https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
 fi
 
-set +e
+allow_workloads_on_masters="$3"
+echo "Checking if masters can host workloads... $allow_workloads_on_masters"
+
+if [ "$allow_workloads_on_masters" = "true" ] && kubectl get nodes -l node-role.kubernetes.io/master= -o name | grep -qs "$_HOSTNAME"; then
+    echo "Removing master taints from master nodes"
+    kubectl get no -o name | while IFS= read -r line; do
+        echo "Removing master taint from $line"
+        kubectl taint nodes "$line" node-role.kubernetes.io/master-
+    done
+fi

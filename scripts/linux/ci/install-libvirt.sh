@@ -13,13 +13,17 @@ apt-get install -y --no-install-recommends \
     libguestfs-tools \
     libvirt-clients \
     libvirt-daemon-system \
-    libvirt-bin \
     libvirt-dev \
     libxml2-dev \
     libxslt1-dev \
+    nfs-kernel-server \
     qemu-kvm \
     qemu-utils \
     qemu \
+    portmap \
     rsync \
     ruby-dev \
+    tree \
     zlib1g-dev
+
+modprobe -a kvm

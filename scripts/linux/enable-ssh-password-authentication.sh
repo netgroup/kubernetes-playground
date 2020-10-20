@@ -30,6 +30,15 @@ else
     exit 1
 fi
 
+unset SSH_CONFIG_FILE_PATH
+
+VAGRANT_USER_NAME="vagrant"
+VAGRANT_USER_PASSWORD="vagrant"
+echo "Ensure the $VAGRANT_USER_NAME user has a known password (user: $VAGRANT_USER_NAME, password: $VAGRANT_USER_PASSWORD"
+usermod --password "$(openssl passwd -1 "$VAGRANT_USER_PASSWORD")" "$VAGRANT_USER_NAME"
+unset VAGRANT_USER_NAME
+unset VAGRANT_USER_PASSWORD
+
 # Re-enable the default behaviour, because we don't know if other scripts are
 # aware of this change.
 set +e

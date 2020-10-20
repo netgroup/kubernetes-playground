@@ -1,0 +1,17 @@
+---
+
+# systemd-modules-load loads kernel modules at boot
+- name: Restart systemd-modules-load
+  service:
+    name: systemd-modules-load
+    enabled: true
+    state: restarted
+  listen:
+    - systemd_modules_load_restart
+
+# daemon_reload loads systemd services configuration
+- name: Reload systemd daemon
+  systemd:
+    daemon_reload: true
+  listen:
+    - systemd_daemon_reload
