@@ -7,7 +7,6 @@ IPV6_NETMASK="$2"
 DEVICE="$3"
 NET_CONFIG_PATH="/etc/network/interfaces"
 
-
 echo "Adding $IPV6_ADDRESS to $DEVICE"
 
 {
@@ -15,7 +14,7 @@ echo "Adding $IPV6_ADDRESS to $DEVICE"
     echo "iface $DEVICE inet6 static"
     echo "  address $IPV6_ADDRESS"
     echo "  netmask $IPV6_NETMASK"
-} >> "$NET_CONFIG_PATH"
+} >>"$NET_CONFIG_PATH"
 
 echo "Restarting Network"
 systemctl restart networking
