@@ -1,0 +1,87 @@
+apiVersion: kubeadm.k8s.io/v1beta2
+kind: ClusterConfiguration
+apiServer:
+  extraArgs:
+    service-node-port-range: "80-32767"
+controllerManager:
+  extraArgs:
+    feature-gates: "IPv6DualStack=true"
+    cluster-cidr: "10.244.0.0/16,fc00::/32"
+    service-cluster-ip-range: "10.96.0.0/12,fc00:aa::/32"
+---
+apiVersion: kubelet.config.k8s.io/v1beta1
+kind: KubeletConfiguration
+featureGates:
+  IPv6DualStack: true
+
+
+apiVersion: kubeadm.k8s.io/v1beta2
+featureGates:
+  IPv6DualStack: true
+kind: ClusterConfiguration
+networking:
+  podSubnet: 10.88.0.0/16
+
+
+#########
+apiVersion: kubeadm.k8s.io/v1beta2
+bootstrapTokens:
+- groups:
+  token: "0y5van.5qxccw2ewiarl68v"
+kind: InitConfiguration
+localAPIEndpoint:
+  advertiseAddress: "192.168.0.10"
+
+---
+apiVersion: kubeadm.k8s.io/v1beta2
+kind: ClusterConfiguration
+apiServer:
+  extraArgs:
+    service-node-port-range: "80-32767"
+featureGates:
+  IPv6DualStack: true
+networking:
+  podSubnet: "10.244.0.0/16"
+  serviceSubnet: "10.96.0.0/12"
+
+################################
+apiVersion: kubeadm.k8s.io/v1beta2
+bootstrapTokens:
+- groups:
+  token: "{{kubeadm_token}}"
+kind: InitConfiguration
+localAPIEndpoint:
+  advertiseAddress: "{{kubernetes_master_1_ip}}"
+nodeRegistration:
+  kubeletExtraArgs:
+    cgroup-driver: "{{docker_cgroup_driver}}"
+    node-ip: "{{ ipv4_address }}"
+---
+apiVersion: kubeadm.k8s.io/v1beta2
+kind: ClusterConfiguration
+apiServer:
+  extraArgs:
+    service-node-port-range: "80-32767"
+featureGates:
+  IPv6DualStack: true
+networking:
+  podSubnet: "{{cluster_ip_cidr}}"
+  serviceSubnet: "{{service_ip_cidr}}"
+
+
+Your Kubernetes control-plane has initialized successfully!
+
+To start using your cluster, you need to run the following as a regular user:
+
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+You should now deploy a pod network to the cluster.
+Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
+  https://kubernetes.io/docs/concepts/cluster-administration/addons/
+
+Then you can join any number of worker nodes by running the following on each as root:
+kubeadm join 192.168.121.156:6443 --token gbeshb.es8hd2omyrjb2no4 \
+    --discovery-token-ca-cert-hash sha256:7a3fc24585ed3e28ff8d526fd883f18055ea653a1957334fe627216ba1bf99f9
+
