@@ -25,4 +25,4 @@
       - selinux-policy-default
       - snapd
       - ipvsadm
-      - network-manager
+      - vim

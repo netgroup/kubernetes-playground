@@ -65,8 +65,8 @@ net:
   master_ipv6_part: "c40a::"
   # base IPv6 address suffix for the minion nodes.
   # must be a string with 4 hex digits followed by "::"
-  # minion_ipv6_part: "c41e:"
-  minion_ipv6_part: "0001::"
+  minion_ipv6_part: "c41e::"
+  #minion_ipv6_part: "0001::"
   # delta of IPv6 address suffix for each minion node (integer)
   delta_ipv6: 1
   # host part of the IPv6 address of nodes
@@ -79,6 +79,8 @@ pod_network:
   cluster_ip_cidr: "10.244.0.0/16"
   # Service IP CIDR.
   service_ip_cidr: "10.96.0.0/12"
+  # Cluster IP6 CIDR.
+  cluster_ipv6_cidr: "fc00::/32"
 # Ansible variables.
 ansible:
   # Ansible group variables.
