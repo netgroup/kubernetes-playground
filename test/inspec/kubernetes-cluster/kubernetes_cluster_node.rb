@@ -15,10 +15,12 @@ control "kubernetes-cluster-node" do
 
     ip_to_host_mappings.each { |ip_to_host_mapping|
         ip_v4_address = ip_to_host_mapping["ip_v4_address"]
+        ip_v4_address = ip_to_host_mapping["ipv6_address"]
         hostname = ip_to_host_mapping["hostname"]
 
         describe host(hostname) do
             it { should be_resolvable }
+            its("ipaddress") { should include ip_v4_address }
             its("ipaddress") { should include ip_v4_address }
         end
     }
