@@ -7,7 +7,7 @@ RUN apk add --no-cache \
     git=2.26.2-r0 \
     libffi=3.3-r2 \
     libffi-dev=3.3-r2 \
-    musl=1.2.2_pre3-r0 \
+    musl=1.1.24-r10 \
     openssh-client=8.3_p1-r0 \
     openssl=1.1.1g-r0 \
     openssl-dev=1.1.1g-r0 \
