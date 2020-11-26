@@ -107,8 +107,6 @@ ansible:
           Always: true
           CrossSubnet: false
           Never: false
-      # Helm version to install.
-      kubernetes_helm_snap_channel: "2.16/stable"
       # If this is true, each Kubernetes node will have a label with a key set to
       # node_name and a value set to the name of the node
       kubernetes_add_node_name_as_label: true

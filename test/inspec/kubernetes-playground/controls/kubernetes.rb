@@ -27,14 +27,6 @@ control "kubernetes" do
     end
   end
 
-    describe command("snap list") do
-        its("stdout") { should match (/helm/) }
-    end
-
-    describe command("/snap/bin/helm") do
-        it { should exist }
-    end
-
   describe service("kubelet") do
     it { should be_installed }
     it { should be_enabled }

@@ -236,13 +236,6 @@
       when: "'kubernetes-minions' in group_names"
       tags:
         - quick_setup
-    - name: Install Helm
-      become: true
-      snap:
-        classic: true
-        channel: "{{ kubernetes_helm_snap_channel }}"
-        name: helm
-        state: present
     - name: Add labels to Kubernetes nodes
       command: >-
         kubectl label node {{ ansible_hostname }} {{ item }} --overwrite=true
