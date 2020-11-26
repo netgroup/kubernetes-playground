@@ -5,6 +5,7 @@ docker run --rm -it \
     -w="/workspace" \
     -e DEFAULT_WORKSPACE=/workspace \
     -e DISABLE_ERRORS=false \
+    -e FILTER_REGEX_EXCLUDE="\.git" \
     -e ERROR_ON_MISSING_EXEC_BIT=true \
     -e LINTER_RULES_PATH=. \
     -e MULTI_STATUS=false \

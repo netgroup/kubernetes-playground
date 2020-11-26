@@ -99,7 +99,7 @@ log_info_or_debug "The current Vagrant version satisfies the constraints: #{vagr
 # Proc settings merger
 settings_merger = proc {
     |key, v_default, v_env|
-    if Hash === v_default && Hash === v_env
+    if v_default.is_a?(Hash) && v_env.is_a?(Hash)
         v_default.merge(v_env, &settings_merger)
     elsif [:undefined, nil, :nil].include?(v_env)
         v_default
@@ -129,7 +129,7 @@ def check_and_select_conf_options(selected_dict, target_key, option_array, error
     return return_value
   else
     @ui.error "select exactly one option in defaults.yaml/env.yaml, allowed options:"
-    option_array.each {|valid| @ui.error valid }
+    option_array.each { |valid| @ui.error valid }
     @ui.error "current selection: " + selected_dict.to_s
     exit(error)
   end
@@ -141,7 +141,7 @@ def get_ipv6_address(base_addr, base_suffix, order, delta, final_part)
   output = base_addr
   suffix_num = Integer("0x" + base_suffix[0, 4])
   if base_suffix[4, 2] != "::"
-    @ui.error "Malformed IPv6 suffix (must be a string with 4 hex digits followed by "::")"
+    @ui.error "Malformed IPv6 suffix (must be a string with 4 hex digits followed by \"::\")"
     @ui.error "Value: " + base_suffix
     exit(ERR_BAD_IPV6_SUFFIX)
   end
@@ -191,14 +191,14 @@ allowed_vagrant_providers=["virtualbox", "libvirt"]
 vagrant_provider = settings["conf"]["vagrant_provider"]
 if !allowed_vagrant_providers.include? vagrant_provider
   @ui.error "vagrant_provider is not valid in defaults.yaml or env.yaml, allowed values are:"
-  allowed_vagrant_providers.each {|valid| @ui.error valid }
+  allowed_vagrant_providers.each { |valid| @ui.error valid }
   exit(ERR_PROVIDER_CONF)
 end
 
 libvirt_management_network_address = settings["net"]["libvirt_management_network_address"]
 netmask=libvirt_management_network_address.split("/")
 if netmask[1].to_i > 24
-  @ui.error 'only netmasks <= 24 in libvirt_management_network_address are safely supported'
+  @ui.error "only netmasks <= 24 in libvirt_management_network_address are safely supported"
   exit(ERR_LIBVIRT_MGT_NET_CONF)
 end
 ip_split=libvirt_management_network_address.split(".")
@@ -287,20 +287,20 @@ kubernetes_worker_nodes_count.times { |i|
     node_ipv6_address = get_ipv6_address(network_prefix_ipv6, node_suffix_ipv6, i, delta_ipv6, default_ipv6_host_part)
     node_mac_address = minion_base_mac_address[0, 10] + "%02x" % (Integer("0x" + minion_base_mac_address[10, 2]) + i)
     kubernetes_worker_nodes[node_id] = {
-        :autostart => true,
-        :box => vagrant_x64_kubernetes_nodes_box_id,
-        :cpus => 1,
-        :mac_address => node_mac_address,
-        :mem => minion_mem,
-        :ip => node_ipv4_address,
-        :net_auto_config => true,
-        :net_type => network_type_static_ip,
-        :subnet_mask => subnet_mask,
-        :show_gui => false,
-        :host_vars => {
-            "ipv4_address" => node_ipv4_address,
-            "ipv6_address" => node_ipv6_address,
-            assigned_hostname_key => node_id
+        autostart: true,
+        box: vagrant_x64_kubernetes_nodes_box_id,
+        cpus: 1,
+        mac_address: node_mac_address,
+        mem: minion_mem,
+        ip: node_ipv4_address,
+        net_auto_config: true,
+        net_type: network_type_static_ip,
+        subnet_mask: subnet_mask,
+        show_gui: false,
+        host_vars: {
+            "ipv4_address": node_ipv4_address,
+            "ipv6_address": node_ipv6_address,
+            assigned_hostname_key: node_id
         }
     }
 
@@ -313,34 +313,34 @@ kubernetes_worker_nodes_count.times { |i|
 }
 
 playground = {
-  base_box_builder_vm_id => {
-    :autostart => false,
-    :box => vagrant_x64_kubernetes_nodes_base_box_id,
-    :cpus => 2,
-    :mem => base_box_builder_mem,
-    :net_auto_config => true,
-    :show_gui => false,
-    :host_vars => {
-      "base_box" => true,
-      assigned_hostname_key => base_box_builder_vm_id
+  base_box_builder_vm_id: {
+    autostart: false,
+    box: vagrant_x64_kubernetes_nodes_base_box_id,
+    cpus: 2,
+    mem: base_box_builder_mem,
+    net_auto_config: true,
+    show_gui: false,
+    host_vars: {
+      "base_box": true,
+      assigned_hostname_key: base_box_builder_vm_id
     }
   },
-  kubernetes_master_1_vm_id => {
-    :alias => [docker_registry_alias],
-    :autostart => true,
-    :box => vagrant_x64_kubernetes_nodes_box_id,
-    :cpus => 2,
-    :mac_address => master_base_mac_address,
-    :mem => master_mem,
-    :ip => kubernetes_master_1_ip,
-    :net_auto_config => true,
-    :net_type => network_type_static_ip,
-    :subnet_mask => subnet_mask,
-    :show_gui => false,
-    :host_vars => {
-      "ipv4_address" => kubernetes_master_1_ip,
-      "ipv6_address" => kubernetes_master_1_ipv6,
-      assigned_hostname_key => kubernetes_master_1_vm_id
+  kubernetes_master_1_vm_id: {
+    alias: [docker_registry_alias],
+    autostart: true,
+    box: vagrant_x64_kubernetes_nodes_box_id,
+    cpus: 2,
+    mac_address: master_base_mac_address,
+    mem: master_mem,
+    ip: kubernetes_master_1_ip,
+    net_auto_config: true,
+    net_type: network_type_static_ip,
+    subnet_mask: subnet_mask,
+    show_gui: false,
+    host_vars: {
+      "ipv4_address": kubernetes_master_1_ip,
+      "ipv6_address": kubernetes_master_1_ipv6,
+      assigned_hostname_key: kubernetes_master_1_vm_id
     }
   },
 }
@@ -481,8 +481,8 @@ def get_virtualbox_default_machine_directory
     # because VBoxManage returns a Windows path (it runs in Windows, so it's right!).
     # Then we convert it to a path in "ruby format" (which is always with /, regardless of the platform)
     if Vagrant::Util::Platform.wsl?
-        virtualbox_default_machine_directory_wsl = `wslpath -a -u "#{virtualbox_default_machine_directory}"`.gsub("\n","")
-        virtualbox_default_machine_directory_wsl_m = `wslpath -a -m "#{virtualbox_default_machine_directory_wsl}"`.gsub("\n","")
+        virtualbox_default_machine_directory_wsl = `wslpath -a -u "#{virtualbox_default_machine_directory}"`.gsub('\n', "")
+        virtualbox_default_machine_directory_wsl_m = `wslpath -a -m "#{virtualbox_default_machine_directory_wsl}"`.gsub('\n', "")
         virtualbox_default_machine_directory = virtualbox_default_machine_directory_wsl_m
     end
     log_info_or_debug "The default Virtualbox machine directory is #{virtualbox_default_machine_directory}"
@@ -499,14 +499,14 @@ Vagrant.configure("2") do |config|
     config.vm.define hostname, autostart: info[:autostart] do |host|
       host.vm.box = "#{info[:box]}"
       if(network_type_dhcp == info[:net_type])
-        host.vm.network :private_network, auto_config: info[:net_auto_config], :mac => "#{info[:mac_address]}", type: info[:net_type]
+        host.vm.network :private_network, auto_config: info[:net_auto_config], mac: "#{info[:mac_address]}", type: info[:net_type]
       elsif(network_type_static_ip == info[:net_type])
-        host.vm.network :private_network, auto_config: info[:net_auto_config], :mac => "#{info[:mac_address]}", ip: "#{info[:ip]}", :netmask => "#{info[:subnet_mask]}"
+        host.vm.network :private_network, auto_config: info[:net_auto_config], mac: "#{info[:mac_address]}", ip: "#{info[:ip]}", netmask: "#{info[:subnet_mask]}"
       end
 
       if(vagrant_provider == "virtualbox")
         host.vm.provider :virtualbox do |vb|
-          virtualbox_default_machine_directory = get_virtualbox_default_machine_directory()
+          virtualbox_default_machine_directory = get_virtualbox_default_machine_directory
 
           log_info_or_debug "Getting the directory where the #{hostname} VM files are..."
           vm_directory = File.join(virtualbox_default_machine_directory, hostname)
@@ -534,9 +534,9 @@ Vagrant.configure("2") do |config|
 
           host.trigger.after :destroy do |trigger|
             trigger.name = "Delete VMDK files in #{vm_directory}"
-            trigger.ruby do |env,machine|
+            trigger.ruby do |env, machine|
               log_info_or_debug "Deleting all VMDK files in #{vm_directory}"
-              Dir.glob("#{vm_directory}/*").select{ |file| /.vmdk/.match file }.each { |file| File.delete(file)}
+              Dir.glob("#{vm_directory}/*").select { |file| /.vmdk/.match file }.each { |file| File.delete(file) }
             end
           end
 
@@ -548,14 +548,14 @@ Vagrant.configure("2") do |config|
           libvirt.cpus = info[:cpus]
           libvirt.memory = info[:mem]
           libvirt.nested = true
-          libvirt.default_prefix = ''
+          libvirt.default_prefix = ""
           libvirt.management_network_address = libvirt_management_network_address
 
           if(additional_disk_size > 0 && (!hostname.include? $base_box_builder_vm_name))
               libvirt.storage :file,
-                :size => additional_disk_size,
-                :path => hostname + "_sdb.img",
-                :device => "sdb"
+                size: additional_disk_size,
+                path: hostname + "_sdb.img",
+                device: "sdb"
           end
 
         end
@@ -586,19 +586,19 @@ Vagrant.configure("2") do |config|
           end
 
         host.vm.provision "shell" do |s|
-            s.path = "scripts/linux/install-kubernetes.sh"
-            s.args = ["--inventory", ansible_inventory_path, "--additional-ansible-arguments", additional_ansible_arguments]
-          end
+          s.path = "scripts/linux/install-kubernetes.sh"
+          s.args = ["--inventory", ansible_inventory_path, "--additional-ansible-arguments", additional_ansible_arguments]
+        end
 
           host.vm.provision "quick-setup", type: "shell", run: "never" do |s|
             s.path = "scripts/linux/install-kubernetes.sh"
-            s.args = ["--inventory", ansible_inventory_path, "--additional-ansible-arguments", additional_ansible_arguments, "--quick-setup" ]
+            s.args = ["--inventory", ansible_inventory_path, "--additional-ansible-arguments", additional_ansible_arguments, "--quick-setup"]
           end
         end
         host.vm.provision "cleanup", type: "shell", run: "never" do |s|
           s.path = "scripts/linux/cleanup-k8s-and-cni.sh"
         end
-        $mountNfsShare = ''
+        $mountNfsShare = ""
         if(vagrant_provider == "virtualbox")
             $mountNfsShare = <<-'SCRIPT'
             # From now on, we want the script to fail if we have problems mounting the shares
@@ -611,9 +611,7 @@ Vagrant.configure("2") do |config|
             # Vagrant plugins for the libvirt provider
             # When updating this, ensure that the versions you specify here match
             # with scripts/linux/ci/install-vagrant-plugins.sh
-            config.vagrant.plugins.merge!({
-                "vagrant-libvirt" => {"version" => "0.1.2"}
-            })
+            config.vagrant.plugins["vagrant-libvirt"] = {"version" => "0.1.2"}
 
             $mountNfsShare = <<-"SCRIPT"
             # From now on, we want the script to fail if we have problems mounting the shares
