@@ -235,7 +235,8 @@ same linters and test suites run automatically on each commit.
 The codebase is checked with linters and against common formatting rules.
 
 To run the same linting that the CI builds run, execute the
-[scripts/linux/ci/lint.sh](scripts/linux/ci/lint.sh) script.
+[scripts/linux/ci/lint.sh](scripts/linux/ci/lint.sh) and the
+[scripts/linux/ci/lint-inspec.sh](scripts/linux/ci/lint-inspec.sh) scripts.
 
 ##### Linting and formatting rules
 

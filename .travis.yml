@@ -19,14 +19,22 @@ jobs:
       language: shell
       script: |
         scripts/linux/ci/lint.sh || exit 1;
+    - name: "Lint InSpec profiles"
+      cache:
+        directories:
+          - $HOME/.vagrant.d/gems
+          - $GEM_HOME
+      install:
+        - scripts/linux/ci/install-linting-tools.sh
+      language: shell
+      script: |
+        scripts/linux/ci/lint-inspec.sh || exit 1;
     - name: "Build Docker images"
       cache:
         directories:
           - $HOME/.vagrant.d/gems
           - $GEM_HOME
       language: shell
-      install:
-        - scripts/linux/ci/install-linting-tools.sh
       script: |
         scripts/linux/ci/build-docker-images.sh || exit 1;
     - name: "Build the base box and start the cluster"
@@ -68,10 +76,6 @@ jobs:
         time sudo \
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-        vagrant provision "$BASE_BOX_VAGRANT_VM_ID" --provision-with diagnostics;
-        time sudo \
-        PATH="$PATH" \
-        VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
         vagrant halt "$BASE_BOX_VAGRANT_VM_ID";
         time sudo \
         PATH="$PATH" \
@@ -86,71 +90,10 @@ jobs:
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
         vagrant up --no-destroy-on-error;
-      after_script:
-        - scripts/linux/ci/diagnostics.sh
-        - |
-          time sudo \
-          PATH="$PATH" \
-          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-          scripts/linux/ci/diagnostics.sh --host
-        - |
-          time sudo \
-          PATH="$PATH" \
-          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-          scripts/linux/ci/diagnostics.sh --libvirt-guest \
-            --vagrant-vm-name "$BASE_BOX_VAGRANT_VM_ID"
-        - |
-          time sudo \
-          PATH="$PATH" \
-          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-          scripts/linux/ci/diagnostics.sh --disk-image \
-            --vagrant-libvirt-img-path \
-              "$HOME"/.vagrant.d/boxes/ferrarimarco-VAGRANTSLASH-kubernetes-playground-node/0/libvirt/box.img
-        - |
-          time sudo \
-          PATH="$PATH" \
-          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-          vagrant provision "$MASTER_1_VAGRANT_VM_ID" --provision-with diagnostics-verbose
-        - |
-          time sudo \
-          PATH="$PATH" \
-          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-          scripts/linux/ci/diagnostics.sh --libvirt-guest \
-            --vagrant-vm-name "$MASTER_1_VAGRANT_VM_ID"
-        - |
-          time sudo \
-          PATH="$PATH" \
-          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-          vagrant provision "$WORKER_1_VAGRANT_VM_ID" --provision-with diagnostics-verbose
-        - |
-          time sudo \
-          PATH="$PATH" \
-          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-          scripts/linux/ci/diagnostics.sh --libvirt-guest \
-            --vagrant-vm-name "$WORKER_1_VAGRANT_VM_ID"
-        - |
-          time sudo \
-          PATH="$PATH" \
-          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-          vagrant provision "$WORKER_2_VAGRANT_VM_ID" --provision-with diagnostics-verbose
-        - |
-          time sudo \
-          PATH="$PATH" \
-          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-          scripts/linux/ci/diagnostics.sh --libvirt-guest \
-            --vagrant-vm-name "$WORKER_2_VAGRANT_VM_ID"
-        - |
-          time sudo \
-          PATH="$PATH" \
-          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-          scripts/linux/ci/diagnostics.sh --disk-image \
-            --vagrant-libvirt-img-path \
-              "$HOME"/.vagrant.d/boxes/ferrarimarco-VAGRANTSLASH-kubernetes-playground-node/0/libvirt/box.img
-        - |
-          time sudo \
-          PATH="$PATH" \
-          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-          vagrant destroy --force
+        time sudo \
+        PATH="$PATH" \
+        VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
+        vagrant destroy --force
 language: shell
 os: linux
 services:
