@@ -19,14 +19,20 @@ jobs:
           - $HOME/.vagrant.d/gems
           - $GEM_HOME
       language: shell
-      install:
-        - sudo scripts/linux/ci/install-dependencies.sh
-        - scripts/linux/ci/install-linting-tools.sh
       script: |
         scripts/linux/ci/lint.sh || exit 1;
+    - name: "Build Docker images"
+      cache:
+        directories:
+          - $HOME/.vagrant.d/gems
+          - $GEM_HOME
+      language: shell
+      install:
+        - scripts/linux/ci/install-linting-tools.sh
+      script: |
         scripts/linux/ci/build-docker-images.sh || exit 1;
-    - name: "Build base box"
-      stage: vagrant-base-box
+    - name: "Build the base box and start the cluster"
+      stage: vagrant-base-box-up
       language: ruby
       cache:
         directories:
