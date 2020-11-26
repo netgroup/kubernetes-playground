@@ -16,7 +16,6 @@ jobs:
       stage: linting-and-docker
       cache:
         directories:
-          - $HOME/.vagrant.d/boxes
           - $HOME/.vagrant.d/gems
           - $GEM_HOME
       language: shell
@@ -26,14 +25,11 @@ jobs:
       script: |
         scripts/linux/ci/lint.sh || exit 1;
         scripts/linux/ci/build-docker-images.sh || exit 1;
-      after_script:
-        - scripts/linux/ci/diagnostics.sh --verbose
     - name: "Build base box"
       stage: vagrant-base-box
       language: ruby
       cache:
         directories:
-          - $HOME/.vagrant.d/boxes
           - $HOME/.vagrant.d/gems
           - $GEM_HOME
       install:
@@ -80,6 +76,10 @@ jobs:
         PATH="$PATH" \
         VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
         vagrant box add --force kubernetes-playground-base.box --name ferrarimarco/kubernetes-playground-node;
+        travis_wait time sudo \
+        PATH="$PATH" \
+        VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
+        vagrant up --no-destroy-on-error;
       after_script:
         - scripts/linux/ci/diagnostics.sh
         - |
@@ -100,43 +100,6 @@ jobs:
           scripts/linux/ci/diagnostics.sh --disk-image \
             --vagrant-libvirt-img-path \
               "$HOME"/.vagrant.d/boxes/ferrarimarco-VAGRANTSLASH-kubernetes-playground-node/0/libvirt/box.img
-    - name: "Vagrant up"
-      stage: vagrant-up
-      language: ruby
-      cache:
-        directories:
-          - $HOME/.vagrant.d/boxes
-          - $HOME/.vagrant.d/gems
-          - $GEM_HOME
-      install:
-        - sudo scripts/linux/ci/install-dependencies.sh
-        - scripts/linux/ci/install-linting-tools.sh
-        - sudo scripts/linux/ci/install-libvirt.sh
-        - sudo scripts/linux/ci/install-vagrant.sh
-        - sudo scripts/linux/ci/install-vagrant-plugins.sh
-        - sudo scripts/linux/ci/generate-env-for-travis.sh
-        # Fix permissions after installing vagrant plugins with sudo
-        - sudo chown -R "$(id -un)":"$(id -un)" $HOME/.vagrant.d
-        # This doesn't have effect if you don't open a new shell
-        - sudo adduser "$(id -un)" libvirt
-        - sudo adduser "$(id -un)" kvm
-        # Workaround for https://github.com/hashicorp/vagrant/issues/8279
-        - chmod a+rx $HOME
-      # Run with sudo because the libvirt socket is owned by the libvirt group,
-      # and the current user was added to the group in the current session,
-      # so the membership to that group is not yet in effect.
-      # Set the PATH to make the installed gems accessible.
-      script: |
-        travis_wait time sudo \
-        PATH="$PATH" \
-        VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-        vagrant up --no-destroy-on-error;
-      after_script:
-        - |
-          time sudo \
-          PATH="$PATH" \
-          VAGRANT_DEFAULT_PROVIDER="$VAGRANT_DEFAULT_PROVIDER" \
-          scripts/linux/ci/diagnostics.sh --host
         - |
           time sudo \
           PATH="$PATH" \
@@ -186,6 +149,3 @@ language: shell
 os: linux
 services:
   - docker
-stages:
-  - linting-and-docker
-  - vagrant-base-box-up
