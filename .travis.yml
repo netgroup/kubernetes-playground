@@ -2,8 +2,6 @@
 dist: bionic
 env:
   global:
-    # When changing this, ensure that the Vagrantfile is updated as well
-    - VAGRANT_VERSION="2.2.9"
     - VAGRANT_DEFAULT_PROVIDER=libvirt
     - BASE_BOX_VAGRANT_VM_ID="base-box-builder.k8s-play.local"
     - MASTER_1_VAGRANT_VM_ID="k8s-master-1.k8s-play.local"
@@ -32,6 +30,8 @@ jobs:
       script: |
         scripts/linux/ci/build-docker-images.sh || exit 1;
     - name: "Build the base box and start the cluster"
+      env:
+        - VAGRANT_VERSION="2.2.9"
       stage: vagrant-base-box-up
       language: ruby
       cache:

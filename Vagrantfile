@@ -4,7 +4,7 @@ require "yaml"
 require "ipaddr"
 
 # When changing this, ensure that the CI environment is updated as well
-Vagrant.require_version "= 2.2.9"
+Vagrant.require_version ">= 2.2.9"
 
 @ui = Vagrant::UI::Colored.new
 
@@ -313,7 +313,7 @@ kubernetes_worker_nodes_count.times { |i|
 }
 
 playground = {
-  base_box_builder_vm_id: {
+  base_box_builder_vm_id => {
     autostart: false,
     box: vagrant_x64_kubernetes_nodes_base_box_id,
     cpus: 2,
@@ -325,7 +325,7 @@ playground = {
       assigned_hostname_key: base_box_builder_vm_id
     }
   },
-  kubernetes_master_1_vm_id: {
+  kubernetes_master_1_vm_id => {
     alias: [docker_registry_alias],
     autostart: true,
     box: vagrant_x64_kubernetes_nodes_box_id,
