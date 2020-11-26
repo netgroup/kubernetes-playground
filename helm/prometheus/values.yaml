@@ -1,9 +1,0 @@
----
-alertmanager:
-  persistentVolume:
-    storageClass: "glusterfs-storage"
-
-server:
-  persistentVolume:
-    size: 2Gi
-    storageClass: "glusterfs-storage"

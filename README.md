@@ -277,12 +277,6 @@ it.
     through Vagrant. This is useful when you've issues connecting with
     `vagrant ssh`.
 
-1. Multiple load balanced nginx server instances: `kubernetes/nginx-stateless`
-1. A busybox instance, useful for debugging and troubleshooting (run commands
-    with `kubectl exec`.
-    Example: `kubectl exec -ti busybox -- nslookup hostname`):
-    `kubernetes/busybox`
-
 ## Contributing
 
 Contributions to this project are welcome! See the instructions in
