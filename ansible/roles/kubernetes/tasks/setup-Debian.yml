@@ -24,3 +24,5 @@
       - python-selinux
       - selinux-policy-default
       - snapd
+      - ipvsadm
+      - vim

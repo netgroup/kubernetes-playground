@@ -15,6 +15,8 @@ kind: ClusterConfiguration
 apiServer:
   extraArgs:
     service-node-port-range: "80-32767"
+featureGates:
+  IPv6DualStack: true
 networking:
   podSubnet: "{{cluster_ip_cidr}}"
   serviceSubnet: "{{service_ip_cidr}}"

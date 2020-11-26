@@ -17,7 +17,8 @@ control "kubernetes" do
     "kubelet",
     "python-selinux",
     "selinux-policy-default",
-    "snapd"
+    "snapd",
+    "ipvsadm"
   ]
 
   packages.each do |item|

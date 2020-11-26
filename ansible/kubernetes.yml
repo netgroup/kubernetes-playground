@@ -117,15 +117,21 @@
       debug:
         msg: "{{ msg.split('\n') }}"
     - name: Add an IPv6 address to {{ additional_network_interface_name }}
+      blockinfile:
+        path: /etc/network/interfaces
+        block: |
+          auto {{ additional_network_interface_name }}
+          iface {{ additional_network_interface_name }} inet6 static
+              address {{ ipv6_address }}
+              netmask {{ subnet_mask_ipv6 }}
       become: true
-      shell: |
-        set -e ; \
-        /vagrant/scripts/linux/configure-ipv6-interface.sh \
-        {{ ipv6_address }} \
-        {{ subnet_mask_ipv6 }} \
-        {{ additional_network_interface_name }} \
-        {{ additional_network_interface_nm_connection_name }}
       when: ipv6_address is defined
+    - name: "Restarting Network"
+      become: true
+      service:
+        state: restarted
+        name: networking
+        sleep: 5
     - name: Remove FQDN from 127.0.0.1
       become: true
       lineinfile:

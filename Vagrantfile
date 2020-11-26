@@ -236,6 +236,7 @@ broadcast_address = n | (~n.instance_variable_get(:@mask_addr) & IPAddr::IN4MASK
 
 # Cluster network
 cluster_ip_cidr = settings["pod_network"]["cluster_ip_cidr"]
+cluster_ipv6_cidr = settings["pod_network"]["cluster_ipv6_cidr"]
 service_ip_cidr = settings["pod_network"]["service_ip_cidr"]
 
 calico_env_var = settings["ansible"]["group_vars"]["all"]["calico_config"]["calico_env_var"]
@@ -430,6 +431,7 @@ default_group_vars = {
   "wildcard_domain" => "#{wildcard_domain}",
   "playground_name" => "#{playground_name}",
   "cluster_ip_cidr"  => "#{cluster_ip_cidr}",
+  "cluster_ipv6_cidr"  => "#{cluster_ipv6_cidr}",
   "service_ip_cidr"  => "#{service_ip_cidr}",
   "calico_env_var"  => "#{calico_env_var}",
   "calico_env_var_value"  => "#{calico_env_var_value}",
