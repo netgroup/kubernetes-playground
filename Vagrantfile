@@ -617,8 +617,8 @@ Vagrant.configure("2") do |config|
                 mount -t nfs -o 'vers=3' $libvirt_management_host_address:$vagrant_root /vagrant
             fi
             SCRIPT
-            $mountNfsShare.gsub!("$libvirt_management_host_address", libvirt_management_host_address)
-            $mountNfsShare.gsub!("$vagrant_root", vagrant_root)
+            $mountNfsShare = $mountNfsShare.gsub("$libvirt_management_host_address", libvirt_management_host_address)
+            $mountNfsShare = $mountNfsShare.gsub("$vagrant_root", vagrant_root)
         end
         host.vm.provision "mount-shared", type: "shell", run: "never", inline: $mountNfsShare
       end
