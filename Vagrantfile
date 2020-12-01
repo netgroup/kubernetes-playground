@@ -3,9 +3,6 @@
 require "yaml"
 require "ipaddr"
 
-# When changing this, ensure that the CI environment is updated as well
-Vagrant.require_version ">= 2.2.9"
-
 @ui = Vagrant::UI::Colored.new
 
 # Definition of constants
