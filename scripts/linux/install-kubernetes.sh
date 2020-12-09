@@ -44,8 +44,7 @@ inventory="/etc/$inventory"
 
 # Playbooks paths
 kubernetes_playbook_path=/etc/ansible/kubernetes.yml
-open_ssl_self_signed_certificate_playbook_path=/etc/ansible/openssl-self-signed-certificate.yml
-playbooks="$kubernetes_playbook_path $open_ssl_self_signed_certificate_playbook_path"
+playbooks="$kubernetes_playbook_path"
 
 ANSIBLE_DOCKER_IMAGE_DIRECTORY_PATH=/vagrant/docker/ansible
 ANSIBLE_DOCKER_IMAGE_TAG="ferrarimarco/kubernetes-playground-ansible"
