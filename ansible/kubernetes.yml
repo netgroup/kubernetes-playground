@@ -247,8 +247,6 @@
         - "'kubernetes-masters' in group_names or 'kubernetes-minions' in group_names"
         - kubernetes_node_labels is defined
   roles:
-    - role: docker
-      become: true
     - role: kubernetes
       become: true
     - role: base-box
