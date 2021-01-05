@@ -8,9 +8,9 @@ RUN apk add --no-cache \
     libffi=3.3-r2 \
     libffi-dev=3.3-r2 \
     musl=1.1.24-r10 \
-    openssh-client=8.3_p1-r0 \
-    openssl=1.1.1g-r0 \
-    openssl-dev=1.1.1g-r0 \
+    openssh-client=8.3_p1-r1 \
+    openssl=1.1.1i-r0 \
+    openssl-dev=1.1.1i-r0 \
     python3=3.8.5-r0 \
     python3-dev=3.8.5-r0 \
     sshpass=1.06-r0
