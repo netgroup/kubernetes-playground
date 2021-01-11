@@ -33,6 +33,8 @@ elif [ "$network_plugin_id" = 'calico' ]; then
     kubectl apply -f /tmp/calico-config.yaml
     # /tmp/calico-config.yaml is generated from ansible/playbooks/templates/calico-config.yaml.j2
     # which is based on https://docs.projectcalico.org/v3.10/manifests/calico.yaml
+elif [ "$network_plugin_id" = 'calico-vpp' ]; then
+    kubectl apply -f /tmp/calico-vpp-config.yaml
 elif [ "$network_plugin_id" = 'flannel' ]; then
     kubectl apply -f /tmp/kube-flannel-config.yaml
     # /tmp/kube-flannel-config.yaml is generated from ansible/playbooks/templates/kube-flannel-config.yaml.j2

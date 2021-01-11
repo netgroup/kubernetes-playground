@@ -168,11 +168,11 @@ log_info_or_debug "Active settings (from defaults.yaml and env.yaml): #{settings
 # Check that at least one and only one plugin is selected
 check_and_select_conf_options(settings["ansible"]["group_vars"]["all"],
                               "kubernetes_network_plugin",
-                              ["no-cni-plugin", "weavenet", "calico", "flannel"],
+                              ["no-cni-plugin", "weavenet", "calico", "calico-vpp", "flannel"],
                               ERR_NET_PLUGIN_CONF)
 log_info_or_debug "Networking plugin: #{settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"]}"
 # if calico, check that at least one and only one env_var and env_var_value is selected
-if settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"] == "calico"
+if settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"] == "calico" || settings["ansible"]["group_vars"]["all"]["kubernetes_network_plugin"] == "calico-vpp"
   check_and_select_conf_options(settings["ansible"]["group_vars"]["all"]["calico_config"],
                               "calico_env_var",
                               ["CALICO_IPV4POOL_IPIP", "CALICO_IPV4POOL_VXLAN"],

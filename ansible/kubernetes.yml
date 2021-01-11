@@ -190,6 +190,18 @@
       when: inventory_hostname == kubernetes_master_1_hostname
       tags:
         - quick_setup
+    - name: Generate Calico-vpp configuration file
+      become: true
+      template:
+        backup: false
+        dest: /tmp/calico-vpp-config.yaml
+        group: root
+        mode: 0755
+        owner: root
+        src: templates/calico-vpp-config.yaml.j2
+      when: inventory_hostname == kubernetes_master_1_hostname
+      tags:
+        - quick_setup
     - name: Generate Flannel configuration file
       become: true
       template:
