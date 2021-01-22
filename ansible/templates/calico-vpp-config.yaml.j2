@@ -3312,7 +3312,9 @@ data:
           "nodename": "__KUBERNETES_NODE_NAME__",
           "mtu": __CNI_MTU__,
           "ipam": {
-              "type": "calico-ipam"
+              "type": "calico-ipam",
+              "assign_ipv4": "true",
+              "assign_ipv6": "true"
           },
           "policy": {
               "type": "k8s"
@@ -3536,7 +3538,7 @@ spec:
         - name: FELIX_DEFAULTENDPOINTTOHOSTACTION
           value: ACCEPT
         - name: FELIX_IPV6SUPPORT
-          value: "false"
+          value: "true"
         - name: FELIX_LOGSEVERITYSCREEN
           value: info
         - name: FELIX_HEALTHENABLED
