@@ -12,3 +12,4 @@
     daemon_reload: true
   listen:
     - systemd_daemon_reload
+...

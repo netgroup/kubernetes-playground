@@ -74,3 +74,4 @@
   service:
     name: kubelet
     enabled: true
+...

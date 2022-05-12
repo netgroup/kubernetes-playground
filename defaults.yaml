@@ -131,3 +131,4 @@ ansible:
         # Example label that will be applied to all worker nodes
         - label_key: kubernetes_playground_node_type
           label_value: worker
+...
