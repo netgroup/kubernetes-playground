@@ -24,6 +24,5 @@ jobs:
           set -o errexit
           set -o nounset
 
-          scripts/linux/ci/install-linting-tools.sh
           scripts/linux/ci/lint-inspec.sh
 ...
