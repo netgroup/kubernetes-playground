@@ -13,9 +13,10 @@ RUN apk add --no-cache \
     openssl-dev=1.1.1i-r0 \
     python3=3.8.5-r0 \
     python3-dev=3.8.5-r0 \
-    sshpass=1.06-r0
+    sshpass=1.06-r0 \
+    && python3 -m ensurepip
 
-RUN python3 -m ensurepip
+WORKDIR /
 
 # We use a requirements.txt file so that we can watch it for dependency updates.
 # It's in a separate directory because we can't customize the requirements file

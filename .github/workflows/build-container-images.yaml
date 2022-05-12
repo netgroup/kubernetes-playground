@@ -15,8 +15,6 @@ jobs:
   build-container-images:
     env:
       CONTAINER_IMAGE_ID: "netgroup/${{ matrix.container-image-context-directory }}:latest"
-    needs:
-      - lint
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
