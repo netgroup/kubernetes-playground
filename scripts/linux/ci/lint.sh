@@ -1,6 +1,13 @@
 #!/bin/sh
 
-docker run --rm -it \
+DOCKER_FLAGS=
+if [ -t 0 ]; then
+  DOCKER_FLAGS=-it
+fi
+
+docker run \
+    ${DOCKER_FLAGS} \
+    --rm \
     -v "$(pwd)":/workspace \
     -w="/workspace" \
     -e DEFAULT_WORKSPACE=/workspace \
