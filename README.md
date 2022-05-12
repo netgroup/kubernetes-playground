@@ -212,7 +212,7 @@ For debbugging and development purposes, you can add the verbosity flags in your
 
 ```yaml
 conf:
-  additional_ansible_arguments: "-vv"
+    additional_ansible_arguments: "-vv"
 ```
 
 ### Running the tests
