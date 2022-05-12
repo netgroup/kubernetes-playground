@@ -45,7 +45,7 @@
     backup: false
     dest: /etc/modules-load.d/br_netfilter.conf
     group: root
-    mode: 0755
+    mode: "0755"
     owner: root
     src: templates/br_netfilter.conf.j2
   notify:
@@ -80,3 +80,4 @@
   command: >-
     sync
   changed_when: false
+...
