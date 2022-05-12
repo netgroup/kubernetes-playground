@@ -181,12 +181,8 @@ follow the instructions in the
 
 ## Development and testing
 
-The test suite is executed automatically by Travis CI on each commit, according
-to the configuration (see [.travis.yml](.travis.yml)).
-
-You can also run the same test suite locally. To bootstrap a development
-environment, you need to install the runtime dependencies listed above, plus the
-development environment dependencies.
+To bootstrap a development environment, you need to install the runtime
+dependencies listed above, plus the development environment dependencies.
 
 ### Development dependencies
 
@@ -222,7 +218,7 @@ For debbugging and development purposes, you can add the verbosity flags in your
 
 ```yaml
 conf:
-    additional_ansible_arguments: "-vv"
+  additional_ansible_arguments: "-vv"
 ```
 
 ### Running the tests
@@ -234,9 +230,10 @@ same linters and test suites run automatically on each commit.
 
 The codebase is checked with linters and against common formatting rules.
 
-To run the same linting that the CI builds run, execute the
-[scripts/linux/ci/lint.sh](scripts/linux/ci/lint.sh) and the
-[scripts/linux/ci/lint-inspec.sh](scripts/linux/ci/lint-inspec.sh) scripts.
+To run the same linting as the CI builds, run the following scripts:
+
+- [scripts/linux/ci/lint.sh](scripts/linux/ci/lint.sh)
+- [scripts/linux/ci/lint-inspec.sh](scripts/linux/ci/lint-inspec.sh)
 
 ##### Linting and formatting rules
 

@@ -11,33 +11,6 @@ env:
 jobs:
   fast_finish: true
   include:
-    - name: "Linting"
-      stage: linting-and-docker
-      cache:
-        directories:
-          - $HOME/.vagrant.d/gems
-          - $GEM_HOME
-      language: shell
-      script: |
-        scripts/linux/ci/lint.sh || exit 1;
-    - name: "Lint InSpec profiles"
-      cache:
-        directories:
-          - $HOME/.vagrant.d/gems
-          - $GEM_HOME
-      install:
-        - scripts/linux/ci/install-linting-tools.sh
-      language: shell
-      script: |
-        scripts/linux/ci/lint-inspec.sh || exit 1;
-    - name: "Build Docker images"
-      cache:
-        directories:
-          - $HOME/.vagrant.d/gems
-          - $GEM_HOME
-      language: shell
-      script: |
-        scripts/linux/ci/build-docker-images.sh || exit 1;
     - name: "Build the base box and start the cluster"
       stage: vagrant-base-box-up
       language: ruby

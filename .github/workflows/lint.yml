@@ -19,4 +19,11 @@ jobs:
           LINTER_RULES_PATH: .
           VALIDATE_ALL_CODEBASE: true
           VALIDATE_JSCPD_ALL_CODEBASE: true
+      - name: Lint InSpec profiles
+        run: |
+          set -o errexit
+          set -o nounset
+
+          scripts/linux/ci/install-linting-tools.sh
+          scripts/linux/ci/lint-inspec.sh 
 ...
