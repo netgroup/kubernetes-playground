@@ -1,4 +1,4 @@
-FROM debian:10 as final
+FROM debian:11 as final
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
     iperf3 \
