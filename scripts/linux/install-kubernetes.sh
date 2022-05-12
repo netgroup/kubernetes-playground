@@ -54,6 +54,8 @@ unset ANSIBLE_DOCKER_IMAGE_DIRECTORY_PATH
 
 echo "Installing python3-apt..."
 apt-get -y update
+DEBIAN_FRONTEND=noninteractive
+export DEBIAN_FRONTEND
 apt-get -y install \
     python-apt \
     python3-apt
