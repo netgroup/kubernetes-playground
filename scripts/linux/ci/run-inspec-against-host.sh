@@ -19,7 +19,20 @@ INSPEC_SSH_PRIVATE_KEY_PATH=$INSPEC_SSH_PRIVATE_KEY_PATH, \
 INSPEC_SSH_PORT=$INSPEC_SSH_PORT"
 
 echo "Running inspec against $SSH_HOST ($INSPEC_SSH_USER@$INSPEC_SSH_HOST:$INSPEC_SSH_PORT)"
-inspec exec --chef-license=accept test/inspec/kubernetes-playground \
+
+DOCKER_FLAGS=
+if [ -t 0 ]; then
+    DOCKER_FLAGS=-it
+fi
+
+# Remember to update the InSpec version in .github/workflows/lint.yml as well
+docker run \
+    ${DOCKER_FLAGS} \
+    --net=host \
+    --rm \
+    -v "$(pwd)":/share \
+    chef/inspec:5.15.0 \
+    exec --chef-license=accept test/inspec/kubernetes-playground \
     --diagnose \
     --log-level=debug \
     -t ssh://"$INSPEC_SSH_USER"@"$INSPEC_SSH_HOST" \
@@ -27,5 +40,6 @@ inspec exec --chef-license=accept test/inspec/kubernetes-playground \
     -p "$INSPEC_SSH_PORT"
 
 unset SSH_HOST
+unset DOCKER_FLAGS
 
 set +e

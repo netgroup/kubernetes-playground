@@ -20,6 +20,7 @@ jobs:
           VALIDATE_ALL_CODEBASE: true
           VALIDATE_JSCPD_ALL_CODEBASE: true
       - name: Lint InSpec profiles
+        # Remember to update the InSpec version in run-inspec-against-host.sh as well
         run: |
           set -o errexit
           set -o nounset
