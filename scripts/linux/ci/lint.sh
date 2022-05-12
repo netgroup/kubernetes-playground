@@ -2,7 +2,7 @@
 
 DOCKER_FLAGS=
 if [ -t 0 ]; then
-  DOCKER_FLAGS=-it
+    DOCKER_FLAGS=-it
 fi
 
 docker run \
