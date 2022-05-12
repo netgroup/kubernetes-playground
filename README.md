@@ -15,14 +15,8 @@ sandbox. It provides:
 
 ## Components
 
-1. Kubernetes master. Defaults to 1.
-1. Kubernetes workers. Defaults to 3
-1. A monitoring solution based on [Prometheus](https://prometheus.io/) and
-    [Grafana](https://grafana.com/).
-1. [Traefik](https://traefik.io/)
-    [Ingress Controller](https://kubernetes.io/docs/concepts/services-networking/ingress/)
-    .
-1. A [Docker Registry](https://docs.docker.com/registry/).
+1. Kubernetes control plane nodes. Defaults to 1.
+1. Kubernetes worker nodes. Defaults to 3
 
 ## Dependencies
 
@@ -239,18 +233,12 @@ To run the same linting as the CI builds, run the following scripts:
 
 We currently check and lint the codebase with [super-linter](https://github.com/github/super-linter).
 
-#### Build the Docker images
-
-To build all the Docker images that the CI builds run, execute the
-[scripts/linux/ci/build-docker-images.sh](scripts/linux/ci/build-docker-images.sh)
-script.
-
 #### Compliance test suite
 
 The test suite checks the whole environment for compliance using a verifier
 ([InSpec](https://www.inspec.io/) in this case).
 
-##### How to run the compliance test suites
+##### How to run the compliance test suite
 
 You can run the test suite against any guest, after provisioning and configuring
 it.
