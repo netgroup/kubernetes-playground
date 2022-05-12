@@ -4,18 +4,18 @@ name: Build container images
 on:  # yamllint disable-line rule:truthy
   push:
     paths:
-      - "docker/**"
       - ".github/workflows/build-container-images.yaml"
+      - "docker/**"
   pull_request:
     paths:
-      - "docker/**"
       - ".github/workflows/build-container-images.yaml"
+      - "docker/**"
 
 jobs:
   build-container-images:
     env:
       CONTAINER_IMAGE_ID: "netgroup/${{ matrix.container-image-context-directory }}:latest"
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - name: Set up Docker Buildx

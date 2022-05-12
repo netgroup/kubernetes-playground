@@ -1,9 +1,0 @@
----
-extends: default
-
-locale: "en_US.UTF-8"
-
-rules:
-  # 250 chars should be enough, we've got good monitors :)
-  line-length:
-    max: 250
