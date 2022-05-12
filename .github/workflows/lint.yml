@@ -24,5 +24,9 @@ jobs:
           set -o errexit
           set -o nounset
 
-          scripts/linux/ci/lint-inspec.sh
+          docker run \
+            --rm \
+            -v "$(pwd)":/share \
+            chef/inspec:5.15.0 \
+            check --chef-license=accept test/inspec/kubernetes-playground
 ...

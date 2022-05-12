@@ -196,11 +196,10 @@ necessary packages:
 1. Install Vagrant: [scripts/linux/ci/install-vagrant.sh](scripts/linux/ci/install-vagrant.sh)
 1. (only for headless environments) Manually install Vagrant plugins:
     [scripts/linux/ci/install-vagrant.sh](scripts/linux/ci/install-vagrant.sh)
-1. Install linting tools: [scripts/linux/ci/install-linting-tools.sh](scripts/linux/ci/install-linting-tools.sh)
 
-### Travis CI environment customization
+### CI environment customization
 
-The `scripts/linux/ci/generate-env-for-travis.sh` script creates and populates
+The `scripts/linux/ci/generate-env-for-ci.sh` script creates and populates
 an `env.yaml` file for Travis CI builds.
 
 ### Debugging ansible operations
@@ -222,16 +221,8 @@ same linters and test suites run automatically on each commit.
 
 #### Linters and formatters
 
-The codebase is checked with linters and against common formatting rules.
-
-To run the same linting as the CI builds, run the following scripts:
-
-- [scripts/linux/ci/lint.sh](scripts/linux/ci/lint.sh)
-- [scripts/linux/ci/lint-inspec.sh](scripts/linux/ci/lint-inspec.sh)
-
-##### Linting and formatting rules
-
-We currently check and lint the codebase with [super-linter](https://github.com/github/super-linter).
+The codebase is statically checked with linters and against common issues and to
+ensure consistent formatting using [super-linter](https://github.com/github/super-linter).
 
 #### Compliance test suite
 
