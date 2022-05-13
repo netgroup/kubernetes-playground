@@ -1,8 +1,7 @@
 ---
-
 # systemd-modules-load loads kernel modules at boot
 - name: Restart systemd-modules-load
-  service:
+  ansible.builtin.service:
     name: systemd-modules-load
     enabled: true
     state: restarted
@@ -11,7 +10,8 @@
 
 # daemon_reload loads systemd services configuration
 - name: Reload systemd daemon
-  systemd:
+  ansible.builtin.systemd:
     daemon_reload: true
   listen:
     - systemd_daemon_reload
+...

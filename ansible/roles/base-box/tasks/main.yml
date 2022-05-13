@@ -1,15 +1,15 @@
 ---
 - name: Update APT cache if needed
-  apt:
+  ansible.builtin.apt:
     cache_valid_time: 3600
     update_cache: true
 
 - name: Update all APT packages to the latest version
-  apt:
+  ansible.builtin.apt:
     upgrade: dist
 
 - name: Copy fix-box.sh script
-  copy:
+  ansible.builtin.copy:
     src: /vagrant/scripts/linux/fix-box.sh
     dest: /usr/local/bin/fix-box.sh
     owner: root
@@ -18,7 +18,7 @@
     remote_src: true
 
 - name: Generate fix-box service configuration file
-  template:
+  ansible.builtin.template:
     backup: false
     dest: /etc/systemd/system/fix-box.service
     group: root
@@ -29,54 +29,55 @@
     - systemd_daemon_reload
 
 - name: Enable fix-box service
-  service:
+  ansible.builtin.service:
     name: fix-box
     enabled: true
   notify:
     - systemd_daemon_reload
 
 - name: Add the br_netfilter module
-  modprobe:
+  community.general.modprobe:
     name: br_netfilter
     state: present
 
 - name: Enable br_netfilter kernel module autoload
-  template:
+  ansible.builtin.template:
     backup: false
     dest: /etc/modules-load.d/br_netfilter.conf
     group: root
-    mode: 0755
+    mode: "0755"
     owner: root
     src: templates/br_netfilter.conf.j2
   notify:
     - systemd_modules_load_restart
 
 - name: remove /etc/machine-id
-  file:
+  ansible.builtin.file:
     path: /etc/machine-id
     state: absent
 
 - name: remove /var/lib/dbus/machine-id
-  file:
+  ansible.builtin.file:
     path: /var/lib/dbus/machine-id
     state: absent
 
 - name: Search for DHCP lease files to remove
-  find:
+  ansible.builtin.find:
     paths: /var/lib/dhcp
     patterns: "*"
   register: dhcp_lease_files_to_delete
 
 - name: Delete DHCP lease files
-  file:
+  ansible.builtin.file:
     path: "{{ item.path }}"
     state: absent
   with_items: "{{ dhcp_lease_files_to_delete.files }}"
 
 - name: Ensure handlers run before carrying on
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers
 
 - name: Ensure changes are written on disk
-  command: >-
+  ansible.builtin.command: >-
     sync
   changed_when: false
+...

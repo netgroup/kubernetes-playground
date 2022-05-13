@@ -1,21 +1,22 @@
-FROM alpine:3.12.1
+FROM alpine:3.15.4
 
 LABEL maintainer="ferrari.marco@gmail.com"
 
 RUN apk add --no-cache \
-    build-base=0.5-r2 \
-    git=2.26.2-r0 \
-    libffi=3.3-r2 \
-    libffi-dev=3.3-r2 \
-    musl=1.1.24-r10 \
-    openssh-client=8.3_p1-r1 \
-    openssl=1.1.1i-r0 \
-    openssl-dev=1.1.1i-r0 \
-    python3=3.8.5-r0 \
-    python3-dev=3.8.5-r0 \
-    sshpass=1.06-r0
+    build-base \
+    git \
+    libffi \
+    libffi-dev \
+    musl \
+    openssh-client \
+    openssl \
+    openssl-dev \
+    python3 \
+    python3-dev \
+    sshpass \
+    && python3 -m ensurepip
 
-RUN python3 -m ensurepip
+WORKDIR /
 
 # We use a requirements.txt file so that we can watch it for dependency updates.
 # It's in a separate directory because we can't customize the requirements file

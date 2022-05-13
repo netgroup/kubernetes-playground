@@ -27,12 +27,20 @@ done
 if command -v docker >/dev/null 2>&1; then
     echo "Docker is already installed"
 else
+    apt-get update
+    apt-get install -y \
+        apt-transport-https \
+        ca-certificates \
+        curl \
+        gnupg-agent \
+        software-properties-common
+
     wget -qO- https://get.docker.com | sh
     usermod -aG docker "$user"
 
     echo "Copying the Docker daemon configuration files to their destination..."
     mkdir -p /etc/docker
-    cp /vagrant/ansible/templates/docker.json.j2 /etc/docker/daemon.json
+    cp /vagrant/ansible/files/docker.json /etc/docker/daemon.json
     chmod 0755 /etc/docker/daemon.json
     chown root:root /etc/docker/daemon.json
 

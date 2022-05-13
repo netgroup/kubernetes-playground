@@ -139,7 +139,7 @@
         regexp: "^127[.]0[.]0[.]1.*{{ assigned_hostname }}"
         owner: root
         group: root
-        mode: 0644
+        mode: "0644"
         state: absent
       when: assigned_hostname is defined
     - name: Add the FQDN to the hosts file
@@ -150,7 +150,7 @@
         line: "{{ item.ip_v4_address }} {{ item.hostname }}"
         owner: root
         group: root
-        mode: 0644
+        mode: "0644"
       loop: "{{ ip_to_host_mappings }}"
       when:
         - not base_box|default(false)|bool
@@ -160,7 +160,7 @@
         backup: false
         dest: /tmp/kubeadm-config.yaml
         group: root
-        mode: 0755
+        mode: "0755"
         owner: root
         src: templates/kubeadm-config.yaml.j2
       when: inventory_hostname == kubernetes_master_1_hostname
@@ -172,7 +172,7 @@
         backup: false
         dest: /tmp/weavenet-config.yaml
         group: root
-        mode: 0755
+        mode: "0755"
         owner: root
         src: templates/weavenet-config.yaml.j2
       when: inventory_hostname == kubernetes_master_1_hostname
@@ -184,7 +184,7 @@
         backup: false
         dest: /tmp/calico-config.yaml
         group: root
-        mode: 0755
+        mode: "0755"
         owner: root
         src: templates/calico-config.yaml.j2
       when: inventory_hostname == kubernetes_master_1_hostname
@@ -196,7 +196,7 @@
         backup: false
         dest: /tmp/kube-flannel-config.yaml
         group: root
-        mode: 0755
+        mode: "0755"
         owner: root
         src: templates/kube-flannel-config.yaml.j2
       when: inventory_hostname == kubernetes_master_1_hostname and additional_network_interface_name is defined
@@ -236,13 +236,6 @@
       when: "'kubernetes-minions' in group_names"
       tags:
         - quick_setup
-    - name: Install Helm
-      become: true
-      snap:
-        classic: true
-        channel: "{{ kubernetes_helm_snap_channel }}"
-        name: helm
-        state: present
     - name: Add labels to Kubernetes nodes
       command: >-
         kubectl label node {{ ansible_hostname }} {{ item }} --overwrite=true
@@ -254,11 +247,10 @@
         - "'kubernetes-masters' in group_names or 'kubernetes-minions' in group_names"
         - kubernetes_node_labels is defined
   roles:
-    - role: docker
-      become: true
     - role: kubernetes
       become: true
     - role: base-box
       become: true
       when:
         - base_box|default(false)|bool
+...

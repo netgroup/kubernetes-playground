@@ -1,0 +1,33 @@
+---
+name: CI
+
+on:  # yamllint disable-line rule:truthy
+  push: null
+  pull_request: null
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Super-Linter
+        uses: github/super-linter@v4.9.1
+        env:
+          DISABLE_ERRORS: false
+          ERROR_ON_MISSING_EXEC_BIT: true
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LINTER_RULES_PATH: .
+          VALIDATE_ALL_CODEBASE: true
+          VALIDATE_JSCPD_ALL_CODEBASE: true
+      - name: Lint InSpec profiles
+        # Remember to update the InSpec version in run-inspec-against-host.sh as well
+        run: |
+          set -o errexit
+          set -o nounset
+
+          docker run \
+            --rm \
+            -v "$(pwd)":/share \
+            chef/inspec:5.15.0 \
+            check --chef-license=accept test/inspec/kubernetes-playground
+...

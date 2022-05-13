@@ -1,6 +1,6 @@
 ---
 - name: Restart systemd-modules-load
-  service:
+  ansible.builtin.service:
     name: systemd-modules-load
     enabled: true
     state: restarted
@@ -8,7 +8,8 @@
     - systemd_modules_load_restart
 
 - name: Reload systemd daemon
-  systemd:
+  ansible.builtin.systemd:
     daemon_reload: true
   listen:
     - systemd_daemon_reload
+...

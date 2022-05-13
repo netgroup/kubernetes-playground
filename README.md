@@ -15,14 +15,8 @@ sandbox. It provides:
 
 ## Components
 
-1. Kubernetes master. Defaults to 1.
-1. Kubernetes workers. Defaults to 3
-1. A monitoring solution based on [Prometheus](https://prometheus.io/) and
-    [Grafana](https://grafana.com/).
-1. [Traefik](https://traefik.io/)
-    [Ingress Controller](https://kubernetes.io/docs/concepts/services-networking/ingress/)
-    .
-1. A [Docker Registry](https://docs.docker.com/registry/).
+1. Kubernetes control plane nodes. Defaults to 1.
+1. Kubernetes worker nodes. Defaults to 3
 
 ## Dependencies
 
@@ -162,37 +156,6 @@ If you want to test a different CNI plugin, run:
 
 You can install the following, optional, workloads and services in the cluster.
 
-### Ingress Controller
-
-To deploy the Ingress controller, SSH into the master and run the configuration
-script:
-
-1. `vagrant ssh kubernetes-master-1.kubernetes-playground.local`
-1. `sudo /vagrant/scripts/linux/bootstrap-ingress-controller.sh`
-
-The Traefik monitoring UI is accessible at
-`http://kubernetes-master-1.kubernetes-playground.local/monitoring/ingress`
-
-### Helm
-
-To initialize Helm, SSH into the master and run the configuration script:
-
-1. `vagrant ssh kubernetes-master-1.kubernetes-playground.local`
-1. `sudo /vagrant/scripts/linux/bootstrap-helm.sh`
-
-### Monitoring
-
-To deploy the monitoring solution, SSH into the master and run the configuration
-script:
-
-1. `vagrant ssh kubernetes-master-1.kubernetes-playground.local`
-1. Initialize Helm as described
-1. Initialize the Ingress Controller as described
-1. `sudo /vagrant/scripts/linux/bootstrap-monitoring.sh`
-
-The monitoring dashboard is accessible at
-`http://kubernetes-master-1.kubernetes-playground.local/monitoring/cluster`
-
 ### Kites experiments
 
 Kites allows you to test the traffic exchanged between Nodes
@@ -210,26 +173,10 @@ If you want to open a shell in the newly created container,
 follow the instructions in the
 [official Kubernetes docs](https://kubernetes.io/docs/tasks/debug-application-cluster/get-shell-running-container/).
 
-### Docker Registry
-
-To deploy a private Docker Registry, SSH into the master and run the
-configuration script:
-
-1. `vagrant ssh kubernetes-master-1.kubernetes-playground.local`
-1. Initialize Helm as described
-1. Initialize the Ingress Controller as described
-1. `sudo /vagrant/scripts/linux/bootstrap-docker-registry.sh`
-
-The registry is accessible at `https://registry.kubernetes-playground.local`
-
 ## Development and testing
 
-The test suite is executed automatically by Travis CI on each commit, according
-to the configuration (see [.travis.yml](.travis.yml)).
-
-You can also run the same test suite locally. To bootstrap a development
-environment, you need to install the runtime dependencies listed above, plus the
-development environment dependencies.
+To bootstrap a development environment, you need to install the runtime
+dependencies listed above, plus the development environment dependencies.
 
 ### Development dependencies
 
@@ -249,11 +196,10 @@ necessary packages:
 1. Install Vagrant: [scripts/linux/ci/install-vagrant.sh](scripts/linux/ci/install-vagrant.sh)
 1. (only for headless environments) Manually install Vagrant plugins:
     [scripts/linux/ci/install-vagrant.sh](scripts/linux/ci/install-vagrant.sh)
-1. Install linting tools: [scripts/linux/ci/install-linting-tools.sh](scripts/linux/ci/install-linting-tools.sh)
 
-### Travis CI environment customization
+### CI environment customization
 
-The `scripts/linux/ci/generate-env-for-travis.sh` script creates and populates
+The `scripts/linux/ci/generate-env-for-ci.sh` script creates and populates
 an `env.yaml` file for Travis CI builds.
 
 ### Debugging ansible operations
@@ -275,27 +221,15 @@ same linters and test suites run automatically on each commit.
 
 #### Linters and formatters
 
-The codebase is checked with linters and against common formatting rules.
-
-To run the same linting that the CI builds run, execute the
-[scripts/linux/ci/lint.sh](scripts/linux/ci/lint.sh) script.
-
-##### Linting and formatting rules
-
-We currently check and lint the codebase with [super-linter](https://github.com/github/super-linter).
-
-#### Build the Docker images
-
-To build all the Docker images that the CI builds run, execute the
-[scripts/linux/ci/build-docker-images.sh](scripts/linux/ci/build-docker-images.sh)
-script.
+The codebase is statically checked with linters and against common issues and to
+ensure consistent formatting using [super-linter](https://github.com/github/super-linter).
 
 #### Compliance test suite
 
 The test suite checks the whole environment for compliance using a verifier
 ([InSpec](https://www.inspec.io/) in this case).
 
-##### How to run the compliance test suites
+##### How to run the compliance test suite
 
 You can run the test suite against any guest, after provisioning and configuring
 it.
@@ -319,12 +253,6 @@ it.
     the diagnostis script can query the hypervisor directly, without going
     through Vagrant. This is useful when you've issues connecting with
     `vagrant ssh`.
-
-1. Multiple load balanced nginx server instances: `kubernetes/nginx-stateless`
-1. A busybox instance, useful for debugging and troubleshooting (run commands
-    with `kubectl exec`.
-    Example: `kubectl exec -ti busybox -- nslookup hostname`):
-    `kubernetes/busybox`
 
 ## Contributing
 

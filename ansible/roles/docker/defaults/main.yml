@@ -1,8 +1,0 @@
----
-# Can be set to "stable edge" if you need to install an "edge" version
-docker_apt_repository_section_name: stable
-
-# Docker package to install with APT. Can be used to install a specific version,
-# that must be present in the docker APT repository.
-# Example: docker-ce=version.to.install
-docker_apt_package_name: "docker-ce"
