@@ -27,3 +27,6 @@ apt-get install -y --no-install-recommends \
     zlib1g-dev
 
 modprobe -a kvm
+
+usermod -a -G kvm "${USER}"
+usermod -a -G libvirt "${USER}"
