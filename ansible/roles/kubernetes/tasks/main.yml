@@ -48,10 +48,6 @@
 - name: Ensure that OS-specific handlers run before carrying on
   ansible.builtin.meta: flush_handlers
 
-- name: Disable SELinux
-  ansible.posix.selinux:
-    state: disabled
-
 - name: Install Kubernetes packages
   ansible.builtin.package:
     name: "{{ item }}"

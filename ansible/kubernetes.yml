@@ -125,13 +125,14 @@
               address {{ ipv6_address }}
               netmask {{ subnet_mask_ipv6 }}
       become: true
-      when: ipv6_address is defined
+      when:
+        - ipv6_address is defined
+        - additional_network_interface_name is defined
     - name: "Restarting Network"
       become: true
       service:
         state: restarted
         name: networking
-        sleep: 5
     - name: Remove FQDN from 127.0.0.1
       become: true
       lineinfile:

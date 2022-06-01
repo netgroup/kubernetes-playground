@@ -64,7 +64,6 @@ echo ""
 echo "Running Ansible $playbooks playbooks against $inventory inventory, with additional arguments: $additional_ansible_arguments"
 docker run --rm \
     -v /vagrant/ansible:/etc/ansible \
-    -v /vagrant/ansible/files/tls:/opt/tls/self_signed \
     --net=host \
     "$ANSIBLE_DOCKER_IMAGE_TAG" \
     /bin/sh -c "ansible-playbook -i $inventory $additional_ansible_arguments $playbooks" \
