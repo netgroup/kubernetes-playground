@@ -197,11 +197,6 @@ necessary packages:
 1. (only for headless environments) Manually install Vagrant plugins:
     [scripts/linux/ci/install-vagrant.sh](scripts/linux/ci/install-vagrant.sh)
 
-### CI environment customization
-
-The `scripts/linux/ci/generate-env-for-ci.sh` script creates and populates
-an `env.yaml` file for Travis CI builds.
-
 ### Debugging ansible operations
 
 Ansible output is saved in the `/vagrant/ansible_output.txt`.
