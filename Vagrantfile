@@ -541,7 +541,7 @@ Vagrant.configure("2") do |config|
             SCRIPT
         elsif(vagrant_provider == "libvirt")
             # Vagrant plugins for the libvirt provider
-            config.vagrant.plugins["vagrant-libvirt"] = {"version" => "0.1.2"}
+            config.vagrant.plugins = {"vagrant-libvirt" => {"version" => "0.7.0"}}
 
             $mountNfsShare = <<-"SCRIPT"
             # From now on, we want the script to fail if we have problems mounting the shares
