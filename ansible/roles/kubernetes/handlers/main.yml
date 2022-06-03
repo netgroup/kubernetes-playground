@@ -12,4 +12,9 @@
     daemon_reload: true
   listen:
     - systemd_daemon_reload
+
+- name: restart containerd
+  service:
+    name: containerd
+    state: restarted
 ...
