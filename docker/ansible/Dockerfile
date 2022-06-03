@@ -18,7 +18,7 @@ RUN apk add --no-cache \
 
 WORKDIR /
 
-RUN pip3 install --upgrade pip setuptools wheel
+RUN pip3 install --no-cache-dir --upgrade pip setuptools wheel
 
 # Install Ansible
 # We use a requirements.txt file so that we can watch it for dependency updates
