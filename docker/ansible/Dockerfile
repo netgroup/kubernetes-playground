@@ -18,11 +18,7 @@ RUN apk add --no-cache \
 
 WORKDIR /
 
-# We use a requirements.txt file so that we can watch it for dependency updates.
-# It's in a separate directory because we can't customize the requirements file
-# name that dependabot watches.
-COPY pre-requisites/requirements.txt pre-requirements.txt
-RUN pip3 install --no-cache-dir --upgrade -r pre-requirements.txt
+RUN pip3 install --upgrade pip setuptools wheel
 
 # Install Ansible
 # We use a requirements.txt file so that we can watch it for dependency updates
