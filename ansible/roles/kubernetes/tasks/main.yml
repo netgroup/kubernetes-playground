@@ -34,9 +34,11 @@
         Ansible distribution version: {{ ansible_distribution_version }}
         Ansible domain: {{ ansible_domain }}
         Ansible FQDN: {{ ansible_fqdn }}
-        ansible hostname: {{ ansible_hostname }}
+        Ansible hostname: {{ ansible_hostname }}
         Ansible OS family: {{ ansible_os_family }}
         Ansible kernel: {{ ansible_kernel }}
+        Assigned hosname: {{ assigned_hostname }}
+        Base box: {{ base_box }}
         Inventory hostname: {{ inventory_hostname }}
   ansible.builtin.debug:
     msg: "{{ msg.split('\n') }}"
