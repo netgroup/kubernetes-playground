@@ -34,10 +34,13 @@
         Ansible distribution version: {{ ansible_distribution_version }}
         Ansible domain: {{ ansible_domain }}
         Ansible FQDN: {{ ansible_fqdn }}
-        ansible hostname: {{ ansible_hostname }}
+        Ansible hostname: {{ ansible_hostname }}
         Ansible OS family: {{ ansible_os_family }}
         Ansible kernel: {{ ansible_kernel }}
+        Assigned hosname: {{ assigned_hostname }}
+        Base box: {{ base_box }}
         Inventory hostname: {{ inventory_hostname }}
+        Kubelet service state: {{ kubelet_service_state }}
   ansible.builtin.debug:
     msg: "{{ msg.split('\n') }}"
 
@@ -47,10 +50,6 @@
 
 - name: Ensure that OS-specific handlers run before carrying on
   ansible.builtin.meta: flush_handlers
-
-- name: Disable SELinux
-  ansible.posix.selinux:
-    state: disabled
 
 - name: Install Kubernetes packages
   ansible.builtin.package:
@@ -76,4 +75,56 @@
   ansible.builtin.service:
     name: kubelet
     enabled: true
+    state: "{{ kubelet_service_state | default('started') }}"
+
+- name: Ensure containerd is started and enabled at boot.
+  ansible.builtin.service:
+    name: containerd
+    state: started
+    enabled: true
+
+- name: Ensure containerd config directory exists.
+  ansible.builtin.file:
+    path: /etc/containerd
+    mode: "0755"
+    state: directory
+  register: containerd_dir
+
+- name: Get defaults from containerd.
+  ansible.builtin.command: containerd config default
+  changed_when: false
+  register: containerd_config_default
+
+- name: Prepare containerd/config.toml from default config
+  ansible.builtin.copy:
+    dest: /tmp/containerd_config.toml
+    content: "{{ containerd_config_default.stdout }}"
+    mode: "0644"
+
+- name: Set Cgroup driver to systemd
+  ansible.builtin.lineinfile:
+    insertafter: '.*\[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options\]$'
+    line: '          SystemdCgroup = true'
+    state: present
+    path: /tmp/containerd_config.toml
+  when: containerd_config_cgroup_driver_systemd
+
+- name: Make sure SystemdCgroup = false is not set
+  ansible.builtin.lineinfile:
+    path: /tmp/containerd_config.toml
+    state: absent
+    line: '            SystemdCgroup = false'
+  notify: restart containerd
+  when: containerd_config_cgroup_driver_systemd
+
+- name: Copy config.toml to /etc/containerd
+  ansible.builtin.copy:
+    remote_src: true
+    src: /tmp/containerd_config.toml
+    dest: /etc/containerd/config.toml
+    mode: "0644"
+  notify: restart containerd
+
+- name: Ensure containerd is restarted immediately if necessary.
+  ansible.builtin.meta: flush_handlers
 ...

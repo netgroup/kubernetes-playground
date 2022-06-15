@@ -11,6 +11,8 @@ conf:
   additional_disk_size: 10240
   # RAM memory assigned to the base box.
   base_box_builder_mem: 2048
+  # Number of CPUs assigned to the base box.
+  base_box_cpus: 2
   # RAM memory assigned to master nodes.
   master_mem: 2048
   # RAM memory assigned to worker nodes.
@@ -30,9 +32,9 @@ conf:
   # Vagrant boxes IDs.
   kubernetes_nodes_base_box_id:
     # ID of the Vagrant box for the Virtualbox provider.
-    virtualbox: "debian/contrib-buster64"
+    virtualbox: "debian/bullseye64"
     # ID of the Vagrant box for the libvirt provider.
-    libvirt: "debian/buster64"
+    libvirt: "debian/bullseye64"
 # Kubernetes configuration parameters.
 kubernetes:
   # If set to true, allows scheduling pods on master nodes.

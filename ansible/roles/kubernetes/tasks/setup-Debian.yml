@@ -21,9 +21,8 @@
       - libpam-systemd
       - libsystemd0
       - libudev1
-      - python-selinux
+      - python3-selinux
       - selinux-policy-default
-      - snapd
       - ipvsadm
       - vim
 ...

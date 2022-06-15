@@ -88,6 +88,7 @@ files_to_print=(
     /etc/exports
     /etc/hosts
     /etc/machine-id
+    /etc/network/interfaces
     /etc/shadow
     /etc/ssh/ssh_config
     /etc/ssh/sshd_config

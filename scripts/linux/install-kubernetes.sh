@@ -52,19 +52,17 @@ echo "Building the Docker image to run Ansible."
 docker build --rm --tag "$ANSIBLE_DOCKER_IMAGE_TAG" --file="$ANSIBLE_DOCKER_IMAGE_DIRECTORY_PATH"/Dockerfile "$ANSIBLE_DOCKER_IMAGE_DIRECTORY_PATH"
 unset ANSIBLE_DOCKER_IMAGE_DIRECTORY_PATH
 
-echo "Installing python3-apt..."
+echo "Installing python-apt..."
 apt-get -y update
 DEBIAN_FRONTEND=noninteractive
 export DEBIAN_FRONTEND
 apt-get -y install \
-    python-apt \
     python3-apt
 
 echo ""
 echo "Running Ansible $playbooks playbooks against $inventory inventory, with additional arguments: $additional_ansible_arguments"
 docker run --rm \
     -v /vagrant/ansible:/etc/ansible \
-    -v /vagrant/ansible/files/tls:/opt/tls/self_signed \
     --net=host \
     "$ANSIBLE_DOCKER_IMAGE_TAG" \
     /bin/sh -c "ansible-playbook -i $inventory $additional_ansible_arguments $playbooks" \

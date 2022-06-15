@@ -188,6 +188,9 @@ kubernetes_master_1_vm_name = settings["conf"]["master_name"]
 base_box_builder_vm_id = $base_box_builder_vm_name + domain
 kubernetes_master_1_vm_id = kubernetes_master_1_vm_name + domain
 
+# cpus for each host
+base_box_builder_cpus = settings["conf"]["base_box_cpus"]
+
 # memory for each host
 base_box_builder_mem = settings["conf"]["base_box_builder_mem"]
 master_mem = settings["conf"]["master_mem"]
@@ -230,9 +233,9 @@ kubernetes_worker_nodes_count.times { |i|
         subnet_mask: subnet_mask,
         show_gui: false,
         host_vars: {
-            "ipv4_address": node_ipv4_address,
-            "ipv6_address": node_ipv6_address,
-            assigned_hostname_key: node_id
+            "ipv4_address" => node_ipv4_address,
+            "ipv6_address" => node_ipv6_address,
+            assigned_hostname_key => node_id
         }
     }
 
@@ -248,13 +251,14 @@ playground = {
   base_box_builder_vm_id => {
     autostart: false,
     box: vagrant_x64_kubernetes_nodes_base_box_id,
-    cpus: 2,
+    cpus: base_box_builder_cpus,
     mem: base_box_builder_mem,
     net_auto_config: true,
     show_gui: false,
     host_vars: {
-      "base_box": true,
-      assigned_hostname_key: base_box_builder_vm_id
+      "base_box" => true,
+      assigned_hostname_key => base_box_builder_vm_id,
+      "kubelet_service_state" => "stopped"
     }
   },
   kubernetes_master_1_vm_id => {
@@ -270,9 +274,9 @@ playground = {
     subnet_mask: subnet_mask,
     show_gui: false,
     host_vars: {
-      "ipv4_address": kubernetes_master_1_ip,
-      "ipv6_address": kubernetes_master_1_ipv6,
-      assigned_hostname_key: kubernetes_master_1_vm_id
+      "ipv4_address" => kubernetes_master_1_ip,
+      "ipv6_address" => kubernetes_master_1_ipv6,
+      assigned_hostname_key => kubernetes_master_1_vm_id
     }
   },
 }
@@ -541,9 +545,7 @@ Vagrant.configure("2") do |config|
             SCRIPT
         elsif(vagrant_provider == "libvirt")
             # Vagrant plugins for the libvirt provider
-            # When updating this, ensure that the versions you specify here match
-            # with scripts/linux/ci/install-vagrant-plugins.sh
-            config.vagrant.plugins["vagrant-libvirt"] = {"version" => "0.1.2"}
+            config.vagrant.plugins = {"vagrant-libvirt" => {"version" => "0.7.0"}}
 
             $mountNfsShare = <<-"SCRIPT"
             # From now on, we want the script to fail if we have problems mounting the shares
