@@ -1,4 +1,5 @@
 ---
+base_box: false
 containerd_config_cgroup_driver_systemd: false
 kubelet_service_state: started
 ...
