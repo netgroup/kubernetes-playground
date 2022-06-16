@@ -133,7 +133,7 @@
       become: true
       service:
         state: restarted
-        name: networking
+        name: ifup@eth1.service
       when:
         - add_ipv6_address is changed
     - name: Remove FQDN from 127.0.0.1
