@@ -146,6 +146,7 @@ host_diagnostics() {
     run_diagnostic_command "pwd" "pwd"
 
     if [ -f /var/run/docker.sock ]; then
+        run_diagnostic_command "containerd" "containerd config dump"
         run_diagnostic_command "docker" "docker info --format '{{json .}}'"
         run_diagnostic_command "docker" "docker --version"
         run_diagnostic_command "docker" "docker -D info"
