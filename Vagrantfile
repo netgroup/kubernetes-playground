@@ -480,6 +480,9 @@ Vagrant.configure("2") do |config|
           vb.name = hostname
         end
       elsif(vagrant_provider == "libvirt")
+        # Vagrant plugins for the libvirt provider
+        config.vagrant.plugins = {"vagrant-libvirt" => {"version" => "0.7.0"}}
+
         host.vm.provider :libvirt do |libvirt|
           libvirt.cpus = info[:cpus]
           libvirt.memory = info[:mem]
@@ -495,6 +498,8 @@ Vagrant.configure("2") do |config|
           end
 
         end
+
+        host.vm.synced_folder ".", "/vagrant", type: "nfs", nfs_version: "4", nfs_udp: false
       end
       host.vm.hostname = hostname
       if(hostname.include? $base_box_builder_vm_name)
@@ -544,14 +549,11 @@ Vagrant.configure("2") do |config|
             fi
             SCRIPT
         elsif(vagrant_provider == "libvirt")
-            # Vagrant plugins for the libvirt provider
-            config.vagrant.plugins = {"vagrant-libvirt" => {"version" => "0.7.0"}}
-
             $mountNfsShare = <<-"SCRIPT"
             # From now on, we want the script to fail if we have problems mounting the shares
             set -e
             if ! mount | grep -qs /vagrant ; then
-                mount -t nfs -o 'vers=3' $libvirt_management_host_address:$vagrant_root /vagrant
+                mount -t nfs -o 'vers=4' $libvirt_management_host_address:$vagrant_root /vagrant
             fi
             SCRIPT
             $mountNfsShare = $mountNfsShare.gsub("$libvirt_management_host_address", libvirt_management_host_address)
