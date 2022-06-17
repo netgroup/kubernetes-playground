@@ -49,7 +49,7 @@ playbooks="$kubernetes_playbook_path"
 ANSIBLE_DOCKER_IMAGE_DIRECTORY_PATH=/vagrant/docker/ansible
 ANSIBLE_DOCKER_IMAGE_TAG="ferrarimarco/kubernetes-playground-ansible"
 echo "Building the Docker image to run Ansible."
-docker build --rm --tag "$ANSIBLE_DOCKER_IMAGE_TAG" --file="$ANSIBLE_DOCKER_IMAGE_DIRECTORY_PATH"/Dockerfile "$ANSIBLE_DOCKER_IMAGE_DIRECTORY_PATH"
+docker build --tag "$ANSIBLE_DOCKER_IMAGE_TAG" --file="$ANSIBLE_DOCKER_IMAGE_DIRECTORY_PATH"/Dockerfile "$ANSIBLE_DOCKER_IMAGE_DIRECTORY_PATH"
 unset ANSIBLE_DOCKER_IMAGE_DIRECTORY_PATH
 
 echo "Installing python-apt..."
