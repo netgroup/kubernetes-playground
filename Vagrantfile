@@ -513,7 +513,7 @@ Vagrant.configure("2") do |config|
         # Ensure password authentication is enabled.
         # We might have to resort to a more secure solution in the future, but
         # for now it's enough.
-        host.vm.provision "password", type:"shell", path: "scripts/linux/enable-ssh-password-authentication.sh"
+        host.vm.provision "password", type: "shell", path: "scripts/linux/enable-ssh-password-authentication.sh"
 
         host.vm.provision "shell" do |s|
           s.path = "scripts/linux/install-kubernetes.sh"
