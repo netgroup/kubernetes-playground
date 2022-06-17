@@ -193,7 +193,9 @@ base_box_builder_cpus = settings["conf"]["base_box_cpus"]
 
 # memory for each host
 base_box_builder_mem = settings["conf"]["base_box_builder_mem"]
+master_cpus = settings["conf"]["master_cpus"]
 master_mem = settings["conf"]["master_mem"]
+minion_cpus = settings["conf"]["minion_cpus"]
 minion_mem = settings["conf"]["minion_mem"]
 
 additional_disk_size = settings["conf"]["additional_disk_size"]
@@ -224,7 +226,7 @@ kubernetes_worker_nodes_count.times { |i|
     kubernetes_worker_nodes[node_id] = {
         autostart: true,
         box: vagrant_x64_kubernetes_nodes_box_id,
-        cpus: 1,
+        cpus: minion_cpus,
         mac_address: node_mac_address,
         mem: minion_mem,
         ip: node_ipv4_address,
@@ -265,7 +267,7 @@ playground = {
     alias: [docker_registry_alias],
     autostart: true,
     box: vagrant_x64_kubernetes_nodes_box_id,
-    cpus: 2,
+    cpus: master_cpus,
     mac_address: master_base_mac_address,
     mem: master_mem,
     ip: kubernetes_master_1_ip,

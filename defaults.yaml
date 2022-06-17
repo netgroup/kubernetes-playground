@@ -13,8 +13,12 @@ conf:
   base_box_builder_mem: 2048
   # Number of CPUs assigned to the base box.
   base_box_cpus: 2
+  # Number of CPUs assigned to master nodes.
+  master_cpus: 2
   # RAM memory assigned to master nodes.
   master_mem: 2048
+  # Number of CPUs assigned to minion nodes.
+  minion_cpus: 1
   # RAM memory assigned to worker nodes.
   minion_mem: 1024
   # DNS domain name of the playground.
