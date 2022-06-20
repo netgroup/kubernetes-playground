@@ -44,7 +44,7 @@ kubernetes:
   # If set to true, allows scheduling pods on master nodes.
   allow_workloads_on_masters: false
   # Kubernetes version to install
-  kubernetes_version: "v1.24.2"
+  kubernetes_version: "present"
   # Number of master nodes to provision
   # we currently support only one master node
   master_nodes_count: 1

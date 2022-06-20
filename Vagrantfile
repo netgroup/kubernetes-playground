@@ -155,7 +155,7 @@ kubeadm_token = "0y5van.5qxccw2ewiarl68v"
 kubernetes_master_1_ip = network_prefix + master_ipv4_base.to_s
 kubernetes_master_1_ipv6 = network_prefix_ipv6 + settings["net"]["master_ipv6_part"]+ settings["net"]["default_ipv6_host_part"]
 
-kubernetes_version = settings["conf"]["kubernetes_version"]
+kubernetes_version = settings["kubernetes"]["kubernetes_version"]
 
 playground_name = settings["conf"]["playground_name"]
 domain = "." + playground_name + ".local"

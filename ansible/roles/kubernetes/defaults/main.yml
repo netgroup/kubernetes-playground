@@ -1,5 +1,6 @@
 ---
 base_box: false
 containerd_config_cgroup_driver_systemd: false
+kubernetes_version: present
 kubelet_service_state: started
 ...

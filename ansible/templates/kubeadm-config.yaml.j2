@@ -15,7 +15,9 @@ kind: ClusterConfiguration
 apiServer:
   extraArgs:
     service-node-port-range: "80-32767"
+{% if kubernetes_version is defined and kubernetes_version != 'latest' and kubernetes_version != 'present' %}
 kubernetesVersion: "{{kubernetes_version}}"
+{% endif %}
 networking:
   podSubnet: "{{cluster_ip_cidr}}"
   serviceSubnet: "{{service_ip_cidr}}"
