@@ -199,8 +199,8 @@ necessary packages:
 
 ### Debugging and logs
 
-- Ansible output is saved to `/vagrant/ansible_output.txt`
-- Kubeadm output is saved to `/vagrant/kubedm*.log`
+- Ansible output is saved to `/vagrant/logs/ansible_output.txt`
+- Kubeadm output is saved to `/vagrant/logs/kubedm*.log`
 
 #### Debugging ansible operations
 

@@ -23,7 +23,7 @@ fi
 
 if [ "$network_plugin_id" != 'no-cni-plugin' ]; then
     echo "Initializing Kubernetes minion to join: $master_address and token: $token"
-    kubeadm join "$master_address":6443 --token "$token" --discovery-token-unsafe-skip-ca-verification 2>&1 | tee /vagrant/kubeadm-init-worker.log
+    kubeadm join "$master_address":6443 --token "$token" --discovery-token-unsafe-skip-ca-verification 2>&1 | tee /vagrant/logs/kubeadm-init-worker.log
 fi
 
 set +e

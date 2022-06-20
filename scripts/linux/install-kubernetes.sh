@@ -66,7 +66,7 @@ docker run --rm \
     --net=host \
     "$ANSIBLE_DOCKER_IMAGE_TAG" \
     /bin/sh -c "ansible-playbook -i $inventory $additional_ansible_arguments $playbooks" \
-    2>&1 | tee /vagrant/ansible_output.txt
+    2>&1 | tee /vagrant/logs/ansible_output.txt
 
 unset ANSIBLE_DOCKER_IMAGE_TAG
 

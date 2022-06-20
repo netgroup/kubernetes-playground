@@ -7,7 +7,7 @@ configuration_file_path="$1"
 _HOSTNAME="$(hostname)"
 
 echo "Initializing this node, ($_HOSTNAME) which is a master with configuration file: $configuration_file_path. Contents: $(cat "$configuration_file_path")"
-kubeadm init --config "$configuration_file_path" 2>&1 | tee /vagrant/kubeadm-init-master.log
+kubeadm init --config "$configuration_file_path" 2>&1 | tee /vagrant/logs/kubeadm-init-master.log
 
 # Setup root user environment
 mkdir -p "$HOME"/.kube
