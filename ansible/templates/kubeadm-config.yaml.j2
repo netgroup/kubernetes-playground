@@ -21,3 +21,7 @@ kubernetesVersion: "{{kubernetes_version}}"
 networking:
   podSubnet: "{{cluster_ip_cidr}}"
   serviceSubnet: "{{service_ip_cidr}}"
+---
+kind: KubeletConfiguration
+apiVersion: kubelet.config.k8s.io/v1beta1
+cgroupDriver: systemd
