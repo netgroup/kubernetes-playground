@@ -21,13 +21,13 @@ chown vagrant:vagrant /home/vagrant/.kube
 chown vagrant:vagrant /home/vagrant/.kube/config
 
 for i in 1 2 3 4 5; do
-  echo "Trying to connect to the Kubernetes cluster API server with kubectl. Tentative: ${i}"
-  if kubectl get nodes; then
-    break
-  else
-    echo "The Kubernetes API server is not available. Waiting for a bit and retrying."
-    sleep 15
-  fi
+    echo "Trying to connect to the Kubernetes cluster API server with kubectl. Tentative: ${i}"
+    if kubectl get nodes; then
+        break
+    else
+        echo "The Kubernetes API server is not available. Waiting for a bit and retrying."
+        sleep 15
+    fi
 done
 
 network_plugin_id="$2"
