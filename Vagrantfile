@@ -216,7 +216,8 @@ end
 kubernetes_worker_nodes_count = settings["kubernetes"]["worker_nodes_count"]
 kubernetes_worker_nodes = {}
 
-ansible_controller_vm_name = nil
+# Default to the first master so that we can run Ansible even when there are no worker nodes
+ansible_controller_vm_name = kubernetes_master_1_vm_name
 
 kubernetes_worker_nodes_count.times { |i|
     # Count from 1, to maintain the same behaviour of the static configuration
