@@ -192,12 +192,12 @@ kubernetes_master_1_vm_id = kubernetes_master_1_vm_name + domain
 
 # cpus for each host
 base_box_builder_cpus = settings["conf"]["base_box_cpus"]
+master_cpus = settings["conf"]["master_cpus"]
+minion_cpus = settings["conf"]["minion_cpus"]
 
 # memory for each host
 base_box_builder_mem = settings["conf"]["base_box_builder_mem"]
-master_cpus = settings["conf"]["master_cpus"]
 master_mem = settings["conf"]["master_mem"]
-minion_cpus = settings["conf"]["minion_cpus"]
 minion_mem = settings["conf"]["minion_mem"]
 
 additional_disk_size = settings["conf"]["additional_disk_size"]
