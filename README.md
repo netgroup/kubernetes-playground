@@ -80,10 +80,13 @@ commands from the root of the repository:
         vagrant destroy --force base-box-builder.k8s-play.local
         ```
 
+    1. (optional) If you're updating a libvirt box, ensure you delete all the libvirt volumes based on
+        previous versions of the box.
+
     1. Register the base Vagrant box to make it avaliable to Vagrant:
 
         ```shell
-        vagrant box add --force kubernetes-playground-base.box \
+        vagrant box add --clean --force kubernetes-playground-base.box \
             --name ferrarimarco/kubernetes-playground-node
         ```
 
@@ -199,8 +202,7 @@ necessary packages:
 
 ### Debugging and logs
 
-- Ansible output is saved to `/vagrant/logs/ansible_output.txt`
-- Kubeadm output is saved to `/vagrant/logs/kubedm*.log`
+Logs are saved to `/vagrant/logs/`.
 
 #### Debugging ansible operations
 
