@@ -197,9 +197,12 @@ necessary packages:
 1. (only for headless environments) Manually install Vagrant plugins:
     [scripts/linux/ci/install-vagrant.sh](scripts/linux/ci/install-vagrant.sh)
 
-### Debugging ansible operations
+### Debugging and logs
 
-Ansible output is saved in the `/vagrant/ansible_output.txt`.
+- Ansible output is saved to `/vagrant/logs/ansible_output.txt`
+- Kubeadm output is saved to `/vagrant/logs/kubedm*.log`
+
+#### Debugging ansible operations
 
 For debbugging and development purposes, you can add the verbosity flags in your
 `env.yaml` as follows:

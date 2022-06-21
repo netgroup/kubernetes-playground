@@ -7,18 +7,28 @@ configuration_file_path="$1"
 _HOSTNAME="$(hostname)"
 
 echo "Initializing this node, ($_HOSTNAME) which is a master with configuration file: $configuration_file_path. Contents: $(cat "$configuration_file_path")"
-kubeadm init --config "$configuration_file_path"
+kubeadm init --config "$configuration_file_path" 2>&1 | tee /vagrant/logs/kubeadm-init-master.log
 
 # Setup root user environment
 mkdir -p "$HOME"/.kube
-cp -i /etc/kubernetes/admin.conf "$HOME"/.kube/config
+cp /etc/kubernetes/admin.conf "$HOME"/.kube/config
 chown "$(id -u)":"$(id -g)" "$HOME"/.kube/config
 
 # Setup vagrant user environment
 mkdir -p /home/vagrant/.kube
-cp -i /etc/kubernetes/admin.conf /home/vagrant/.kube/config
+cp /etc/kubernetes/admin.conf /home/vagrant/.kube/config
 chown vagrant:vagrant /home/vagrant/.kube
 chown vagrant:vagrant /home/vagrant/.kube/config
+
+for i in 1 2 3 4 5; do
+    echo "Trying to connect to the Kubernetes cluster API server with kubectl. Tentative: ${i}"
+    if kubectl get nodes; then
+        break
+    else
+        echo "The Kubernetes API server is not available. Waiting for a bit and retrying."
+        sleep 15
+    fi
+done
 
 network_plugin_id="$2"
 echo "Installing $network_plugin_id network plugin"

@@ -110,6 +110,7 @@
             Kubernetes node labels (all nodes): {{ all_nodes_kubernetes_labels | default([]) }}
             Kubernetes node labels (group): {{ group_kubernetes_labels | default([]) }}
             Kubernetes node labels (to be applied): {{ kubernetes_node_labels }}
+            Kubernetes version to install: {{ kubernetes_version }}
             Machine ID: {{ machine_id | default('NOT DEFINED') }}
             PATH: {{ hostvars[inventory_hostname]['ansible_env']['PATH'] }}
             Service IP CIDR: {{ service_ip_cidr }}
@@ -133,7 +134,7 @@
       become: true
       service:
         state: restarted
-        name: networking
+        name: ifup@eth1.service
       when:
         - add_ipv6_address is changed
     - name: Remove FQDN from 127.0.0.1
@@ -250,6 +251,7 @@
       when:
         - "'kubernetes-masters' in group_names or 'kubernetes-minions' in group_names"
         - kubernetes_node_labels is defined
+        - not kubernetes_network_plugin_options['no-cni-plugin']
   roles:
     - role: kubernetes
       become: true

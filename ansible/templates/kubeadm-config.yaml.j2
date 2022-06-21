@@ -1,4 +1,4 @@
-apiVersion: kubeadm.k8s.io/v1beta2
+apiVersion: kubeadm.k8s.io/v1beta3
 bootstrapTokens:
 - groups:
   token: "{{kubeadm_token}}"
@@ -10,13 +10,18 @@ nodeRegistration:
     cgroup-driver: "{{docker_cgroup_driver}}"
     node-ip: "{{ ipv4_address }}"
 ---
-apiVersion: kubeadm.k8s.io/v1beta2
+apiVersion: kubeadm.k8s.io/v1beta3
 kind: ClusterConfiguration
 apiServer:
   extraArgs:
     service-node-port-range: "80-32767"
-featureGates:
-  IPv6DualStack: true
+{% if kubernetes_version is defined and kubernetes_version != 'latest' and kubernetes_version != 'present' %}
+kubernetesVersion: "{{kubernetes_version}}"
+{% endif %}
 networking:
   podSubnet: "{{cluster_ip_cidr}}"
   serviceSubnet: "{{service_ip_cidr}}"
+---
+kind: KubeletConfiguration
+apiVersion: kubelet.config.k8s.io/v1beta1
+cgroupDriver: systemd

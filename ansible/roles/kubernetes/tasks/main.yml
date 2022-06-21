@@ -41,6 +41,7 @@
         Base box: {{ base_box }}
         Inventory hostname: {{ inventory_hostname }}
         Kubelet service state: {{ kubelet_service_state }}
+        Kubernetes version: {{ kubernetes_version }}
   ansible.builtin.debug:
     msg: "{{ msg.split('\n') }}"
 
@@ -54,7 +55,7 @@
 - name: Install Kubernetes packages
   ansible.builtin.package:
     name: "{{ item }}"
-    state: present
+    state: "{{ kubernetes_version }}"
   with_items:
     - kubelet
     - kubeadm

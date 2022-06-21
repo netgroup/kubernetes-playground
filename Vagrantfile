@@ -155,6 +155,8 @@ kubeadm_token = "0y5van.5qxccw2ewiarl68v"
 kubernetes_master_1_ip = network_prefix + master_ipv4_base.to_s
 kubernetes_master_1_ipv6 = network_prefix_ipv6 + settings["net"]["master_ipv6_part"]+ settings["net"]["default_ipv6_host_part"]
 
+kubernetes_version = settings["kubernetes"]["kubernetes_version"]
+
 playground_name = settings["conf"]["playground_name"]
 domain = "." + playground_name + ".local"
 
@@ -193,7 +195,9 @@ base_box_builder_cpus = settings["conf"]["base_box_cpus"]
 
 # memory for each host
 base_box_builder_mem = settings["conf"]["base_box_builder_mem"]
+master_cpus = settings["conf"]["master_cpus"]
 master_mem = settings["conf"]["master_mem"]
+minion_cpus = settings["conf"]["minion_cpus"]
 minion_mem = settings["conf"]["minion_mem"]
 
 additional_disk_size = settings["conf"]["additional_disk_size"]
@@ -212,7 +216,8 @@ end
 kubernetes_worker_nodes_count = settings["kubernetes"]["worker_nodes_count"]
 kubernetes_worker_nodes = {}
 
-ansible_controller_vm_name = nil
+# Default to the first master so that we can run Ansible even when there are no worker nodes
+ansible_controller_vm_name = kubernetes_master_1_vm_name
 
 kubernetes_worker_nodes_count.times { |i|
     # Count from 1, to maintain the same behaviour of the static configuration
@@ -224,7 +229,7 @@ kubernetes_worker_nodes_count.times { |i|
     kubernetes_worker_nodes[node_id] = {
         autostart: true,
         box: vagrant_x64_kubernetes_nodes_box_id,
-        cpus: 1,
+        cpus: minion_cpus,
         mac_address: node_mac_address,
         mem: minion_mem,
         ip: node_ipv4_address,
@@ -265,7 +270,7 @@ playground = {
     alias: [docker_registry_alias],
     autostart: true,
     box: vagrant_x64_kubernetes_nodes_box_id,
-    cpus: 2,
+    cpus: master_cpus,
     mac_address: master_base_mac_address,
     mem: master_mem,
     ip: kubernetes_master_1_ip,
@@ -364,6 +369,7 @@ default_group_vars = {
   "docker_registry_host" => "#{docker_registry_alias}",
   "kubernetes_master_1_hostname" => "#{kubernetes_master_1_vm_id}",
   "kubernetes_master_1_ip" => "#{kubernetes_master_1_ip}",
+  "kubernetes_version" => "#{kubernetes_version}",
   "kubeadm_token" => "#{kubeadm_token}",
   "subnet_mask_ipv6" => "#{subnet_mask_ipv6}",
   "wildcard_domain" => "#{wildcard_domain}",
@@ -480,6 +486,9 @@ Vagrant.configure("2") do |config|
           vb.name = hostname
         end
       elsif(vagrant_provider == "libvirt")
+        # Vagrant plugins for the libvirt provider
+        config.vagrant.plugins = {"vagrant-libvirt" => {"version" => "0.7.0"}}
+
         host.vm.provider :libvirt do |libvirt|
           libvirt.cpus = info[:cpus]
           libvirt.memory = info[:mem]
@@ -495,6 +504,8 @@ Vagrant.configure("2") do |config|
           end
 
         end
+
+        host.vm.synced_folder ".", "/vagrant", type: "nfs", nfs_version: "4", nfs_udp: false
       end
       host.vm.hostname = hostname
       if(hostname.include? $base_box_builder_vm_name)
@@ -508,7 +519,7 @@ Vagrant.configure("2") do |config|
         # Ensure password authentication is enabled.
         # We might have to resort to a more secure solution in the future, but
         # for now it's enough.
-        host.vm.provision "shell", path: "scripts/linux/enable-ssh-password-authentication.sh"
+        host.vm.provision "password", type: "shell", path: "scripts/linux/enable-ssh-password-authentication.sh"
 
         host.vm.provision "shell" do |s|
           s.path = "scripts/linux/install-kubernetes.sh"
@@ -544,14 +555,11 @@ Vagrant.configure("2") do |config|
             fi
             SCRIPT
         elsif(vagrant_provider == "libvirt")
-            # Vagrant plugins for the libvirt provider
-            config.vagrant.plugins = {"vagrant-libvirt" => {"version" => "0.7.0"}}
-
             $mountNfsShare = <<-"SCRIPT"
             # From now on, we want the script to fail if we have problems mounting the shares
             set -e
             if ! mount | grep -qs /vagrant ; then
-                mount -t nfs -o 'vers=3' $libvirt_management_host_address:$vagrant_root /vagrant
+                mount -t nfs -o 'vers=4' $libvirt_management_host_address:$vagrant_root /vagrant
             fi
             SCRIPT
             $mountNfsShare = $mountNfsShare.gsub("$libvirt_management_host_address", libvirt_management_host_address)

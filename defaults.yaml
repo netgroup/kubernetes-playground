@@ -13,8 +13,12 @@ conf:
   base_box_builder_mem: 2048
   # Number of CPUs assigned to the base box.
   base_box_cpus: 2
+  # Number of CPUs assigned to master nodes.
+  master_cpus: 2
   # RAM memory assigned to master nodes.
   master_mem: 2048
+  # Number of CPUs assigned to minion nodes.
+  minion_cpus: 1
   # RAM memory assigned to worker nodes.
   minion_mem: 1024
   # DNS domain name of the playground.
@@ -39,6 +43,8 @@ conf:
 kubernetes:
   # If set to true, allows scheduling pods on master nodes.
   allow_workloads_on_masters: false
+  # Kubernetes version to install
+  kubernetes_version: "present"
   # Number of master nodes to provision
   # we currently support only one master node
   master_nodes_count: 1
