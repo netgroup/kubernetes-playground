@@ -156,7 +156,7 @@ host_diagnostics() {
     fi
 
     if [ -f /run/containerd/containerd.sock ]; then
-      run_diagnostic_command "containerd" "containerd config dump"
+        run_diagnostic_command "containerd" "containerd config dump"
     else
         echo "WARNING: containerd socket not found"
     fi
