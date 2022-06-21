@@ -117,11 +117,18 @@
             Subnet mask IPv6: {{ subnet_mask_ipv6 }}
       debug:
         msg: "{{ msg.split('\n') }}"
+    - name: Add the autoconfiguration directive for {{ additional_network_interface_name }}
+      become: true
+      lineinfile:
+        path: /etc/network/interfaces
+        line: "auto {{ additional_network_interface_name }}"
+        owner: root
+        group: root
+        mode: "0644"
     - name: Add an IPv6 address to {{ additional_network_interface_name }}
       blockinfile:
         path: /etc/network/interfaces
         block: |
-          auto {{ additional_network_interface_name }}
           iface {{ additional_network_interface_name }} inet6 static
               address {{ ipv6_address }}
               netmask {{ subnet_mask_ipv6 }}
