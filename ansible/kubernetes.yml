@@ -117,11 +117,30 @@
             Subnet mask IPv6: {{ subnet_mask_ipv6 }}
       debug:
         msg: "{{ msg.split('\n') }}"
+    # So that the Vagrant control network interface restarts when restarting the networking service
+    - name: Add the autoconfiguration directive for the Vagrant control network interface
+      become: true
+      lineinfile:
+        path: /etc/network/interfaces
+        line: "auto eth0"
+        owner: root
+        group: root
+        mode: "0644"
     - name: Add the autoconfiguration directive for {{ additional_network_interface_name }}
       become: true
       lineinfile:
         path: /etc/network/interfaces
         line: "auto {{ additional_network_interface_name }}"
+        owner: root
+        group: root
+        mode: "0644"
+      when:
+        - additional_network_interface_name is defined
+    - name: Add the allow-hotplug directive for {{ additional_network_interface_name }}
+      become: true
+      lineinfile:
+        path: /etc/network/interfaces
+        line: "allow-hotplug {{ additional_network_interface_name }}"
         owner: root
         group: root
         mode: "0644"
@@ -144,7 +163,7 @@
       become: true
       service:
         state: restarted
-        name: ifup@eth1.service
+        name: networking.service
       when:
         - add_ipv6_address is changed
     - name: Remove FQDN from 127.0.0.1
