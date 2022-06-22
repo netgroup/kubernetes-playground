@@ -405,13 +405,6 @@ if !custom_minion_group_vars.nil?
 end
 IO.write("ansible/group_vars/#{ansible_minion_group_name}.yaml", minion_group_vars.to_yaml)
 
-# Workaround for https://github.com/hashicorp/vagrant/issues/8878
-class VagrantPlugins::ProviderVirtualBox::Action::Network
-  def dhcp_server_matches_config?(dhcp_server, config)
-    true
-  end
-end
-
 def get_virtualbox_default_machine_directory
     log_info_or_debug "Getting the default Virtualbox machine directory..."
 
