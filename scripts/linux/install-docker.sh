@@ -2,7 +2,7 @@
 
 set -e
 
-if ! TEMP="$(getopt -o vdm: --long user: -n 'install-docker' -- "$@")"; then
+if ! TEMP="$(getopt -o u: --long user: -n 'install-docker' -- "$@")"; then
     echo "Terminating..." >&2
     exit 1
 fi
@@ -42,27 +42,11 @@ else
     # and configuration process, so we cannot restart the container engine or containerd daemons
     # during such process and rely on those containers being up and running.
 
-    echo "Copying the Docker daemon configuration files to their destination..."
-    mkdir -p /etc/docker
-    cp /vagrant/ansible/files/docker.json /etc/docker/daemon.json
-    chmod 0755 /etc/docker/daemon.json
-    chown root:root /etc/docker/daemon.json
-
-    echo "Ensure the Docker service is enabled and running"
-    systemctl enable docker
-    if ! systemctl is-active --quiet docker; then
-        echo "Starting the docker service..."
-        systemctl start docker
-    else
-        echo "Restarting the docker service..."
-        systemctl restart docker
-    fi
-
     echo "Copying the containerd configuration files to their destination..."
     mkdir -p /etc/containerd
     # Uncommend the following line to regenerate the containerd configuration file from defaults
     # containerd config default > /vagrant/ansible/files/containerd-config.toml
-    cp /vagrant/ansible/files/containerd-config.toml /etc/containerd/config.toml
+    cp -v /vagrant/ansible/files/containerd-config.toml /etc/containerd/config.toml
     chmod 0644 /etc/containerd/config.toml
     chown root:root /etc/containerd/config.toml
 
@@ -75,10 +59,26 @@ else
         echo "Restarting the containerd service..."
         systemctl restart containerd
     fi
+
+    echo "Copying the Docker daemon configuration files to their destination..."
+    mkdir -p /etc/docker
+    cp -v /vagrant/ansible/files/docker.json /etc/docker/daemon.json
+    chmod 0755 /etc/docker/daemon.json
+    chown root:root /etc/docker/daemon.json
+
+    echo "Ensure the Docker service is enabled and running"
+    systemctl enable docker
+    if ! systemctl is-active --quiet docker; then
+        echo "Starting the docker service..."
+        systemctl start docker
+    else
+        echo "Restarting the docker service..."
+        systemctl restart docker
+    fi
 fi
 
 echo "Getting information about the Docker daemon..."
-docker info
+docker info | tee /vagrant/logs/docker-info.log
 
 echo "Getting information about containerd config..."
-containerd config dump
+containerd config dump | tee /vagrant/logs/containerd-info.log

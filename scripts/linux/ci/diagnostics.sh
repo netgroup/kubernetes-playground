@@ -146,7 +146,6 @@ host_diagnostics() {
     run_diagnostic_command "pwd" "pwd"
 
     if [ -f /var/run/docker.sock ]; then
-        run_diagnostic_command "containerd" "containerd config dump"
         run_diagnostic_command "docker" "docker info --format '{{json .}}'"
         run_diagnostic_command "docker" "docker --version"
         run_diagnostic_command "docker" "docker -D info"
@@ -154,6 +153,12 @@ host_diagnostics() {
         run_diagnostic_command "docker" "docker info --format '{{json .}}'"
     else
         echo "WARNING: Docker socket not found"
+    fi
+
+    if [ -f /run/containerd/containerd.sock ]; then
+        run_diagnostic_command "containerd" "containerd config dump"
+    else
+        echo "WARNING: containerd socket not found"
     fi
 
     run_diagnostic_command "dpkg" "dpkg -l | sort"
