@@ -125,6 +125,8 @@
         owner: root
         group: root
         mode: "0644"
+      when:
+        - additional_network_interface_name is defined
     - name: Add an IPv6 address to {{ additional_network_interface_name }}
       blockinfile:
         path: /etc/network/interfaces
@@ -135,8 +137,9 @@
       become: true
       register: add_ipv6_address
       when:
-        - ipv6_address is defined
         - additional_network_interface_name is defined
+        - ipv6_address is defined
+        - subnet_mask_ipv6 is defined
     - name: "Restarting Network"
       become: true
       service:
