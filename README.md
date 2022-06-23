@@ -254,6 +254,17 @@ it.
     through Vagrant. This is useful when you've issues connecting with
     `vagrant ssh`.
 
+### Development notes
+
+In this section, we list findings and notes that we found useful during development.
+
+#### Network configuration
+
+- Debian Bullseye (server and cloud images) uses ifup and ifdown to manage network interfaces.
+- ifup and ifdown rely on `/etc/network/interfaces` (and related) configuration file.
+- Systemd invokes ifup and ifdown via the `networking.service` unit.
+- ifup and ifdown don't interact with interfaces that are missing the `auto <INTERFACE_NAME>` directive in `/etc/network/interfaces`.
+
 ## Contributing
 
 Contributions to this project are welcome! See the instructions in
